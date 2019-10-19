@@ -36,7 +36,7 @@ Nous avons désormais un multicast en place entre Alpha et Beta ainsi les hyperv
 127.0.0.1 localhost.localdomain localhost
 192.168.2.31 beta.krhacken.org beta pvelocalhost
 
-# corosync
+#corosync
 10.10.1.151 alpha-corosync.krhacken.org alpha-corosync
 10.10.1.152 beta-corosync.krhacken.org beta-corosync
 ```
