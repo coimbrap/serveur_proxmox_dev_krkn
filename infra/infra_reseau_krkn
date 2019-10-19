@@ -1,0 +1,32 @@
+                                                                                                                                                                                  +-------------------------------+
+                                                                                                                                                                                  |                               |
+                                                                                                                                                                                  |  KRKN                         |
+                                                                                                                                                                                  |                               |
+                                                                                                                                                                                  |  Réservée aux containers de   |
+                                                                                                                                                                             +----+  l'infrastructure Kr[HACK]en  |
+                                                                                                                                                                             |    |  NextCloud, Web, Proxy...     |
+                                                                                                                                                                             |    |                               |
+                                                                                                                                                                             |    |  Accès à NET et EXT           |
+               XXXXXXXXXXX                             +-----------------------------------------------------------------------------------------------------+               |    |                               |
+ XXXXXXXXXXXXXXXX         XXX                          |                                                                                                     | vmbr1         |    +-------------------------------+
+XX                          XX                         |                                          Firewall Proxmox                                           |               |
+X                            XX                        |                                      Host attract.krhacken.org                                      +---------------+
+X                             X      *.krhacken.org    |                                                                                                     |
+X                             XX                       |                                                                                                     | 10.0.1.0/24
+X              NET             X+--------------------->+   DNAT ports 80,443 vers le ct du proxy NGINX depuis NET vers KRKN                                  |
+X                              X                       |   SNAT pour faire du masquerading des packets sortant des CT                                        | vmbr2
+ XX                            X        IP publique    |   Accès SSH vers toutes les zones                                                                   |
+  XXX                         XX                       |   Accès à l'interface web Proxmox port 8006 depuis NET vers le firewall                             +---------------+
+    XXXX                   XXXX                        |   Reverse-Proxy NGINX pour l'interface web Proxmox ports 8006,5902 depuis le CT NGINX vers le FW    |               |
+        XXXXXXXXXXXXXXXX  XXX                          |                                                                                                     | 10.0.2.0/24   |     +------------------------------+
+                     XXXXXX                            |                                                                                                     |               |     |                              |
+                                                       +-----------------------------------------------------------------------------------------------------+               |     |  EXT                         |
+                                                                                                                                                                             |     |                              |
+                                                                                                                                                                             |     |  Réservée aux containers de  |
+                                                                                                                                                                             +-----+  l'infrastructure CTF et     |
+                                                                                                                                                                                   |  aux sandbox.                |
+                                                                                                                                                                                   |                              |
+                                                                                                                                                                                   |  Accès à NET                 |
+                                                                                                                                                                                   |                              |
+                                                                                                                                                                                   +------------------------------+
+
