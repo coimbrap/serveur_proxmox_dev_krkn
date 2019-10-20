@@ -48,15 +48,12 @@ Le multicast entre Alpha et Beta est désormais accessible via des hostnames.
 
 ### Création du cluster
 Nous allons maintenant créer le cluster Sigma depuis Alpha,
-- bindnet0_addr 10.10.1.151
-- ring0_addr: alpha-corosync
-
 ```
-pvecm create sigma --link0 10.10.1.151
+pvecm create sigma --link0 alpha-corosync
 ```
 On ajoute Beta au cluster Sigma directement depuis Beta
 ```
-pvecm add alpha.krhacken.org --link0 beta-corosync
+pvecm add alpha-corosync --link0 beta-corosync
 ```
 *Voir si il est nécessaire de redonder les ring en passif au cas ou le ring0 pète, surêment pas utile si c'est la même carte réseau*
 
