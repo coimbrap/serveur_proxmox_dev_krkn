@@ -17,7 +17,7 @@ On va ajouter nos deux interfaces virtuelles (vmbr0 et vmbr1) non bridgé sur et
 auto vmbr0
 iface vmbr0 inet static
         address 10.10.0.1
-        netmask 255.255.250.0
+        netmask 255.255.248.0
         bridge_ports none
         bridge_stp off
         bridge_fd 0
