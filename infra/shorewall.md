@@ -24,7 +24,7 @@ iface vmbr0 inet static
 
 auto vmbr1
 iface vmbr1 inet static
-        address 10.10.1.1
+        address 10.20.0.1
         netmask 255.255.240.0
         bridge_ports none
         bridge_stp off
