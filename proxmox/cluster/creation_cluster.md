@@ -9,6 +9,7 @@ Avant de monter le cluster il faut permettre aux deux nodes de communiquer local
 ### /etc/network/interfaces
 L'interface eth0 est configurée pendant l'installation de Proxmox. Proxmox utilise la première carte réseau pour communiquer avec l'extérieur (eth0).
 On va mettre en place une interface supplémentaire directement reliée à l'autre node sur la seconde carte réseau (eth3) pour ne pas altérer le débit fournis par la première.
+*Pour avoir la liste des interfaces matérielles ont utilise ifconfig -a*
 ##### Depuis Alpha on ajoute
 ```
 auto eth3
@@ -51,11 +52,11 @@ Nous allons maintenant créer le cluster Sigma depuis Alpha,
 - ring0_addr: alpha-corosync
 
 ```
-pvecm create sigma -bindnet0_addr 10.10.1.151 -ring0_addr alpha-corosync
+pvecm create sigma --link0 10.10.1.151
 ```
 On ajoute Beta au cluster Sigma directement depuis Beta
 ```
-pvecm add alpha.krhacken.org -ring0_addr beta-corosync
+pvecm add alpha.krhacken.org --link0 beta-corosync
 ```
 *Voir si il est nécessaire de redonder les ring en passif au cas ou le ring0 pète, surêment pas utile si c'est la même carte réseau*
 
