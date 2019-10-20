@@ -13,14 +13,14 @@ On va mettre en place une interface supplémentaire directement reliée à l'aut
 ```
 auto eth3
 iface eth3 inet static
-  address 10.10.1.151
+  address 10.30.0.151
   netmask 255.255.255.0
 ```
 ##### Depuis Beta on ajoute
 ```
 auto eth3
 iface eth3 inet static
-  address 10.10.1.152
+  address 10.30.0.152
   netmask 255.255.255.0
 ```
 Nous avons désormais un multicast en place entre Alpha et Beta ainsi les hyperviseurs dialogueront entre eux localement sur une interface et seront relié au net sur une autre interface. Matériellement il faut un cable croisé entre les deux ports correspondant à eth3.
