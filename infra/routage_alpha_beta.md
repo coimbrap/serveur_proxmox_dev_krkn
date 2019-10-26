@@ -69,4 +69,4 @@ Définition des zones et de leur type.
 #ZONE	TYPE
 int 	ipv4
 ```
-Nous avons donc un bridge entre Alpha et Beta. De plus Beta à un accès à internet à travers le firewall de Alpha.
+Nous avons donc un bridge entre Alpha et Beta et Beta à un accès à internet à travers le firewall de Alpha.
