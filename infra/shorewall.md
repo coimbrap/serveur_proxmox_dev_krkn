@@ -1,4 +1,4 @@
-# Mise en place du firewall
+# Mise en place du firewall OBSELETE
 Nous allons ici configurer le firewall qui respectera les règles suivantes,
 - DNAT ports 80,443 vers le ct du proxy NGINX (10.10.0.2) depuis NET vers KRKN
 - SNAT pour faire du masquerading des packets sortant des CT
