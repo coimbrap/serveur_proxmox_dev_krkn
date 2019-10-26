@@ -40,6 +40,8 @@ iface vmbr0 inet static
 
 Nous avons maintenant un bridge entre Alpha et Beta. Il nous reste à configurer le firewall de beta pour donner à Beta l'accès à internet.
 
+## Configuration du firewall de Alpha
+
 Il faut rajouter les lignes suivantes sur les fichiers respectif.
 ### /etc/shorewall/interfaces
 ```
