@@ -34,7 +34,7 @@ iface vmbr0 inet static
 	bridge_ports eth0
 	bridge_stp off
 	bridge_fd 0
-	post_up echo 1 > /proc/sys/net/ipv4/ip_forward
+	post-up echo 1 > /proc/sys/net/ipv4/ip_forward
 	
 ```
 
