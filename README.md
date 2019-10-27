@@ -2,8 +2,10 @@
 ### TDL
 - ~~Infrastructure réseau~~
 - ~~Bridge entre les nodes et routage~~
-- Shorewall Alpha
-- Shorewall Beta
+- ~~Shorewall Alpha~~
+- ~~Shorewall Beta~~
+- ~~Interfaces Alpha~~
+- ~~Interfaces Bete~~
 - ~~Quorum du cluster~~
 - HA du cluster
 - Infrastructure des containers
