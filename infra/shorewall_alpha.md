@@ -15,7 +15,7 @@ Shorewall est maintenant installé
 ### /etc/shorewall/conntrack
 Garder le fichier d'origine
 
-##< /etc/shorewall/interfaces
+## /etc/shorewall/interfaces
 Associations des interfaces du système avec les zones du parefeu
 ```
 ?FORMAT 2
