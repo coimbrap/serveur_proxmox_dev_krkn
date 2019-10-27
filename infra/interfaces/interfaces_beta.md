@@ -41,4 +41,4 @@ iface vmbr2 inet static
 	post-up echo 1 > /proc/sys/net/ipv4/ip_forward
 ```
 
-Nous avons configuré les interfaces de Beta. _vmbr0_ est un bridge sur eth0. _vmbr1_ et _vmbr2_ sont des interfaces virtuelles géré avec shorewall.
+Nous avons configuré les interfaces de Beta. _vmbr0_ est un bridge sur _eth0_ et _vmbr1_ et _vmbr2_ sont des interfaces virtuelles géré avec shorewall.
