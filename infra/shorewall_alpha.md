@@ -98,4 +98,4 @@ coro    ipv4
 int	ipv4
 ```
 
-Le firewall de Alpha est maintenant configuré comme décrit dans le shéma global du réseau.
+Le firewall de Alpha est maintenant configuré comme décrit dans le schéma global du réseau.
