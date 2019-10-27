@@ -1,6 +1,6 @@
 # Mise en place des interfaces de Alpha
 
-Nous allons ici mettre en place toutes les interfaces de Alpha à l'exception du bridge entre Alpha et Beta et du multicast pour le corosync qui uitliserons respectivement _eth1_ et _eth2_
+Nous allons ici mettre en place toutes les interfaces de Alpha à l'exception du bridge entre Alpha et Beta et du multicast pour le corosync qui utiliserons respectivement _eth1_ et _eth2_
 
 ## Configuration des interfaces
 Nous disposons de deux cartes réseau avec chaqu'une deux ports ethernet. Nous allons utiliser ici _eth0_ qui sera l'interface relié à internet.
@@ -41,4 +41,4 @@ iface vmbr2 inet static
 	post-up echo 1 > /proc/sys/net/ipv4/ip_forward
 ```
 
-Nous avons configuré les interfaces de Alpha. _vmbr0_ est un bridge sur eth0. _vmbr1_ et _vmbr2_ sont des interfaces virtuelles géré avec shorewall.
+Nous avons configuré les interfaces de Alpha. _vmbr0_ est un bridge sur _eth0_ et _vmbr1_ et _vmbr2_ sont des interfaces virtuelles géré avec shorewall.
