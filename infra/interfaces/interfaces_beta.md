@@ -9,18 +9,6 @@ Nous disposons de deux cartes réseau avec chaqu'une deux ports ethernet. Nous a
 ```
 auto lo
 iface lo inet loopback
-	
-iface eth0 inet manual
-		
-auto vmbr0
-iface vmbr0 inet static
-	address 10.40.0.2
-	netmask 255.255.255.0
-	gateway 10.40.0.1
-	bridge_ports eth0
-	bridge_stp off
-	bridge_fd 0
-	post-up echo 1 > /proc/sys/net/ipv4/ip_forward
 
 auto vmbr1
 iface vmbr1 inet static
