@@ -9,20 +9,22 @@ Nous ne disposons que de deux nodes, nous allons donc mettre en place un "Corosy
 #### Sur le container de l'instance de quorum
 ```
 apt-get install corosync-qnetd
+systemctl enable corosync-qnetd
+systemctl start corosync-qnetd
 ```
 
 #### Sur nos deux nodes
 ```
 apt-get install corosync-qdevice
-```
-
-#### Sur l'instance de quorum et les deux nodes
-```
-rm /etc/init.d/corosync-qdevice
 systemctl enable corosync-qdevice
 systemctl start corosync-qdevice
 ```
 
+#### Depuis chacune de nos nodes
+```
+ssh-copy-id -i /root/.ssh/id_rsa root@ip_autre_node
+ssh-copy-id -i /root/.ssh/id_rsa root@ip_instance_quorum
+```
 ## Ajout de l'instance au cluster sigma depuis Alpha
 
 Maintenant que notre instance de quorum est configuré nous allons l'ajouter au cluster Sigma
