@@ -38,35 +38,4 @@ iface vmbr0 inet static
 	
 ```
 
-Nous avons maintenant un bridge entre Alpha et Beta. Il nous reste à configurer le firewall de beta pour donner à Beta l'accès à internet.
-
-## Configuration du firewall de Alpha
-
-Il faut rajouter les lignes suivantes sur les fichiers respectif.
-### /etc/shorewall/interfaces
-```
-#ZONE	INTERFACE	BROADCAST	OPTIONS
-int	eth1		-  		tcpflags,nosmurfs,routefilter,logmartians,sourceroute=0
-```
-
-### /etc/shorewall/policy
-Définition de la politique global du pare-feu.
-```
-#SOURCE		DEST		POLICY
-$FW		int		ACCEPT
-int		$FW		ACCEPT
-```
-
-### /etc/shorewall/snat
-Configuration SNAT permettant de faire du "masquerading", ainsi les paquets qui sortent des CT LXC ont comme IP source, l'IP de l'interface externe _eth0_.  
-```
-#ACTION		SOURCE			DEST
-MASQUERADE	eth1			vmbr0
-```
-### /etc/shorewall/zones
-Définition des zones et de leur type.
-```
-#ZONE	TYPE
-int 	ipv4
-```
-Nous avons donc un bridge entre Alpha et Beta et Beta à un accès à internet à travers le firewall de Alpha.
+Nous avons maintenant un bridge entre Alpha et Beta. La configuration du firewall pour que le bridge soit opérationnel se trouve dans _infra/shorewall_
