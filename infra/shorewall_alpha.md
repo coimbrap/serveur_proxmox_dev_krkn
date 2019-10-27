@@ -79,7 +79,7 @@ ACCEPT          net	        $FW             tcp         8006
 DNAT            net             krkn:10.10.0.3  tcp         80,443
 ```
 ### /etc/shorewall/snat
-Configuration SNAT permettant de faire du "masquerading", ainsi les paquets qui sortent des CT LXC ont comme IP source, l'IP de l'interface externe _eth0_.  
+Configuration SNAT permettant de faire du "masquerading", ainsi les paquets qui sortent des CT LXC ont comme IP source, l'IP de l'interface externe _eth0_ à travers _vmbr0_.  
 ```
 #ACTION			SOURCE			DEST           
 MASQUERADE              vmbr1                   vmbr0
