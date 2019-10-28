@@ -1,2 +1,2 @@
 # Documentation du réseau de Kr[HACK]en
-Contient les schémas de description de l'infra réseau et la configuration du FW Proxmox
+Vous trouverez ici toute la documentation relative à la mise configuration des interfaces réseau, du firewall. Ainsi que le schéma global de l'infrastructure réseau.
