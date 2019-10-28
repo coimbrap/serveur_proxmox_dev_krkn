@@ -196,3 +196,15 @@ server {
 }
 ```
 
+## Renouvelement automatique des certificats SSL sur le container NGINX de Alpha
+Tout les certificats SSL sont édité depuis le container NGINX de Alpha pour éviter d'avoir à les renouveler manuellement nous allons créer une tache de renouvellement automatique avec cron.
+
+On accède au fichier de configuration des tâches cron
+```
+crontab -e
+```
+On ajoute notre tache de renouvelement en fin de fichier
+```
+0 12 * * * /usr/bin/certbot renew --quiet
+```
+Ainsi les certificats se renouveleront automatiquement.
