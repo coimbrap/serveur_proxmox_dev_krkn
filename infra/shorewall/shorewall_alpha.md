@@ -72,6 +72,8 @@ ACCEPT          $FW             ext             icmp
 ACCEPT          $FW             net             icmp
 
 ACCEPT          krkn            int             tcp        80,443
+ACCEPT          krkn            ext             tcp        80,443
+
 ACCEPT          net             $FW             tcp        8006
 ```
 ### /etc/shorewall/snat
