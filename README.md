@@ -13,5 +13,5 @@
 - Configuration DNS
 - Infrastructure Backup
 - Sécurisation des accès Proxmox et SSH
-- ~~Gestion automatisé des certificats SSL~~
+- ~~Gestion automatisée des certificats SSL~~
 - ~~Configuration du proxy NGINX~~
