@@ -61,10 +61,7 @@ SSH(ACCEPT)     net     all
 ACCEPT		$FW		krkn	icmp
 ACCEPT		$FW		ext		icmp
 ACCEPT		$FW		net		icmp
-ACCEPT		krkn    ext		icmp
 
-#Interface web proxmox
-ACCEPT      krkn:10.10.0.3  $FW             tcp         8006,5902
 ACCEPT      net		        $FW             tcp         8006
 ```
 ### /etc/shorewall/snat
