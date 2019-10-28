@@ -31,14 +31,14 @@ Définition de la politique globale du pare-feu
 ```
 #SOURCE	DEST		POLICY		LOGLEVEL	RATE	CONNLIMIT
 
-$FW	net		ACCEPT
-$FW	coro		ACCEPT
-krkn	net		ACCEPT
-ext	net		ACCEPT
+$FW	    net		    ACCEPT
+$FW	    coro		ACCEPT
+krkn	net		    ACCEPT
+ext	    net		    ACCEPT
 
-ext	krkn		DROP		info
-net	all		DROP		info
-all	all		REJECT		info
+ext	    krkn		DROP		info
+net	    all	    	DROP		info
+all  	all	    	REJECT		info
 
 ```
 
@@ -54,37 +54,34 @@ Définition des exceptions aux règles définies dans le fichier policy
 ?SECTION NEW
 
 Invalid(DROP)	net		all		tcp
-DNS(ACCEPT)	$FW		net
-Ping(ACCEPT)    all             $FW
-SSH(ACCEPT)     net             all
+DNS(ACCEPT)	    $FW		net
+Ping(ACCEPT)    all     $FW
+SSH(ACCEPT)     net     all
 
-ACCEPT		$FW		krkn		icmp
+ACCEPT		$FW		krkn	icmp
 ACCEPT		$FW		ext		icmp
 ACCEPT		$FW		net		icmp
-ACCEPT		krkn		ext		icmp
+ACCEPT		krkn    ext		icmp
 
 #Interface web proxmox
-ACCEPT          krkn:10.10.0.3  $FW             tcp         8006,5902
-ACCEPT          net		$FW             tcp         8006
-
-#DNAT pour le proxy Nginx
-DNAT            net             krkn:10.10.0.3  tcp         80,443
+ACCEPT      krkn:10.10.0.3  $FW             tcp         8006,5902
+ACCEPT      net		        $FW             tcp         8006
 ```
 ### /etc/shorewall/snat
 Configuration SNAT permettant de faire du "masquerading", ainsi les paquets qui sortent des CT LXC ont comme IP source, l'IP de l'interface externe _eth0_.  
 ```
 #ACTION			SOURCE			DEST
-MASQUERADE              vmbr1                   vmbr0
-MASQUERADE              vmbr2                   vmbr0
+MASQUERADE      vmbr1           vmbr0
+MASQUERADE      vmbr2           vmbr0
 ```
 ### /etc/shorewall/zones
 Définition des zones et de leur type.
 ```
 #ZONE   TYPE	       
-fw	firewall
-net	ipv4
+fw	    firewall
+net	    ipv4
 krkn	ipv4
-ext	ipv4
+ext	    ipv4
 coro    ipv4
 ```
 
