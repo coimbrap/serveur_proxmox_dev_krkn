@@ -72,12 +72,6 @@ ACCEPT		coro	        $FW		icmp
 ACCEPT          $FW             krkn            icmp
 ACCEPT          $FW             ext             icmp
 ACCEPT          $FW             net             icmp
-ACCEPT          krkn            ext             icmp
-
-#Interface web proxmox
-ACCEPT          krkn:10.10.0.3  $FW             tcp         8006,5902
-ACCEPT          net	        $FW             tcp         8006
-
 ```
 ### /etc/shorewall/snat
 Configuration SNAT permettant de faire du "masquerading", ainsi les paquets qui sortent des CT LXC ont comme IP source, l'IP de l'interface externe _eth0_.  
@@ -92,12 +86,12 @@ MASQUERADE		eth1      		vmbr0
 Définition des zones et de leur type.
 ```
 #ZONE   TYPE
-fw	    firewall
-net	    ipv4
-krkn 	ipv4
-ext	    ipv4
+fw      firewall
+net     ipv4
+krkn    ipv4
+ext     ipv4
 coro    ipv4
-int	    ipv4
+int     ipv4
 ```
 
 Le firewall de Alpha est maintenant configuré comme décrit dans le shéma global du réseau.
