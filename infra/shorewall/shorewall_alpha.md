@@ -37,8 +37,6 @@ $FW     coro    ACCEPT
 krkn    net     ACCEPT
 ext     net     ACCEPT
 int     net     ACCEPT
-krkn    int     ACCEPT
-krkn    ext     ACCEPT
 
 ext     krkn    DROP      	info
 net	    all	    DROP	  	info
@@ -67,11 +65,15 @@ SSH(ACCEPT)     net             all
 SSH(ACCEPT)     $FW             int
 
 #Nécessaire pour l'initialisation du corosync
-ACCEPT		coro	        $FW		icmp
+ACCEPT		    coro	        $FW		        icmp
 
 ACCEPT          $FW             krkn            icmp
 ACCEPT          $FW             ext             icmp
 ACCEPT          $FW             net             icmp
+
+ACCEPT          krkn            int             tcp        80,443
+ACCEPT          krkn            ext             tcp        80,443
+ACCEPT          net             $FW             tcp        8006
 ```
 ### /etc/shorewall/snat
 Configuration SNAT permettant de faire du "masquerading", ainsi les paquets qui sortent des CT LXC ont comme IP source, l'IP de l'interface externe _eth0_.  
