@@ -1,6 +1,6 @@
 # Mise en place du firewall de Beta
 
-Nous avons une interface _eth2_ pour le corosync, une interface virtuelle _vmbr0_ qui bridge sur _eth0_ pour l'accès à internet et deux interfaces virtuelle _vmbr1_ et _vmbr2_ qui ne bridge pas vers l'extérieur, le bridge va se faire avec shorewall.
+Nous avons une interface _eth2_ pour le corosync, une interface virtuelle _vmbr0_ qui bridge sur _eth0_ pour l'accès à internet et deux interfaces virtuelles _vmbr1_ et _vmbr2_ qui ne bridgent pas vers l'extérieur, le bridge va se faire avec Shorewall.
 
 ## Installation de Shorewall
 ```
@@ -16,14 +16,14 @@ Shorewall est maintenant installé
 Garder le fichier d'origine
 
 ## /etc/shorewall/interfaces
-Associations des interfaces du système avec les zones du parefeu
+Associations des interfaces du système avec les zones du pare-feu
 ```
 ?FORMAT 2
 #ZONE	  INTERFACE   OPTIONS
-net       vmbr0       tcpflags,nosmurfs,routefilter,bridge,routeback,logmartians
-krkn      vmbr1       tcpflags,nosmurfs,routefilter,bridge,routeback,logmartians
-ext       vmbr2       tcpflags,nosmurfs,routefilter,bridge,routeback,logmartians
-coro      eth3        tcpflags,nosmurfs,logmartians
+net     vmbr0       tcpflags,nosmurfs,routefilter,bridge,routeback,logmartians
+krkn    vmbr1       tcpflags,nosmurfs,routefilter,bridge,routeback,logmartians
+ext     vmbr2       tcpflags,nosmurfs,routefilter,bridge,routeback,logmartians
+coro    eth3        tcpflags,nosmurfs,logmartians
 ```
 
 ### /etc/shorewall/policy
@@ -32,13 +32,13 @@ Définition de la politique globale du pare-feu
 #SOURCE	DEST		POLICY		LOGLEVEL	RATE	CONNLIMIT
 
 $FW	    net		    ACCEPT
-$FW	    coro		ACCEPT
-krkn	net		    ACCEPT
+$FW	    coro      ACCEPT
+krkn    net		    ACCEPT
 ext	    net		    ACCEPT
 
-ext	    krkn		DROP		info
+ext	    krkn		  DROP		info
 net	    all	    	DROP		info
-all  	all	    	REJECT		info
+all  	  all	      REJECT  info
 
 ```
 
@@ -53,35 +53,34 @@ Définition des exceptions aux règles définies dans le fichier policy
 ?SECTION UNTRACKED
 ?SECTION NEW
 
-Invalid(DROP)	net		all		tcp
+Invalid(DROP)	  net	 	all		tcp
 DNS(ACCEPT)	    $FW		net
-Ping(ACCEPT)    all     $FW
-SSH(ACCEPT)     net     all
+Ping(ACCEPT)    all   $FW
+SSH(ACCEPT)     net   all
 
-ACCEPT		$FW		krkn	icmp
+ACCEPT	 	$FW		krkn	icmp
 ACCEPT		$FW		ext		icmp
 ACCEPT		$FW		net		icmp
 
-ACCEPT      krkn            ext             tcp         80,443
-
-ACCEPT      net		        $FW             tcp         8006
+ACCEPT    krkn  ext   tcp  80,443
+ACCEPT    net		$FW   tcp  8006
 ```
 ### /etc/shorewall/snat
-Configuration SNAT permettant de faire du "masquerading", ainsi les paquets qui sortent des CT LXC ont comme IP source, l'IP de l'interface externe _eth0_.  
+Configuration SNAT permettant de faire du "masquerading", ainsi les paquets qui sortent des containers ont comme IP source l'IP de l'interface externe _eth0_.  
 ```
 #ACTION			SOURCE			DEST
-MASQUERADE      vmbr1           vmbr0
-MASQUERADE      vmbr2           vmbr0
+MASQUERADE  vmbr1       vmbr0
+MASQUERADE  vmbr2       vmbr0
 ```
 ### /etc/shorewall/zones
-Définition des zones et de leur type.
+Définition des zones et de leurs types.
 ```
 #ZONE   TYPE	       
 fw	    firewall
 net	    ipv4
-krkn	ipv4
+krkn  	ipv4
 ext	    ipv4
 coro    ipv4
 ```
 
-Le firewall de Beta est maintenant configuré comme décrit dans le shéma global du réseau.
+Le firewall de Beta est maintenant configuré comme décrit dans le schéma global du réseau.

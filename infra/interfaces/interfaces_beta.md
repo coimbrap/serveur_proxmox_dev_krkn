@@ -1,6 +1,6 @@
 # Mise en place des interfaces de Beta
 
-Nous allons ici mettre en place toutes les interfaces de Beta à l'exception du bridge entre Alpha et Beta et du multicast pour le corosync qui utiliserons respectivement _eth0_ et _eth2_.
+Ici, nous allons mettre en place toutes les interfaces de Beta à l'exception du bridge entre Alpha et Beta et du multicast pour le corosync qui utiliseront respectivement _eth0_ et _eth2_.
 
 ## Configuration des interfaces
 Nous allons seulement mettre en place des interfaces virtuelles.
@@ -29,4 +29,4 @@ iface vmbr2 inet static
 	post-up echo 1 > /proc/sys/net/ipv4/ip_forward
 ```
 
-Nous avons configuré les interfaces de Beta. _vmbr1_ et _vmbr2_ sont des interfaces virtuelles géré avec shorewall.
+Nous avons configuré les interfaces de Beta. _vmbr1_ et _vmbr2_ sont des interfaces virtuelles gérées avec shorewall.

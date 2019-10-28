@@ -1,6 +1,6 @@
 # Mise en place d'un bridge de Alpha à Beta pour l'accès à internet
 
-Nous allons ici mettre en place un bridge entre Alpha et Beta. Seul Alpha disposera d'une IP publique et d'un accès à internet. Alpha joura le rôle de routeur en fournissant à Beta un accès à internet à travers son firewall.
+Ici, nous allons mettre en place un bridge entre Alpha et Beta. Seul Alpha disposera d'une IP publique et d'un accès à internet. Alpha jouera le rôle de routeur en fournissant à Beta un accès à internet à travers son firewall.
 
 ## Configuration des interfaces
 Nous allons configurer la carte réseau eth1 sur Alpha et eth0 sur Beta pour mettre en place le bridge.
@@ -35,7 +35,7 @@ iface vmbr0 inet static
 	bridge_stp off
 	bridge_fd 0
 	post-up echo 1 > /proc/sys/net/ipv4/ip_forward
-	
+
 ```
 
 Nous avons maintenant un bridge entre Alpha et Beta. La configuration du firewall pour que le bridge soit opérationnel se trouve dans _infra/shorewall_
