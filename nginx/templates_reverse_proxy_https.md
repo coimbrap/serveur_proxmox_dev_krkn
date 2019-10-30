@@ -154,7 +154,9 @@ server {
 }
 ```
 
-### Obtention du premier certificat SSL depuis le container Nginx de Alpha
+### Obtention des deux premiers certificats SSL
+
+### Sur Alpha
 
 ```
 systemctl restart nginx
@@ -163,8 +165,6 @@ certbot --nginx -d address.fr
 Choisir No redirect.
 
 Maintenant que le certificat est généré, on va remplacer la configuration du serveur web.
-
-### Sur Alpha
 
 On transmet la requête au container NGINX de beta qui s'occupera de nous mettre en communication avec le container correspondant au site sur la node Beta.
 
@@ -196,8 +196,50 @@ server {
 }
 ```
 
-## Renouvellement automatique des certificats SSL sur le container NGINX de Alpha
+### Sur Beta
+
+```
+systemctl restart nginx
+certbot --nginx -d address.fr
+```
+Choisir No redirect.
+
+Maintenant que le certificat est généré, on va remplacer la configuration du serveur web.
+
+On configure un serveur web qui va rediriger les requêtes entrantes sur Beta avec comme host _address.fr_ vers le container du service associé à l'host en https.
+
+```
+nano /etc/nginx/conf.d/address.fr.conf
+```
+Voilà la template du serveur web
+```
+server {
+	listen 80;
+	server_name address.fr;
+	return 301 https://$server_name$request_uri;
+}
+
+server {
+	listen 443 ssl;
+	server_name address.fr;
+	location / {
+		proxy_pass http://ip_ct_beta/;
+		proxy_set_header Host $http_host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
+	}
+	ssl_certificate /etc/letsencrypt/live/address.fr/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/address.fr/privkey.pem;
+	include /etc/letsencrypt/options-ssl-nginx.conf;
+	ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}
+```
+
+## Renouvellement automatique des certificats SSL sur les deux containers NGINX
 Tous les certificats SSL sont édités depuis le container NGINX de Alpha. Pour éviter d'avoir à les renouveler manuellement, nous allons créer une tâche de renouvellement automatique avec une tâche cron.
+
+### Sur les deux containers
 
 On accède au fichier de configuration des tâches cron
 ```
