@@ -53,9 +53,9 @@ apt-get install certbot
 apt-get install	python-certbot-nginx
 ```
 
-Il faut configurer notre zone DNS pour que _address.fr_ pointe vers l'adresse ip publique du cluster. La mention subdomain représente le sous-domaine, s'il n'y en a pas, laisser un blanc.
+Il faut configurer notre zone DNS pour que _address.fr_ pointe vers l'adresse ip publique de Alpha. La mention subdomain représente le sous-domaine, s'il n'y en a pas, laisser un blanc.
 ```
-subdomain          IN A      ip_publique
+subdomain          IN A      ip_publique_alpha
 ```
 ## Configuration du reverse proxy NGINX pour une connexion sur un container présent sur Alpha.
 
@@ -141,7 +141,8 @@ server {
 On configure un serveur web qui va rediriger les requêtes entrantes sur Beta avec comme host _address.fr_ vers le container du service associé à l'host.
 
 ```
-nano /etc/nginx/conf.d/address.fr.conf
+nano /etc/nginx/conf.d/address.fr.confsubdomain          IN A      ip_publique
+
 ```
 Voilà la template du serveur web
 ```
