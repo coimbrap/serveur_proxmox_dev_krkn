@@ -45,7 +45,7 @@ systemctl restart shorewall
 ```
 
 ## Dans tous les cas
-### Installation de Certbot
+### Installation de Certbot sur les deux containers NGINX
 
 On installe certbot qui est l'outil utilisé par Let's Encrypt pour obtenir des certificats SSL.
 ```
