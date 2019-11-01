@@ -66,10 +66,11 @@ SSH(ACCEPT)     $FW   int
 
 #Nécessaire pour l'initialisation du corosync
 ACCEPT    coro  $FW   icmp
+ACCEPT    coro  $FW   udp   5404,5405
+
 ACCEPT    $FW   krkn  icmp
 ACCEPT    $FW   ext   icmp
 ACCEPT    $FW   net   icmp
-
 
 ACCEPT    krkn  int   tcp   80,443,8006
 ACCEPT    krkn  ext   tcp   80,443
