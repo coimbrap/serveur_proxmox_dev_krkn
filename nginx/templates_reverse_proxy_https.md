@@ -4,55 +4,9 @@ Ici, nous allons voir comment configurer un reverse proxy NGINX dans deux cas,
 - Si le container du service est sur la node principale (Alpha).
 - Si le container du service n'est pas sur la node principale mais sur Beta.
 
-Dans le premier cas nous redirigerons la requête sur le container du service à l'aide d'un reverse proxy NGINX configuré sur le container NGINX de Alpha.
-
-Dans le second cas nous redirigerons la requête sur Beta à l'aide d'un reverse proxy NGINX configuré sur le container NGINX de Alpha. Sur Beta la requête sera redirigée vers le container NGINX de Beta avec une règle DNAT puis vers le container du service.
-
-
-## Mise en place des DNAT
-
-Nous allons mettre en place deux règles DNAT,
-- Une sur Alpha redirigeant toutes les requêtes sur les ports 80 et 443 vers le container NGINX de Alpha.
-- Une sur Beta redirigeant toutes requêtes sur les ports 80 et 443 vers le container NGINX de Beta.
-
-
-### Sur Alpha
-On modifie le fichier rules de Shorewall
-```
-nano /etc/shorewall/rules
-```
-On rajoute la règle de DNAT
-```
-DNAT		net			krkn:ip_ct_nginx_alpha		tcp		80,443
-```
-On redémarre Shorewall
-```
-systemctl restart shorewall
-```
-
-### Sur Beta
-On modifie le fichier rules de Shorewall
-```
-nano /etc/shorewall/rules
-```
-On rajoute la règle de DNAT
-```
-DNAT		net			krkn:ip_ct_nginx_beta		tcp		80,443
-```
-On redémarre Shorewall
-```
-systemctl restart shorewall
-```
-
 ## Dans tous les cas
-### Installation de Certbot sur les deux containers NGINX
 
-On installe certbot qui est l'outil utilisé par Let's Encrypt pour obtenir des certificats SSL.
-```
-apt-get install certbot
-apt-get install	python-certbot-nginx
-```
-
+### Zone DNS
 Il faut configurer notre zone DNS pour que _address.fr_ pointe vers l'adresse ip publique de Alpha. La mention subdomain représente le sous-domaine, s'il n'y en a pas, laisser un blanc.
 ```
 subdomain          IN A      ip_publique_alpha
@@ -236,18 +190,3 @@ server {
 	ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 }
 ```
-
-## Renouvellement automatique des certificats SSL sur les deux containers NGINX
-Tous les certificats SSL sont édités depuis le container NGINX de Alpha. Pour éviter d'avoir à les renouveler manuellement, nous allons créer une tâche de renouvellement automatique avec une tâche cron.
-
-### Sur les deux containers
-
-On accède au fichier de configuration des tâches cron
-```
-crontab -e
-```
-On ajoute notre tâche de renouvellement en fin de fichier
-```
-0 12 * * * /usr/bin/certbot renew --quiet
-```
-Ainsi les certificats se renouvelleront automatiquement.
