@@ -29,16 +29,15 @@ coro    eth3        tcpflags,nosmurfs,logmartians
 ### /etc/shorewall/policy
 Définition de la politique globale du pare-feu
 ```
-#SOURCE	DEST		POLICY		LOGLEVEL	RATE	CONNLIMIT
+#SOURCE DEST   POLICY   LOGLEVEL
 
-$FW	    net		    ACCEPT
-$FW	    coro      ACCEPT
-krkn    net		    ACCEPT
-ext	    net		    ACCEPT
+$FW     net    ACCEPT
+krkn    net    ACCEPT
+ext     net    ACCEPT
 
-ext	    krkn		  DROP		info
-net	    all	    	DROP		info
-all  	  all	      REJECT  info
+ext     krkn   DROP     info
+net     all    DROP     info
+all     all    REJECT   info
 
 ```
 
@@ -53,17 +52,20 @@ Définition des exceptions aux règles définies dans le fichier policy
 ?SECTION UNTRACKED
 ?SECTION NEW
 
-Invalid(DROP)	  net	 	all		tcp
-DNS(ACCEPT)	    $FW		net
+Invalid(DROP)	net	  all    tcp
+DNS(ACCEPT)	    $FW	  net
 Ping(ACCEPT)    all   $FW
 SSH(ACCEPT)     net   all
 
-ACCEPT	 	$FW		krkn	icmp
-ACCEPT		$FW		ext		icmp
-ACCEPT		$FW		net		icmp
+ACCEPT    $FW    krkn    icmp
+ACCEPT    $FW    ext     icmp
+ACCEPT    $FW    net     icmp
 
-ACCEPT    krkn  ext   tcp  80,443
-ACCEPT    net		$FW   tcp  8006
+ACCEPT    $FW    coro    udp    5404,5405
+ACCEPT    coro   $FW     udp    5404,5405
+
+ACCEPT    krkn   ext     tcp    80,443
+ACCEPT    net    $FW     tcp    8006
 ```
 ### /etc/shorewall/snat
 Configuration SNAT permettant de faire du "masquerading", ainsi les paquets qui sortent des containers ont comme IP source l'IP de l'interface externe _eth0_.  
@@ -76,10 +78,10 @@ MASQUERADE  vmbr2       vmbr0
 Définition des zones et de leurs types.
 ```
 #ZONE   TYPE	       
-fw	    firewall
-net	    ipv4
-krkn  	ipv4
-ext	    ipv4
+fw      firewall
+net     ipv4
+krkn    ipv4
+ext     ipv4
 coro    ipv4
 ```
 
