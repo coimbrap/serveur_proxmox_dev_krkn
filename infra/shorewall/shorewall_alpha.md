@@ -22,7 +22,7 @@ Associations des interfaces du système avec les zones du pare-feu
 #ZONE	  INTERFACE  OPTIONS
 int     eth1       tcpflags,nosmurfs,bridge,logmartians,routefilter
 coro    eth2       tcpflags,nosmurfs,logmartians
-net     vmbr0	     tcpflags,nosmurfs,bridge,routefilter,logmartians,routeback
+net     vmbr0	   tcpflags,nosmurfs,bridge,routefilter,logmartians,routeback
 krkn    vmbr1      tcpflags,nosmurfs,bridge,routefilter,logmartians,routeback
 ext     vmbr2      tcpflags,nosmurfs,bridge,routefilter,logmartians,routeback
 ```
@@ -30,24 +30,24 @@ ext     vmbr2      tcpflags,nosmurfs,bridge,routefilter,logmartians,routeback
 ### /etc/shorewall/policy
 Définition de la politique globale du pare-feu
 ```
-#SOURCE	DEST	POLICY		LOGLEVEL
+#SOURCE	DEST  POLICY    LOGLEVEL
 $FW     net   ACCEPT
-$FW     int	  ACCEPT
+$FW     int   ACCEPT
 $FW     coro  ACCEPT
 krkn    net   ACCEPT
 ext     net   ACCEPT
 int     net   ACCEPT
 
-ext     krkn  DROP     	info
-net	    all	  DROP	  	info
-all	    all	  REJECT		info
+ext     krkn  DROP      info
+net     all   DROP      info
+all     all   REJECT    info
 
 ```
 
 ### /etc/shorewall/rules
 Définition des exceptions aux règles définies dans le fichier policy
 ```
-#ACTION		SOURCE		DEST		PROTO	DEST	SOURCE
+#ACTION         SOURCE DEST PROTO  DEST  SOURCE
 ?SECTION ALL
 ?SECTION ESTABLISHED
 ?SECTION RELATED
@@ -55,8 +55,8 @@ Définition des exceptions aux règles définies dans le fichier policy
 ?SECTION UNTRACKED
 ?SECTION NEW
 
-Invalid(DROP)	  net		all		tcp
-DNS(ACCEPT)	    $FW		net
+Invalid(DROP)   net   all    tcp
+DNS(ACCEPT)     $FW   net
 Ping(ACCEPT)    all   $FW
 
 #Connexion SSH vers et depuis Beta et extérieur
@@ -74,7 +74,8 @@ ACCEPT    $FW   net   icmp
 
 ACCEPT    krkn  int   tcp   80,443,8006
 ACCEPT    krkn  ext   tcp   80,443
-ACCEPT    int   $FW   tcp
+ACCEPT    int   $FW   tcp   8006
+ACCEPT    int   $FW   tcp   30000-40000   8006
 ACCEPT    net   $FW   tcp   8006
 ```
 ### /etc/shorewall/snat
@@ -84,7 +85,7 @@ Configuration SNAT permettant de faire du "masquerading", ainsi les paquets qui 
 MASQUERADE  vmbr1       vmbr0
 MASQUERADE  vmbr1       eth1
 MASQUERADE  vmbr2       vmbr0
-MASQUERADE	eth1      	vmbr0
+MASQUERADE  eth1        vmbr0
 ```
 ### /etc/shorewall/zones
 Définition des zones et de leurs types.
