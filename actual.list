@@ -1,0 +1,34 @@
+apt-get update
+apt-get install postgres
+https://luxagraf.net/src/gitea-nginx-postgresql-ubuntu-1804
+
+adduser --system --shell /bin/bash --group --disabled-password --home /home/gitea gitea
+cd /usr/local/bin/
+
+wget -O gitea https://dl.gitea.io/gitea/1.9.6/gitea-1.9.6-linux-amd64
+chmod +x gitea
+./gitea web
+sudo cp gitea /usr/local/bin/gitea
+mkdir -p /var/lib/gitea/{custom,data,indexers,public,log}
+chown gitea:gitea /var/lib/gitea/{data,indexers,log}
+chmod 750 /var/lib/gitea/{data,indexers,log}
+mkdir /etc/gitea
+root:gitea /etc/gitea
+chmod 770 /etc/gitea
+
+
+wget https://raw.githubusercontent.com/go-gitea/gitea/master/contrib/systemd/gitea.service
+
+uncomment the line After=postgresql.service
+cp gitea.service /etc/systemd/system/
+systemctl enable gitea
+systemctl start gitea
+
+## PostGreSQL 
+
+apt install postgresql
+su postgres
+createuser gitea
+createdb gitea -O gitea
+
+proxy_pass http://10.0.2.5:3000
