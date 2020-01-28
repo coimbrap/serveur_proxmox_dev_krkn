@@ -27,12 +27,11 @@ createuser gitea
 createdb gitea -O gitea
 
 server {
-    listen 80;
-    server_name git.sessionkrkn.fr;
-    location / {
-        proxy_pass http://localhost:3000;
-    }
-    proxy_set_header X-Real-IP $remote_addr;
+        listen 80;
+        server_name git.sessionkrkn.fr;
+        location / {
+                proxy_pass http://10.0.2.5:3000/;
+                proxy_set_header X-Real-IP $remote_addr;
+        }
 }
-
 
