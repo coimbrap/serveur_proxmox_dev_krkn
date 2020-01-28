@@ -35,3 +35,6 @@ server {
         }
 }
 
+
+chmod 750 /etc/gitea
+chmod 644 /etc/gitea/app.ini
