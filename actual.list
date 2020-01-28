@@ -4,7 +4,7 @@ apt-get install -y git
 adduser --system --shell /bin/bash --group --disabled-password --home /home/git git
 wget -O gitea https://dl.gitea.io/gitea/1.10.3/gitea-1.10.3-linux-amd64
 chmod +x gitea
-sudo cp gitea /usr/local/bin/gitea
+cp gitea /usr/local/bin/gitea
 mkdir -p /var/lib/gitea/{custom,data,indexers,public,log}
 chown git:git /var/lib/gitea/{data,indexers,log}
 chmod 750 /var/lib/gitea/{data,indexers,log}
