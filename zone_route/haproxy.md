@@ -26,7 +26,7 @@ Voilà les choix techniques fait afin de répondre à ces objectifs
 
 ### Voilà un schéma résumé
 
-![Topologie de la zone Route](shema_route.png)
+![Topologie de la zone Route](schema_route.png)
 
 ## Création d'un canal d'échange par clé entre les deux containers
 Afin de pouvoir faire des scp de manière automatique entre les deux containers il faut mettre en place une connexion ssh par clé en root entre les deux containers.
