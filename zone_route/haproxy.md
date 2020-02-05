@@ -3,9 +3,9 @@
 ## Présentation des containers
 
 Deux containers Debian 10 identique un sur Alpha l'autre sur Bêta avec deux interfaces 
-- Sur Alpha le container HAProxy à comme IP 10.0.0.3/24 sur le LAN (eth0) 10.0.1.3/24 sur le CTF (eth1)
-- Sur Beta le container HAProxy à comme IP 10.0.0.4/24 sur le LAN 10.0.1.4/24 sur le CTF
-L'option Firewall des interfaces est désactivé
+- Sur Alpha le container HAProxy à comme IP 10.0.0.3/24 sur ROUTE (eth0) 10.0.1.3/24 sur CTF (eth1)
+- Sur Beta le container HAProxy à comme IP 10.0.0.4/24 sur ROUTE 10.0.1.4/24 sur CTF
+L'option Firewall PVE des interfaces est désactivé
 
 ## Objectifs et choix technique
 
