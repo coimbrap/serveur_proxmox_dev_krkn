@@ -1,4 +1,4 @@
-# Différentes option pour la zone WAN
+# Différentes options pour la zone WAN
 
 Pour l'accès au pare feu du serveur plusieurs options sont envisageable,
 
