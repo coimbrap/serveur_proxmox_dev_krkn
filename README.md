@@ -16,28 +16,36 @@ Un des but de cette installation est d'avoir une documentation complète sur tou
 
 ### Infrastructure logicielle
 
+#### Infrastructure réseau du serveur
+Tout les containers/VMs seront répliqué entre les deux nodes car ce sont des services sensible
+L'infrastructure réseau du club s'articulerait de la manière suivante (sur chaque node) :
+- Une VM OPNSense qui servira de Firewall de routeur
+- Un container HAProxy qui servira de loadbalancing entre les reverses proxy
+- Un container NGINX Public qui servira de reverse proxy entre HAProxy et les services public.
+- Uniquement sur Bêta, un container avec NGINX qui servira de reverse proxy entre HAProxy l'environnement CTF.
 
-#### Infrastructure web du Club
+#### Infrastructure publique du serveur
+Les containers/VMs permettant l'accès à ces services ne sont pas détaillé ici.
 
 L'infrastructure web du club s'articulerait de la manière suivante :
-
-
-- Un serveur web pour héberger le site et le wiki du club accessible depuis www.krhacken.org,
-- Un NextCloud pour mettre en commun des fichiers au sein du club, pour la gestion des mots de passe et de l'ordre du jour des réunions,
-- Un Git sur lequel tout les sources de tout les challenges du club seront stockées ainsi que toute la documentation des services du club pour qu'ils puissent être maintenu dans le temps,
+- Un container pour héberger le site web du club.
+- Un container pour héberger le Wiki du club.
+- Un NextCloud pour mettre en commun des fichiers au sein du club et l'ordre du jour des réunions,
+- Un Git sur lequel tout les sources de tout les challenges du club seront stockées ainsi que toute la documentation des services pour qu'ils puissent être maintenu dans le temps,
 - Un service de messagerie instantanée du type Mattermost pour pouvoir communiquer simplement entre les membres du club,
 - Un serveur mail pour remplacer le serveur actuel hébergé chez OVH,
-- Un annuaire LDAP qui sera géré avec la future interfaçe de NexCloud 17 qui permettra d'avoir un compte unique pour accéder à tous nos services. Ces comptes seront créé uniquement pour les membres actifs du club pour un responsable.
+- Un annuaire LDAP (slapd) qui sera géré avec FusionDirectory qui permettra d'avoir un compte unique pour accéder à tous nos services. Ces comptes seront créé uniquement pour les membres actifs du club pour un responsable.
 
 L'objectif de l'infrastructure web est de regrouper tous les hébergements utilisés par le club.
 
-
 #### Infrastructure CTF du club
+L'objectif est de remplacer la banque de challenge du club stockée actuellement sur un serveur en B141, serveur qui est très mal documenté ce qui réduit considérablement les modifications que nous pouvons y apporter.
 
 L'infrastructure CTF du club s'organisera de la manière suivante :
-
-- Un container avec la banque de challenge du club stockée actuellement sur le serveur en B141, serveur qui est très mal documenté ce qui réduit considérablement les modifications que nous pouvons y apporter,
+- Un container CTFd avec tout les challenges actuel du club utilisé pour les OpenCTF.
 - Un autre container CTFd que nous utiliserons pour les sessions en externe comme par exemple pour la session 0 ou il n'y a ni classement ni challenge récurrent.
+- Une VM avec différents environnement Docker temporaire pour les challenges système.
+- Une VM avec différents environnement Docker pour les challenges Web.
 
 L'objectif de l'infrastructure CTF est de retrouver un contrôle sur notre banque de challenges pour pouvoir y ajouter des challenges et de pouvoir mettre en place des CTF temporaires pour les événements du club.
 
@@ -45,4 +53,4 @@ L'objectif de l'infrastructure CTF est de retrouver un contrôle sur notre banqu
 
 Pour la gestion en interne du serveur, nous nous organiserions de la manière suivante, seulement deux personnes du bureau auront un accès total au serveur pour éviter tout problème d'administration. Les accès seront logés et les comptes nominatif.
 Pour ce qui est de l'accès aux services web, tous les membres actifs du club y auront accès, mais seul le responsable technique et les 2 personnes s'occupant du serveur auront les droits d'administration.
-Pour ce qui est de l'accès au service CTF, seulement les responsables événements, technique et serveur y auront accès en tant qu'administrateur, toutes les personnes participant à l'événement auront un accès à le parti utilisateur de CTFd, les accès seront loggés.
+Pour ce qui est de l'accès au service CTF, seulement les responsables événements, technique et serveur y auront accès en tant qu'administrateur, toutes les personnes participant à l'événement auront un accès à l'interface utilisateur de CTFd, les accès seront loggés.
