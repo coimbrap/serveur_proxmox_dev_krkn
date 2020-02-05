@@ -1,2 +1,2 @@
 # Présentation de la zone CTF
-Vous trouverez ici toute la documentation relative au fonctionnement et à la configuration de la zone CTF
+Vous trouverez ici toute la documentation relative au fonctionnement et à la configuration de la zone CTF. Cela comprend le reverse proxy CTF, l'environnement Web, l'environnement Système et CTFd.
