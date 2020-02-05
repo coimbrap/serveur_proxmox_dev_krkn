@@ -19,4 +19,4 @@ Un réseau uniquement ipv6 serait plus compliqué à mettre en place au niveau d
 
 ## Conclusion
 
-Le choix qui serait le plus fiable au niveau de la gestion de la disponibilité du serveurs serait une ipv4 pour l'accès au firewall et une seconde ipv4 pour l'accès direct au serveur car plus sur en cas de crash des deux VM.
+Le choix qui serait le plus fiable au niveau de la gestion de la disponibilité du serveurs serait une ipv4 pour l'accès au firewall et une seconde ipv4 pour l'accès direct au serveur car plus sur en cas de crash des deux VM. Avec un bloc d'ipv6 pour pouvoir rajouter progressivement le support de l'ipv6.
