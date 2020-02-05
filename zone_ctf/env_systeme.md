@@ -238,8 +238,7 @@ systeme7 -> history
 
 Extraire l'archive des challenge dans /home/systeme/SystemeChall/
 
-### Script qui utilisera les deux autres pour déployer l'environnement actuel
-
+### Script qui utilisera les deux autres pour tout déployer
 ```
 #!/bin/bash
 declare -a path=(easyshell pwn_my_home overflow shellcode1 shellcode2 shellcode3 history)
