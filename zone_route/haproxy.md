@@ -2,12 +2,12 @@
  
 ## Présentation des containers
 
-Deux containers Debian 10 identique un sur Alpha l'autre sur Bêta avec deux interfaces 
-- Sur Alpha le container HAProxy à comme IP 10.0.0.3/24 sur ROUTE (eth0) 10.0.1.3/24 sur CTF (eth1)
-- Sur Beta le container HAProxy à comme IP 10.0.0.4/24 sur ROUTE 10.0.1.4/24 sur CTF
-L'option Firewall PVE des interfaces est désactivé
+Deux containers Debian 10 identiques, un sur Alpha l'autre sur Bêta avec deux interfaces 
+- Sur Alpha le container HAProxy a comme IP 10.0.0.3/24 sur ROUTE (eth0) 10.0.1.3/24 sur CTF (eth1)
+- Sur Beta le container HAProxy a comme IP 10.0.0.4/24 sur ROUTE 10.0.1.4/24 sur CTF
+L'option Firewall PVE des interfaces est désactivée
 
-## Objectifs et choix technique
+## Objectifs et choix techniques
 
 Trois objectifs pour la gestion du flux post-firewall
 - Redondance du proxy/load balancer entre les deux nodes.
@@ -17,11 +17,11 @@ Trois objectifs pour la gestion du flux post-firewall
 - Vérification du certificat du client et de son CN si tentative de connexion au panel Proxmox (uniquement).
 
 
-Voilà les choix techniques fait afin de répondre à ces objectifs
-- Pour le load balancing entre les deux reverse proxy Nginx on utilisera HAProxy, le lien sécurisé sera entre l'utilisateur de HAProxy qui soumettra ensuite des requêtes HTTP à un des reverse proxy Nginx.
-- Pour la redondance du proxy entre les deux nodes on utilisera keepalived et la technologie VRRP pour garantir la disponibilité du proxy via une ip virtuelle. 
-- Pour la vérification du certificat client uniquement si le client veux se connecter au panel Proxmox on fera une première frontend à la couche 4 (TCP) pour les connexions https qui rediregera les connexions vers le panel sur une frontend dédié et le reste vers une frontend par défaut.
-- Pour les certificats SSL nous allons utiliser Let's Encrypt avec un serveur Nginx local dédié à l'obtention des certificats et des scripts pour le dépoiement sur les deux containers HAProxy.
+Voici les choix techniques faits afin de répondre à ces objectifs
+- Pour le load balancing entre les deux reverse proxy Nginx, on utilisera HAProxy.Le lien sécurisé sera entre l'utilisateur de HAProxy qui soumettra ensuite des requêtes HTTP à un des reverse proxy Nginx.
+- Pour la redondance du proxy entre les deux nodes, on utilisera keepalived et la technologie VRRP pour garantir la disponibilité du proxy via une ip virtuelle. 
+- Pour la vérification du certificat client - uniquement si le client veut se connecter au panel Proxmox- on fera une première frontend à la couche 4 (TCP) pour les connexions https qui rediregera les connexions vers le panel sur une frontend dédié et le reste vers une frontend par défaut.
+- Pour les certificats SSL, nous allons utiliser Let's Encrypt avec un serveur Nginx local dédié à l'obtention des certificats et des scripts pour le dépoiement sur les deux containers HAProxy.
 - La séparation des flux entre les deux reverse public et le reverse ctf ce fera au niveau de la seconde frontend par défaut tout comme le filtrage des requêtes par nom de domaine.
 
 ### Voilà un schéma résumé
@@ -29,14 +29,14 @@ Voilà les choix techniques fait afin de répondre à ces objectifs
 ![Topologie de la zone Route](schema_route.png)
 
 ## Création d'un canal d'échange par clé entre les deux containers
-Afin de pouvoir faire des scp de manière automatique entre les deux containers il faut mettre en place une connexion ssh par clé en root entre les deux containers.
+Afin de pouvoir faire des scp de manière automatique entre les deux containers, il faut mettre en place une connexion ssh par clé en root entre les deux containers.
 
-Le procédé est le même voilà les variantes,
+Le procédé est le même, en voici les variantes,
 - Sur Alpha le container HAProxy aura comme IP 10.0.0.3
 - Sur Beta le container HAProxy aura comme IP 10.0.0.4
 
 ### /etc/ssh/sshd_config
-Remplacer la ligne concerné par
+Remplacer la ligne concernée par
 ```
 PermitRootLogin yes
 ```
@@ -51,7 +51,7 @@ Beta : ssh-copy-id -i /root/.ssh/id_ed25519 root@10.0.0.3
 ```
 
 ### /etc/ssh/sshd_config
-Remplacer les lignes concerné par
+Remplacer les lignes concernées par
 ```
 PermitRootLogin without-password
 PubkeyAuthentication yes
@@ -61,7 +61,7 @@ Il est maintenant possible de se connecter par clé entre les containers
 
 ## Installation et configuration de HAProxy sur chaque node
 
-Le procédé est le même voilà les variantes,
+Le procédé est le même, en voici les variantes,
 - Sur Alpha le container HAProxy aura comme IP 10.0.0.3
 - Sur Beta le container HAProxy aura comme IP 10.0.0.4
 
@@ -72,13 +72,13 @@ apt-get install -y haproxy hatop certbot nginx
 systemctl enable haproxy
 systemctl enable nginx
 ```
-Pour la vérification du certificat du client la méthode est dans la git. Il faut placer le ca.crt dans /home/hasync/pve.crt et ajouter le CN autorisé dans /home/hasync/allowed_cn.txt
+Pour la vérification du certificat du client, la méthode est dans la git. Il faut placer le ca.crt dans /home/hasync/pve.crt et ajouter le CN autorisé dans /home/hasync/allowed_cn.txt
 
 ### Configuration 
 Voilà une rapide explication de la configuration faite
-- Une première frontend (all-web-in) de type TCP en écoute sur le port 443 qui vérifie si les requêtes tcp sont bien SSL et redirige tout vers la frontend principale via un proxy sauf les requêtes vers la panel Proxmox qui sont redirigé vers la frontend admin via un proxy.
+- Une première frontend (all-web-in) de type TCP en écoute sur le port 443 qui vérifie si les requêtes tcp sont bien SSL et redirige tout vers la frontend principale via un proxy sauf les requêtes vers la panel Proxmox qui sont redirigées vers la frontend admin via un proxy.
 
-- La frontend principale (user-web-in) de type http écoute sur le ports 80 et le proxy évoqué plus haut. Filtrage des requêtes ne respecant pas le nom de domaine et forcage du https sans www sinon rejet du packet. Redirection des requêtes Let's Encrypt vers un serveur Nginx local dédié au certifications sinon séparation du flux avec d'un côté une backend s'occupant du load balancing entre les deux reverse proxy Nginx public et de l'autre une backend redirigeant vers le reverse proxy ctf à l'aide du nom de domaine. 
+- La frontend principale (user-web-in) de type http écoute sur le ports 80 et le proxy évoqué plus haut. Filtrage des requêtes ne respectant pas le nom de domaine et forçage du https sans www sinon rejet du packet. Redirection des requêtes Let's Encrypt vers un serveur Nginx local dédié aux certifications sinon séparation du flux avec d'un côté une backend s'occupant du load balancing entre les deux reverse proxy Nginx public et de l'autre une backend redirigeant vers le reverse proxy ctf à l'aide du nom de domaine. 
 
 #### /etc/haproxy/haproxy.cfg 
 ```
@@ -177,7 +177,7 @@ backend drop-http
 	http-request deny
 ```
 
-Une fois HAProxy configuré il faut configurer le serveur Nginx permetant l'obtention des certificats Let's Encrypt.
+Une fois HAProxy configuré, il faut configurer le serveur Nginx permettant l'obtention des certificats Let's Encrypt.
 
 ```
 rm /etc/nginx/sites-enabled/default
@@ -205,7 +205,7 @@ systemctl restart haproxy.service
 certbot certonly --webroot -w /home/hasync/letsencrypt-requests/ -d sub.sessionkrkn.fr
 ```
 
-Voici un script pour mettre en place les certificats Let's Encrypt au bon endroit qui s'occupe de propagé les certificats sur l'autre container.
+Voici un script pour mettre en place les certificats Let's Encrypt au bon endroit qui s'occupe de propager les certificats sur l'autre container.
 ```
 rm -f /etc/letsencrypt/live/README
 rm -rf /etc/ssl/letsencrypt/*
@@ -287,9 +287,9 @@ Le retour de cette commande doit montrer l'adresse IP 10.0.0.5 sur Alpha
 ip a | grep -e inet.*eth0
 ```
 
-## Renouvelement automatique des certificats
+## Renouvellement automatique des certificats
 
-Pour une question de simplicité d'administration les certificats Let's Encrypt se renouvelerons automatiquement grâce à une crontab. Le problème et qu'un seul des deux containers sera accessible depuis l'extérieur faut donc copier les certificat via scp entre les deux containers.
+Pour une question de simplicité d'administration, les certificats Let's Encrypt se renouvelleront automatiquement grâce à une crontab. Le problème est qu'un seul des deux containers sera accessible depuis l'extérieur. Il faut donc copier les certificats via scp entre les deux containers.
 
 ### /home/hasync/renew.sh
 Voilà un script d'automatisation à mettre sur les deux containers
@@ -305,7 +305,7 @@ if [ "$(ip a | grep -c "10.0.0.5")" -ge 1 ]; then
 else
 fi
 ```
-Le script est stockée dans /home/hasync/renew.sh, voilà la crontab à ajouter (crontab -e) sur les deux containers.
+Le script est stocké dans /home/hasync/renew.sh, voici la crontab à ajouter (crontab -e) sur les deux containers.
 ```
 0 4 */15 * * /bin/sh /home/hasync/renew.sh >/dev/null 2>&1
 ```
