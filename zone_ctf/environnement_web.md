@@ -15,11 +15,11 @@ chmod +x /usr/local/bin/docker-compose
 
 ## Mise en place de l'environnement Web
 
-L'archive contient les sources docker des 11 environnement ainsi qu'un fichier docker-compose qui mettra en place tout les environnement. 
+L'archive contient les sources docker des 11 environnements ainsi qu'un fichier docker-compose qui mettra en place tous les environnements. 
 
 ```
 Easy HTML : Port 8081
-Fait moi un cookie : Port 8082
+Fais moi un cookie : Port 8082
 Header manquant : Port 8083
 Easy admin : Port 8084
 Easy LFI & Harder LFI : Port 8085
