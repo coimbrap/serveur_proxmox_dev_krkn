@@ -4,7 +4,7 @@
 Ce service n'est pas redondé car non vital, son IP est 10.0.2.5 sur le réseau CTF.
 
 ## Objectif
-Il doit rediriger les requêtes arrivant de HAProxy vers le bon container en fonction de l'hostname. Pour cela nous allons utilisé des serveurs web HTTP Nginx.
+Il doit rediriger les requêtes arrivant de HAProxy vers le bon container en fonction de l'hostname. Pour cela nous allons utiliser des serveurs web HTTP Nginx.
 
 ## Installation de nginx et persistance,
 ```
@@ -38,4 +38,4 @@ ln -s /etc/nginx/sites-available/<nom_serveur> /etc/nginx/sites-enabled
 systemctl restart nginx
 ```
 
-La procédure est tout le temps la méthode générale pour ajouter un serveur a Nginx est décrite ici cependant il peu, dans certains cas, être nécessaire d'enlever un ou plusieurs proxy\_set\_header dans la configuration du serveur Nginx.
+La procédure est tout le temps la méthode générale pour ajouter un serveur à Nginx. Elle est décrite ici. Cependant, dans certians cas, il peut être nécessaire d'enlever un ou plusieurs proxy\_set\_header dans la configuration du serveur Nginx.
