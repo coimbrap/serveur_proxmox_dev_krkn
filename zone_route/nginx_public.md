@@ -4,17 +4,17 @@
 Ce service est redondé car vital, son IP est 10.0.0.6 sur Alpha et 10.0.0.7 sur Beta.
 
 ## Objectif
-Il doit rediriger les requêtes arrivant de HAProxy vers le bon container en fonction de l'hostname. Pour cela nous allons utilisé des serveurs web HTTP avec des proxy sur Nginx sans s'occuper de l'autre serveur web.
+Il doit rediriger les requêtes arrivant de HAProxy vers le bon container en fonction de l'hostname. Pour cela nous allons utiliser des serveurs web HTTP avec des proxy sur Nginx sans s'occuper de l'autre serveur web.
 
 ## Création d'un canal d'échange par clé entre les deux containers
-Afin de pouvoir faire des scp de manière automatique entre les deux containers il faut mettre en place une connexion ssh par clé en root entre les deux containers.
+Afin de pouvoir faire des scp de manière automatique entre les deux containers, il faut mettre en place une connexion ssh par clé en root entre les deux containers.
 
-Le procédé est le même voilà les variantes,
+Le procédé est le même, en voici les variantes,
 - Sur Alpha le container Nginx aura comme IP 10.0.0.6
 - Sur Beta le container HAProxy aura comme IP 10.0.0.7
 
 ### /etc/ssh/sshd_config
-Remplacer la ligne concerné par
+Remplacer la ligne concernée par
 ```
 PermitRootLogin yes
 ```
@@ -28,7 +28,7 @@ Beta : ssh-copy-id -i /root/.ssh/id_ed25519 root@10.0.0.6
 ```
 
 ### /etc/ssh/sshd_config
-Remplacer les lignes concerné par
+Remplacer les lignes concernées par
 ```
 PermitRootLogin without-password
 PubkeyAuthentication yes
@@ -61,7 +61,7 @@ server {
 }
 ```
 
-Voilà un script permetant l'installation d'un serveur web présent dans /etc/nginx/sites-available. Il prend en entré le nom du fichier du serveur à activer
+Voilà un script permetant l'installation d'un serveur web présent dans /etc/nginx/sites-available. Il prend en entrée le nom du fichier du serveur à activer
 ```
 if [ "$#" -eq  "0" ]
 	then
@@ -80,4 +80,4 @@ if [ "$#" -eq  "0" ]
 fi
 ```
 
-La procédure est tout le temps la méthode générale pour ajouter un serveur a Nginx est décrite ici cependant il peu, dans certains cas, être nécessaire d'enlever un ou plusieurs proxy\_set\_header dans la configuration du serveur Nginx.
+La procédure est tout le temps la méthode générale pour ajouter un serveur à Nginx. Elle est décrite ici. Cependant, dans certains cas, il peut être nécessaire d'enlever un ou plusieurs proxy\_set\_header dans la configuration du serveur Nginx.
