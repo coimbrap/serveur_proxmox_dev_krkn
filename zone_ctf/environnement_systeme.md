@@ -13,11 +13,11 @@ apt-get install docker-ce
 
 ## Mise en place de l'environement système
 
-La restauration des challenges actuel est expliqué à la fin. 
+La restauration des challenges actuels est expliquée à la fin. 
 
 ### Procédure pour la création d'un nouveau challenge
 
-Placer les Dockerfile est source du challenge dans /home/systeme/SystemeChall/<challenge>
+Placer les Dockerfile est la source du challenge dans /home/systeme/SystemeChall/<challenge>
 Le Dockerfile doit idéalement être fait à partir de debmod, créer un utilisateur systemeXX et contenir
 ```
 USER systemeXX
@@ -195,7 +195,7 @@ if [ "$#" -lt "2" ]
 fi
 ```
 
-### Script pour la création d'un utilisateurs et son ajout à DockerTemp
+### Script pour la création d'un utilisateur et son ajout à DockerTemp
 
 Usage ./deployEnv <systemeXX>
 
@@ -222,9 +222,9 @@ if [ "$#" -eq  "0" ]
 fi
 ```
 
-Une fois le programme mis au bon endroit et les deux scripts executés avec succès tout est prêt. Pour personnaliser le message d'acceuil il faut modifié le /etc/motd de la VM et non celui des containers Docker.
+Une fois le programme mis au bon endroit et les deux scripts exécutés avec succès tout est prêt. Pour personnaliser le message d'accueil, il faut modifier le /etc/motd de la VM et non celui des containers Docker.
 
-## Restauration des challenges déjà existant
+## Restauration des challenges déjà existants
 Voilà la correspondance utilisateur / challenge
 ```
 systeme1 -> easyshell
@@ -248,4 +248,3 @@ do
 	./deployEnv.sh systeme$(($i+1))
 done
 ```
-
