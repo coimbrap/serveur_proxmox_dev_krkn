@@ -1,4 +1,6 @@
 # Présentation du projet
+Documentation par Pierre Coimbra.
+
 Nous allons détailler ici l'usage que nous voudrions faire de ce serveur ainsi que tous nos choix sur la configuration et l'infrastructure.
 
 ## Objectif
