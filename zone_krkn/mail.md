@@ -3,8 +3,11 @@ Nous allons ici mettre en place tout un service de mail qui va utiliser LDAP, Po
 
 # Configuration du serveur LDAP
 Le serveur LDAP est déjà en place sur le container LDAP il faut cependant faire ce qu'il suit pour ajouter le support des mails sur LDAP.
+
 ## Ajout d'un schéma
+
 ### schema.ldif
+
 ```
 dn: cn=mailkrhacken,cn=schema,cn=config
 objectClass: olcSchemaConfig
@@ -23,7 +26,9 @@ olcObjectClasses: ( 1.3.6.1.4.1.99999.2.1.60 NAME 'maildomainkrhacken' SUP TOP A
 ```
 ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f schema.ldif
 ```
-### oumail.ldif
+
+### oumail.ldif
+
 Création d'un OU pour les mails ce qui permet de bien organiser l'arbre.
 ```
 dn: ou=mail,dc=krhacken,dc=org
@@ -43,7 +48,9 @@ ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f oumail.ldif
 ```
 
 ## Ajout d'un nouvel utilisateur
+
 Ce .ldif permet d'ajouter un nouvel utilisateur dans l'anuaire LDAP et de lui autorisé l'envoi des mails.
+
 ### adduser.ldif
 ```
 dn: uid=new,ou=people,dc=krhacken,dc=org
@@ -66,7 +73,9 @@ ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f adduser.ldif
 ```
 
 ## Autoriser un utilisateur à utilisé le service des mails
+
 Permet d'ajouter la classe mailaccountkrhacken à un utilisateur, il pourra ensuite utilisé le service.
+
 ### addtomail.ldif
 ```
 dn: uid=NAME,ou=people,dc=krhacken,dc=org
@@ -87,7 +96,9 @@ ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f addtomail.ldif
 On crée dès maintenant une adresse adminsys@krhacken.org, c'est impératif pour la suite.
 
 ## Ajout d'un alias pour le postmaster
+
 Permet de rediriger tout les mails à destination du postmaster vers le mail de l'adminsys.
+
 ### alias.ldif
 ```
 dn: cn=postmaster@krhacken.org,ou=krhacken.org,ou=mail,dc=krhacken,dc=org
@@ -108,6 +119,7 @@ ldapsearch -xLLL -H ldap://localhost -D cn=admin,dc=krhacken,dc=org -y /root/pwd
 
 # Postfix
 Postfix et Dovecot seront dans le même container. Nous allons commencer par Postfix qui utilise le protocole SMTP pour envoyer et recevoir des mails. C'est un service très complet mais nécessaire.
+
 ## DNS
 Voilà les entrées à ajouter, on en rajoutera d'autres à la fin
 ```
@@ -135,7 +147,9 @@ Tout c'est ports sont déjà DNAT sur le container Mail grâce à OPNSense
 ```
 apt-get install -y postfix postfix-ldap ca-certificates postfix-pcre git socat postfix-policyd-spf-python dovecot-core dovecot-imapd dovecot-ldap dovecot-managesieved dovecot-sieve dovecot-lmtpd
 ```
-Il faut préciser lors de l'instation les paramètres suivant laissé le reste par défaut, on le modifira plus tard. Si ce n'est pas demandé par apt utilisé dpkg-reconfigure
+
+Lors de l'instation de Postfix il faut préciser les paramètres suivant, laisser le reste par défaut, on le modifira plus tard. Si ce n'est pas demandé par apt utiliser dpkg-reconfigure
+
 ```
 Internet Site
 mail.krhacken.org
@@ -143,6 +157,7 @@ mail.krhacken.org
 
 ## Certificat
 Postfix à besoin de certificat SSL pour fonctionner nous allons utiliser un script faisant appel à Let's Encrypt pour obtenir ces certificats.
+
 ### Installation
 ```
 mkdir ~/sources
@@ -180,8 +195,10 @@ openssl dhparam -out /etc/ssl/private/krhacken.org/dh2048.pem 2048
 chmod 644 /etc/ssl/private/krhacken.org/dh{512,2048}.pem
 ```
 
-## Configuration de Postfix
+## Configuration de Postfix
+
 Postfix utilise deux fichier de configuration, le fichier main.cf définit les options générales de Postfix et le fichier master.cf sert à gérer les sous process de Postfix et permet de modifier certains paramètres du fichier main.cf en les surchargeant (option -o).
+
 ### /etc/postfix/main.cf
 Cette configuration empêche des utilisateurs déjà connecté au SMTP de modifer leur adresse mail il n'est donc pas possible d'usurper une adresse mail même non attribué.
 ```
@@ -296,7 +313,7 @@ smtpd_sender_login_maps = ldap:/etc/postfix/ldap/virtual_senders.cf
 ```
 
 ### /etc/postfix/master.cf
-Modifer les champs suivant sans rien enlever
+Modifer les champs suivant, laisser les autres champs par défaut
 ```
 smtp      inet  n       -       y       -       1       postscreen
   -o cleanup_service_name=subcleanin
@@ -326,9 +343,11 @@ subcleanin  unix   n   -   -   -   0   cleanup
 policyd-spf unix - n n - - spawn
   user=nobody argv=/usr/bin/policyd-spf
 ```
-On permet uniquement les utilisateurs connectés et on appelle un service que l'on créer juste en dessous qui permet de nettoyer les headers et d'avertir en cas de pièce jointe suspecte.
+On permet uniquement les utilisateurs connectés et on appelle un service que l'on va créer plus bas qui permet de nettoyer les headers et d'avertir l'utilisateur en cas de pièce jointe suspecte.
 
 ## Filtre sur les Header Postfix
+Ce filtre permet de nettoyer les headers d'un mail en enlevant les informations sensible et d'avertir l'utilisateur si une pièce jointe est potentiellement dangereuse.
+
 ### /etc/postfix/check/header_checks_in
 ```
 /^s*Content­.(Disposition|Type).*names*=s*"?(.+.(bat|exe|com|scr|vbs))"?s*$/ PREPEND X-DEBUGO:WARN
@@ -344,15 +363,16 @@ Masquage des informations sensibles
 ```
 
 ## Redirection des mails root de tout les CT et des VMs
-On va faire en sorte que tout les mails des CTs et des VMs soit redirigé vers l'adresse adminsys@krhacken.org soit directement soit via l'alias postmaster.
+On va faire en sorte que tout les mails des CTs et des VMs soit redirigés vers l'adresse adminsys@krhacken.org soit directement soit via l'alias postmaster.
+
 ### /etc/aliases
 ```
 postmaster: postmaster@krhacken.org
 root: adminsys@krhacken.org
 ```
 
-## Policyd SPF
-SPF (Sender Policy Framework) est un mécanisme simple qui permet de savoir si un SMTP à l’origine d’un mail est bien légitime.
+## Policyd SPF
+SPF est un mécanisme simple qui permet de savoir si le serveur SMTP à l’origine d’un mail est bien légitime.
 ### /etc/postfix-policyd-spf-python/policyd-spf.conf
 ```
 debugLevel = 1
@@ -369,7 +389,8 @@ Les mails qui ne respectent pas les SPF seront rejetés. Par contre, s’il n’
 
 ## Blocage des clients trop rapide
 On va ici bloquer les clients trop rapide et vérifier la légitimité du champs MX de serveur émetteur.
-### /etc/postfix/main.cf
+
+### /etc/postfix/main.cf
 ```
 postscreen_greet_wait = 3s
 postscreen_greet_banner = On attend un pneu...
@@ -388,8 +409,9 @@ postscreen_bare_newline_enable = yes
 postscreen_bare_newline_action = enforce
 ```
 
-## Filtre via LDAP
-On place tout les fichiers de configuration dans /etc/postfix/ldap c'est fichier permettent de faire des requêtes au serveur LDAP pour l'authentification de LDAP.
+## Filtre via LDAP
+On place tout les fichiers de configuration dans /etc/postfix/ldap, ces fichiers permettent de faire des requêtes au serveur LDAP pour l'authentification du client au service mail.
+
 ### /etc/postfix/ldap/virtual_domains.cf
 ```
 server_host = ldap://10.0.1.6
@@ -721,7 +743,9 @@ service quota-warning {
 
 ## Link avec LDAP
 On met auth_bind à no ainsi le test du mot de passe se fera via le compte viewer ce qui permettra de gagner du temps sur les requêtes LDAP car dovecot pourra en faire plusieurs en même temps.
+
 Cependant cela pose un problème, les requêtes LDAP ne sont pas correcte pour parer à ce problème on fait en sorte que les requêtes à userdb et passdb soient distincts.
+
 ### /etc/dovecot/dovecot-ldap-pass.conf.ext
 ```
 uris = ldap://10.0.1.6
@@ -762,7 +786,9 @@ tail /var/log/mail.log -n 100
 
 ## Sieve
 Dovecot permet de filtrer les messages en utilisant le protocole Sieve. Il les range à leur arrivée selon les règles, global et utilisateur.
+
 Pour le global, on aura besoin que d’une seule règle : les messages marqués comme Spam sont dirigés dans le répertoire Spam.
+
 ### Préparation
 ```
 mkdir /etc/dovecot/sieve-global
@@ -787,7 +813,8 @@ chown vmail /etc/dovecot/sieve-global/global.svbin
 ```
 
 ## Gestion des quota
-Le support des quota est déjà mis en place dans Dovecot on va faire en sorte qu'un mail soit envoyé en cas de BAL pleine
+Le support des quota est déjà mis en place dans Dovecot on va faire en sorte qu'un mail soit envoyé en cas de BAL pleine.
+
 ### /etc/dovecot/quota.sh
 ```
 #!/usr/bin/env bash
@@ -804,6 +831,7 @@ Bonjour,
 Ce mail automatique est là pour vous avertir que votre BAL est pleine a ${PERCENT}. Pensez à libérer de place pour continuer de recevoir des mails.
 EOF
 ```
+
 ### Mise en place
 ```
 chmod +x /etc/dovecot/quota.sh
@@ -874,20 +902,23 @@ reject = 30;
 }
 ```
 ### /etc/rspamd/local.d/milter_headers.conf
-Il indique d’ajouter des entêtes dans les mails. Grace à eux, vous pourrez voir directement dans votre logiciel ce qui a provoqué ou non le marquage en spam. Mettez simplement :
+Il indique d’ajouter des entêtes dans les mails. Grace à eux, vous pourrez voir directement dans votre logiciel ce qui a provoqué ou non le marquage en spam. 
+
 ```
 extended_spam_headers = true;
 ```
 ### /etc/rspamd/local.d/rspamd_update.conf
 Permet à Rspamd de se mettre à jour automatiquement au niveau des règles.
+
 ```
 enabled = true;
 ```
-
 ## Liaison avec Postfix
 On va indiquer à Postfix de passer le mail à Rspamd
+
 ### /etc/postfix/main.cf
 Il faut rajouter ce qu'il suit dans le fichier
+
 ```
 milter_protocol = 6
 milter_default_action = accept
@@ -930,6 +961,7 @@ dovecot reload
 
 ## Filtres sieves
 Création de filtre pour rspamd, un utilisateur considérés comme spam qui sera déplacer par l'utilisateur dans ca Boite de réception augmentera ces chances de ne pas être considérés comme Spam et inversement.
+
 ### /etc/dovecot/sieve/report-ham.sieve
 ```
 require ["vnd.dovecot.pipe", "copy", "imapsieve", "environment", "variables"];
