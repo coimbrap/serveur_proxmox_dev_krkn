@@ -34,11 +34,7 @@ URI ldap://IP.LDAP/
 ## Centralisation des fichiers de configuration
 Nous allons créer un répertoire /root/ldap/conf qui va centraliser tous nos fichiers de configuration
 ```
-cd
-mkdir ldap
-cd ldap
-mkdir conf
-cd conf
+mkdir -p /root/ldap/conf/
 ```
 
 ## Mise en place SSL
@@ -225,6 +221,7 @@ ldapsearch -QLLLY EXTERNAL -H ldapi:/// -b "cn=config" "Objectclass=olcRefintCon
 
 ## Audit Log
 Cet overlay sert à auditer chaque modification au sein de l’annuaire. Dans notre cas, cela sera inscrit dans le fichier : /var/log/openldap/audit.ldif
+
 ### /root/ldap/conf/auditlog_act.ldif
 ```
 dn: cn=module,cn=config
@@ -284,7 +281,7 @@ olcUniqueUri: ldap:///ou=people,dc=krhacken,dc=org?mail?sub
 olcUniqueUri: ldap:///ou=people,dc=krhacken,dc=org?uidNumber?sub
 olcUniqueUri: ldap:///ou=groups,dc=krhacken,dc=org?cn?sub
 ```
-Nous demandons ici à ce que les attributs ui, mail et uidNumber dans l’ou people soient uniques. Et que l’attribut cn dans l’ou groups soit lui aussi unique.
+Nous demandons ici à ce que les attributs UI, mail et uidNumber dans l’ou people soient uniques. Et que l’attribut cn dans l’ou groups soit lui aussi unique.
 On applique les modifications,
 ```
 ldapadd -Q -Y EXTERNAL -H ldapi:/// -f unique_act.ldif
@@ -335,6 +332,7 @@ ldapadd -Q -Y EXTERNAL -H ldapi:/// -f ppolicy_act.ldif
 ldapadd -Q -Y EXTERNAL -H ldapi:/// -f ppolicy_conf.ldif
 ```
 On va maintenant créer la politique par défaut.
+
 ### /root/ldap/conf/ppolicy_def.ldif
 ```
 dn: cn=ppolicy,dc=krhacken,dc=org
@@ -569,18 +567,4 @@ ldapsearch -H ldap:// -x -b "dc=example,dc=com" -LLL -Z dn
 
 Voilà pour la mise en place de base du LDAP cependant il faut configuré chaque client pour se connecter au serveur avec STARTTLS.
 
-### Sur le client
-Il faut commencer par copier le certificat de la CA (ca_server.pem)
-```
-cat ca_server.pem | tee -a /etc/ldap/ca_certs.pem
-```
-Il faut ensuite modifier la configuration en modifiant la ligne suivante
-
-#### /etc/ldap/ldap.conf
-```
-...
-TLS_CACERT /etc/ldap/ca_certs.pem
-...
-```
-
-Voilà le LDAP de base il manque la réplication que nous mettrons en place plus tard.
+NB : Il manque la réplication que nous mettrons en place plus tard.
