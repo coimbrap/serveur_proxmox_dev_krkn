@@ -1,8 +1,10 @@
-#Le réseau
+# Le réseau
 Chacune des nodes possède 4 interfaces réseau, pour des questions de redondance et de débit nous allons mettre 2 de ces interfaces en bond pour le réseau interne et la communication entre les deux serveurs.
 
 eth0 sur une interface simple utilisé uniquement par OPNSense via vmbr0
+
 eth2 formera le bridge OVS vmbr1
+
 eth1 et eth3 formerons le bond OVS bond0 sur le bridge OVS vmbr2
 
 Pour la gestion des bonds, vlans... nous utiliserons openvswitch
@@ -12,7 +14,7 @@ Explication rapide du fonctionnement global d'OpenvSwitch :
 - OVS Bond, permet d'attache un groupe d'interface physique à un Bridge OVS ie. un groupe d'interface réseau à un switch virtuel.
 - OVS IntPort, pas possible de bridge des VMs ou des CT dessus, il permet à l'hôte de se brancher au Bridge pour avoir une IP et éventuellement une VLAN.
 
-## Répartition des sous réseaux en VLAN et en bond
+## Répartition des sous réseaux en VLAN et en bond
 ### eth0 
 - VLAN 10 : WAN (Entrée du parefeu)
 - VLAN 10 : Réseau privée entre les hôtes pour CARP
