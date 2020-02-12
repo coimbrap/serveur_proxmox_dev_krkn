@@ -34,7 +34,8 @@ Il faut configurer 2 interfaces pour commencer, une le WAN (vmbr0) et une pour l
 
 # En attente du choix WAN...
 
-### Règles
-DNAT 80,443 route:10.0.0.5
-DNAT 25,465,587,143,993,4190 krkn:10.0.1.10
-DNAT 2222 ctf:10.0.2.12
+### Règles (uniquement DNAT)
+- DNAT 80,443 route:10.0.0.5
+- DNAT 25,465,587,143,993,4190 krkn:10.0.1.10
+- DNAT 2222 ctf:10.0.2.12
+- DNAT 8081,8082,8083,8084,8085,8086,8087,8088,8089,8090,8091 ctf:10.0.2.13
