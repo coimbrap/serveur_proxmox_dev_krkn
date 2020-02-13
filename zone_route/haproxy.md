@@ -87,7 +87,7 @@ global
 	log /dev/log	local1 notice
 	chroot /var/lib/haproxy
 	stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
-	stats timeout 30s
+    stats timeout 30s
 	user haproxy
 	group haproxy
 	daemon
@@ -112,53 +112,62 @@ defaults
 	errorfile 504 /etc/haproxy/errors/504.http
 
 frontend all-web-in
-	mode tcp
-	bind *:443 interface eth0
-	tcp-request inspect-delay 5s
-	tcp-request content accept if { req_ssl_hello_type 1 }
-	use_backend is-admin if { req_ssl_sni -i pve.sessionkrkn.fr }
-	default_backend is-user
+    mode tcp
+    bind *:443 interface eth0
+    tcp-request inspect-delay 5s
+    tcp-request content accept if { req_ssl_hello_type 1 }
+    use_backend is-admin if { req_ssl_sni -i pve.sessionkrkn.fr }
+    use_backend is-admin if { req_ssl_sni -i rspamd.sessionkrkn.fr }
+    default_backend is-user
         
 frontend user-web-in
-	mode http
-	bind *:80 interface eth0
-	bind abns@haproxy-user accept-proxy ssl accept-proxy no-sslv3 crt /etc/ssl/letsencrypt interface eth0
-	acl host_letsencrypt path_beg /.well-known/acme-challenge
-	acl authorized_host hdr_end(host) sessionkrkn.fr
-	acl ctf_host hdr_end(host) ctf.sessionkrkn.fr
-	acl host_www hdr_beg(host) -i www.
-	reqirep ^Host:\ www.(.*)$ Host:\ \1 if host_www !host_letsencrypt
-	reqadd X-Forwarded-Proto:\ http
-	reqadd X-Forwarded-Proto:\ https
-	redirect scheme https code 301 if !{ ssl_fc } authorized_host !host_letsencrypt
-	use_backend nginx-ctf if ctf_host
-	use_backend letsencrypt if host_letsencrypt 
-	use_backend reverse-nginx if authorized_host !ctf_host
-	default_backend drop-http
+    mode http
+    bind *:80 interface eth0
+    bind abns@haproxy-user accept-proxy ssl accept-proxy no-sslv3 crt /etc/ssl/letsencrypt interface eth0
+    acl host_letsencrypt path_beg /.well-known/acme-challenge
+    acl authorized_host hdr_end(host) sessionkrkn.fr
+    acl mail hdr_end(host) mail.sessionkrkn.fr
+    acl rspamd path_beg /rspamd/
+    acl ctf_host hdr_end(host) ctf.sessionkrkn.fr
+    acl ctf_host hdr_end(host) web.sessionkrkn.fr
+    acl host_www hdr_beg(host) -i www.
+
+    reqirep ^Host:\ www.(.*)$ Host:\ \1 if host_www !host_letsencrypt !mail
+    reqadd X-Forwarded-Proto:\ http
+    reqadd X-Forwarded-Proto:\ https
+
+    redirect scheme https code 301 if !{ ssl_fc } authorized_host !host_letsencrypt !mail
+    use_backend nginx-ctf if ctf_host !host_letsencrypt !mail
+    use_backend letsencrypt if host_letsencrypt !mail 
+    use_backend reverse-nginx if authorized_host !ctf_host OR mail
+    default_backend drop-http
 
 frontend admin-in
-	mode http
-	bind abns@haproxy-admin accept-proxy ssl no-sslv3 crt /etc/ssl/letsencrypt ca-file /home/hasync/pve.crt verify required interface eth0
- 	acl is_auth ssl_c_s_dn(cn) -i -f /etc/haproxy/allowed_cn.txt
-	use_backend pve-interface if { ssl_fc_has_crt } is_auth
-	default_backend drop-http
+    mode http
+    bind abns@haproxy-admin accept-proxy ssl no-sslv3 crt /etc/ssl/letsencrypt ca-file /home/hasync/pve.crt verify required interface eth0
+    acl is_auth ssl_c_s_dn(cn) -i -f /etc/haproxy/allowed_cn.txt
+    acl pve hdr_end(host) pve.sessionkrkn.fr
+    acl rspamd hdr_end(host) rspamd.sessionkrkn.fr
+    use_backend reverse-nginx if { ssl_fc_has_crt } is_auth rspamd
+    use_backend pve-interface if { ssl_fc_has_crt } is_auth pve
+    default_backend drop-http
         
 backend is-admin
-	mode tcp
+    mode tcp
 	server admin-in abns@haproxy-admin send-proxy-v2
         
 backend is-user
-	mode tcp
-	server admin-in abns@haproxy-user send-proxy-v2
+    mode tcp
+    server admin-in abns@haproxy-user send-proxy-v2
 
 backend letsencrypt
-	mode http
+    mode http
 	http-request set-header Host letsencrypt.requests
 	server letsencrypt 127.0.0.1:8164
 
 backend pve-interface
-	mode http
-	balance roundrobin
+    mode http
+    balance roundrobin
 	server pve-alpha 10.0.0.1:8006 check ssl verify none
 	server pve-beta 10.0.0.2:8006 check ssl verify none
 
@@ -166,14 +175,14 @@ backend reverse-nginx
 	mode http
 	balance roundrobin
 	server reverse1 10.0.0.6:80 check
-	server reverse2 10.0.0.7:80 check
+    server reverse2 10.0.0.7:80 check
 
 backend nginx-ctf
 	mode http
-	server nginx-ctf1 10.0.2.5:80 check
+    server nginx-ctf1 10.0.2.5:80 check
 
 backend drop-http
-	mode http
+    mode http
 	http-request deny
 ```
 
