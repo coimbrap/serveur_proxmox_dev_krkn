@@ -207,14 +207,15 @@ certbot certonly --webroot -w /home/hasync/letsencrypt-requests/ -d sub.sessionk
 
 Voici un script pour mettre en place les certificats Let's Encrypt au bon endroit qui s'occupe de propager les certificats sur l'autre container.
 ```
+#!/bin/bash
 rm -f /etc/letsencrypt/live/README
 rm -rf /etc/ssl/letsencrypt/*
 for domain in $(ls /etc/letsencrypt/live); do 
-    cat /etc/letsencrypt/live/$domain/privkey.pem /etc/letsencr$
+    cat /etc/letsencrypt/live/$domain/privkey.pem /etc/letsencrypt/live/$domain/fullchain.pem > /etc/ssl/letsencrypt/$domain.pem
 done
-scp -r /etc/ssl/letsencrypt/* root@<ip_autre_ct>:/etc/ssl/letsencrypt
-ssh root@<ip_autre_ct> 'systemctl restart haproxy.service'
-systemctl restart haproxy.service
+scp -r /etc/ssl/letsencrypt/* root@10.0.0.3:/etc/ssl/letsencrypt
+ssh root@10.0.0.3 'systemctl restart haproxy.service'
+service haproxy restart
 ```
 
 ## Mise en place de la haute disponibilité du load balancer
