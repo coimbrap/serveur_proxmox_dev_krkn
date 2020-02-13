@@ -66,17 +66,17 @@ Voilà un script permetant l'installation d'un serveur web présent dans /etc/ng
 if [ "$#" -eq  "0" ]
 	then
 		echo "Bad Usage !"
-	else
-		if [ -f "/etc/nginx/sites-available/$1" ]
-			then
-				ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled
-				systemctl restart nginx.service
-				scp /etc/nginx/sites-available/$1 root@<ip_autre_ct>:/etc/nginx/sites-available/
-				ssh root@<ip_autre_ct> "ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled"
-				ssh root@<ip_autre_ct> 'systemctl restart nginx.service'
-			else
-				echo "Not exist !"
-		fi
+else
+    if [ -f "/etc/nginx/sites-available/$1" ]
+        then
+            ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled
+            systemctl restart nginx.service
+            scp /etc/nginx/sites-available/$1 root@<ip_autre_ct>:/etc/nginx/sites-available/
+            ssh root@<ip_autre_ct> "ln -s /etc/nginx/sites-available/$1 /etc/nginx/sites-enabled"
+            ssh root@<ip_autre_ct> 'systemctl restart nginx.service'
+        else
+            echo "Not exist !"
+    fi
 fi
 ```
 
