@@ -154,7 +154,7 @@ frontend admin-in
         
 backend is-admin
     mode tcp
-	server admin-in abns@haproxy-admin send-proxy-v2
+    server admin-in abns@haproxy-admin send-proxy-v2
         
 backend is-user
     mode tcp
@@ -162,28 +162,28 @@ backend is-user
 
 backend letsencrypt
     mode http
-	http-request set-header Host letsencrypt.requests
-	server letsencrypt 127.0.0.1:8164
+    http-request set-header Host letsencrypt.requests
+    server letsencrypt 127.0.0.1:8164
 
 backend pve-interface
     mode http
     balance roundrobin
-	server pve-alpha 10.0.0.1:8006 check ssl verify none
-	server pve-beta 10.0.0.2:8006 check ssl verify none
+    server pve-alpha 10.0.0.1:8006 check ssl verify none
+    server pve-beta 10.0.0.2:8006 check ssl verify none
 
 backend reverse-nginx
-	mode http
-	balance roundrobin
-	server reverse1 10.0.0.6:80 check
+    mode http
+    balance roundrobin
+    server reverse1 10.0.0.6:80 check
     server reverse2 10.0.0.7:80 check
 
 backend nginx-ctf
-	mode http
+    mode http
     server nginx-ctf1 10.0.2.5:80 check
 
 backend drop-http
     mode http
-	http-request deny
+    http-request deny
 ```
 
 Une fois HAProxy configuré, il faut configurer le serveur Nginx permettant l'obtention des certificats Let's Encrypt.
