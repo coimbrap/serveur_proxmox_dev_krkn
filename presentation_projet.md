@@ -1,12 +1,3 @@
-# Présentation du projet
-Documentation par Pierre Coimbra.
-
-Nous allons détailler ici l'usage que nous voudrions faire de ce serveur ainsi que tous nos choix sur la configuration et l'infrastructure.
-
-## Objectif
-
-Nos objectifs à la mise en place du serveur sont doubles. D'un côté, déplacer tous les services utilisés par le club (Web, NextCloud,Git...) afin d'avoir un contrôle total sur les services que nous utilisons. D'un autre côté, nous voudrions mettre en place une structure de CTF plus complète et plus documentée, accessible uniquement aux membres du club, et une autre infrastructure CTF que nous utiliserions à l'occasion d'événements du club comme par exemple pour la session 0. L'infrastructure que nous souhaitons mettre en place sera détaillée plus bas.
-
 ## Présentation de l'infrastructure
 
 ### Infrastructure matérielle
