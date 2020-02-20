@@ -14,7 +14,7 @@ Les requêtes arriveront sur le pare-feu qui effectura un premier filtrage et tr
 
 ## Pour les connexions à la partie administration
 
-L'accès à l'interface d'administration de Proxmox se fera par la voie classique, en cas de connexion à pve.krhacken.org, HAProxy vérifira le certificat client et son CN avant de rediriger vers un des deux panels.
+L'accès à l'interface d'administration de Proxmox se fera par la voie classique, en cas de connexion à pve.krhacken.org, HAProxy vérifiera le certificat client et son CN avant de rediriger vers un des deux panels.
 
 L'accès au port 8006 (port par défaut de l'UI Proxmox) et au port 22 se fera par un VPN qui sera géré par le pare feu (OPNSense) sur la zone ADMIN.
 
