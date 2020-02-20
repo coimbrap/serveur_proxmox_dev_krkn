@@ -1,67 +1,11 @@
-# Réseau
-
-Chacune des nodes possède 4 interfaces réseau, pour des questions de redondance et de débit nous allons mettre 2 de ces interfaces en bond pour le réseau interne et la communication entre les deux serveurs.
-
-- eth0 sur une interface simple utilisé uniquement par OPNSense via wan
-- eth2 formera le bridge OVS admin
-- eth1 et eth3 formerons le bond OVS bond0 sur le bridge OVS interne
-
-Pour la gestion des bonds, vlans... nous utiliserons openvswitch
-
-Explication rapide du fonctionnement global d'OpenvSwitch,
-
-- OVS Bridge, c'est comme un switch, mais en virtualisé sur lequel on peu branché des CT et VM sur des VLANs et qui peux communiquer avec un autre Bridge via un tunnel VXLAN ou un tunnel GRE. Pour notre usage le bridge n'aura pas d'IP sur l'hôte.
-- OVS Bond, permet d'attache un groupe d'interface physique à un Bridge OVS ie. un groupe d'interface réseau à un switch virtuel.
-- OVS IntPort, pas possible de bridge des VMs ou des CT dessus, il permet à l'hôte de se brancher au Bridge pour avoir une IP et éventuellement une VLAN.
-
-
-Pour chacune des zones (KRKN ou CTF) il y a deux types de VM/CT,
-
-- Ceux qui sont directement accessible depuis internet derrière OPNSense c'est les services frontend.
-- Ceux qui sont accessible uniquement à travers une frontend c'est les services backend.
-
-## Les switchs virtuel
-
-- Un switch physique sur lequel sera branché les quatres interfaces des nodes et l'entité de quorum.
-- Un switch Administation pour toute les tâches d'administration avec comme lien extérieur eth2
-- Un switch Interne qui devra gérer, avec des VLANs, l'accès (filtré) à internet des services qui ne sont pas directement derrière le FW (Nextcloud, Git, Serveur Web...) en séparant le tout en plusieurs zones et les services qui sont directement derrière le FW (HAProxy, Proxy des services, Mail et DNS). Avec comme lien extérieur un bond entre eth1 et eth3.
-
-## Communication des switchs entre les nodes
-
-Tout les hyperviseurs auront une pâte sur le VLAN 100 sur chaque switch pour le protocole GRE qui permet l'échange entre les switchs virtuel de chaque nodes.
-
-## Services Frontend
-
-Concrètement les containers concernés auront des ports d'entrée DNAT vers eux ce qui signifie qu'ils seront accessible depuis internet à travers le firewall. C'est le cas de HAProxy, des Mails, du serveur DNS et du Proxy des services.
-
-Tout ces CT auront obligatoirement une pâte sur la VLAN 10 et une VLAN backend du switch Interne.
-
-## Services Backend
-
-Les containers ou VMs concerné ne seront pas accessible depuis internet cependant certain seront accessible par l'intermédiaire de HAProxy (entre autres).
-
-Cette parti sera découpé en plusieures zones,
-- ROUTE sur la VLAN 20 qui contiendra les reverses proxy public,
-- KRKN sur la VLAN 30 qui contiendra tout les services de la partie krhacken,
-- CTF sur la VLAN 40 qui contiendra le reverse proxy CTF et les environnement CTF,
-- EXT sur la VLAN 50 qui contiendra les environnement de test.
-
-## Partie Internet
-
-Tout les containers et les VM Backend auront accès à internet via le proxy interne (en frontend). Pour cela ils auront tous une pâte sur la VLAN 80 du switch interne.
-
-## Partie Administration
-
-- Chaque hyperviseur ainsi que l'entité de Quorum aura une pâte sur la VLAN 10 du switch Administration pour le fonctionnement de Corosync.
-- Toutes les VM, tout les CT, les hyperviseurs et l'entité de Quorum auront une pâte sur la VLAN 20 du switch Administration pour les tâches d'administration via le VPN ou localement en cas d'urgence.
-- Chaque hyperviseur aura une pâte sur la VLAN 30 su switch Administration pour pfSync (HA du Firewall).
-
+# Mise en place du Réseau
+Nous allons ici détaillé la configuration du réseau physique et virtuel. Il est préférable de lire la documentation sur leur topologie au préalable.
 
 ## Map des IPs principales.
-
+Voilà les IPs attribuées aux services principaux qu'il faut impérativement respecter.
 ### FrontEnd (Juste après le FW)
 - Firewall Alpha : 10.0.0.1
-- Firewall Bêta : 10.0.0.2
+- Firewall Beta : 10.0.0.2
 - Firewall VIP : 10.0.0.3
 - HAProxy Alpha : 10.0.0.4
 - HAProxy Beta : 10.0.0.5
@@ -69,21 +13,19 @@ Tout les containers et les VM Backend auront accès à internet via le proxy int
 - Proxy Interne : 10.0.0.7
 - Mail : 10.0.0.10
 
-### ROUTE (Juste après la frontend)
+### PROXY (Juste après la frontend)
 - HAProxy Alpha : 10.0.1.1
 - HAProxy Beta : 10.0.1.2
 - Nginx Public Alpha : 10.0.1.3
 - Nginx Public Beta : 10.0.1.4
 
-
-### KRKN
+### INT
 - LDAP Alpha : 10.0.2.1
 - LDAP Bêta : 10.0.2.2
 - LDAP VIP : 10.0.2.3
 - Nginx Public Alpha : 10.0.2.4
 - Nginx Public Beta : 10.0.2.5
 - [...] Voir DNS
-
 
 ### CTF :
 - HAProxy Alpha : 10.0.3.1
@@ -118,6 +60,20 @@ Tout les containers et les VM Backend auront accès à internet via le proxy int
 - Proxmox Beta : 10.1.0.4
 - [...] Voir DNS
 
+
+# Réseau physique
+
+La configuration et les branchement à faire sur le switch sera détaillé plus tard.
+
+# Réseau virtuel
+Cette partie consiste à mettre en place OpenvSwitch sur les deux nodes.
+
+## Installation
+Commune aux deux nodes
+```
+apt-get update
+apt-get install openvswitch-switch
+```
 
 ## Configuration de OpenvSwitch
 
@@ -168,7 +124,7 @@ iface interne inet manual
 	up ovs-vsctl --may-exist add-port interne gre1 -- set interface gre1 type=gre options:remote_ip='10.0.4.2'
 	down ovs-vsctl --if-exists del-port interne gre1
 
-    
+
 #Admin Task
 allow-admin admintask
 iface admintask inet static
@@ -262,7 +218,7 @@ iface interne inet manual
 	up ovs-vsctl --may-exist add-port interne gre1 -- set interface gre1 type=gre options:remote_ip='10.0.4.1'
 	down ovs-vsctl --if-exists del-port interne gre1
 
-    
+
 #Admin Task
 allow-admin coro
 iface coro inet static

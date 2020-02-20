@@ -2,9 +2,9 @@
 
 ### Infrastructure matérielle
 
-Du côté infrastructure, nous disposons d'un rack 1U avec deux PC à l'intérieur possédant chacun 24Go de DDR3-ECC et un Xeon x5670 6 Coeurs cadencé à 2.93 GHz. Côté stockage, nous allons mettre en place un RAID1 ZFS avec deux disque par PC (les données du premier disque seront copiées sur le second) ainsi le stockage sera répliqué pour éviter toute perte de données.
+Du côté infrastructure, nous disposons d'un rack 1U avec deux PC à l'intérieur possédant chacun 24Go de DDR3-ECC et un Xeon x5670 6 Coeurs cadencé à 2.93 GHz. Côté stockage, nous allons mettre en place un RAID1 ZFS avec deux disque par PC (les données du premier disque seront aussi présente sur le second) ainsi le stockage sera répliqué pour éviter toute perte de données.
 
-Les 2 nodes du serveurs, que nous appellerons Alpha et Beta, auront Proxmox comme hyperviseur et seront en cluster grâce à Proxmox. Pour plus de détails sur Proxmox ce référer à la partie Proxmox.
+Les 2 nodes du serveurs, que nous appellerons Alpha et Beta, auront Proxmox comme hyperviseur et seront en cluster grâce à Proxmox.
 
 ### Infrastructure logicielle
 
@@ -13,7 +13,7 @@ Les containers/VMs sensibles seront répliqués entre les deux nodes
 
 L'infrastructure réseau du club s'articulerait de la manière suivante (sur chaque node) :
 - OPNSense qui servira de Firewall de routeur.
-- HAProxy qui servira de loadbalanceur entre les reverses proxy
+- HAProxy qui servira de loadbalanceur entre les reverses proxy.
 - NGINX qui fera office de reverse proxy entre HAProxy et les serveurs web autre que ceux des environnements CTF.
 - Uniquement sur Beta, un reverse proxy NGINX qui servira de reverse proxy entre HAProxy et l'environnement CTF.
 
@@ -36,7 +36,7 @@ L'objectif est de remplacer la banque de challenge du club stockée actuellement
 
 L'infrastructure CTF du club s'organisera de la manière suivante :
 - Un premier CTFd avec tous les challenges actuels du club utilisés pour les OpenCTF.
-- Un autre CTFd que nous utiliserons pour les sessions en externe comme par exemple pour la session 0 ou il n'y a ni classement ni challenge récurrent.
+- Un autre CTFd que nous utiliserons pour les sessions en externe comme par exemple pour la session 0.
 - Une VM avec différents environnements Docker temporaires pour les challenges système.
 - Une VM avec différents environnements Docker pour les challenges Web.
 
@@ -44,6 +44,6 @@ L'infrastructure CTF du club s'organisera de la manière suivante :
 
 Pour la gestion en interne du serveur, nous nous organiserions de la manière suivante,
 
-- Seulement deux personnes du bureau auront un accès total au serveur pour éviter tout problème d'administration. Les accès seront logés et les comptes nominatifs.
-- Pour ce qui est de l'accès aux services web, tous les membres actifs du club y auront accès, mais seul le responsable technique et les personnes s'occupant du serveur auront les droits d'administration.
-- Pour ce qui est de l'accès aux services CTF, seulement les responsables événements, technique et serveur y auront accès en tant qu'administrateurs, toutes les personnes participant à l'événement auront un accès à l'interface utilisateur du CTF, les accès à cette interface seront loggés.
+- Seulement deux personnes du bureau auront le rôle d'administrateur système soit un accès total au serveur. Limiter le nombre d'administrateur système permet d'éviter tout problème d'administration.
+- Le responsable technique aura le rôle du webmestre c'est à dire qu'il pourra intervenir sur les services comme le site web, le cloud... Cependant il ne pourra pas toucher à l'infrastructure réseau.
+- Pour ce qui est de l'accès aux services web, tous les membres actifs du club y auront accès.

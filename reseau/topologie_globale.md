@@ -1,23 +1,22 @@
 # Topologie globale de l'infrastructure
+Le réseau sera découpé en deux sous réseau matérialisé par des switchs virtuel. Le réseau interne accessible directement depuis l'extérieur et le réseau d'administation accessible uniquement via un VPN.
 
-## Pour les connexions à la partie utilisateur
+## Réseau Interne
 
-Le réseau local sera séparé en 3 zones privées.
+Le réseau interne sera séparé en 4 zones privées.
 
-- ROUTE qui sera la DMZ situé juste après le firewall et qui contiendra les loadbalancer (HAProxy) et les reverse proxy public (NGINX).
+- DMZ qui sera située juste après le firewall et qui contiendra les loadbalancer (HAProxy) et le serveur DNS.
 
-- KRKN qui contiendra les containers des services public et club la liaison entre KRKN et ROUTE se fera à travers les reverses proxy NGINX.
+- PROXY qui sera placé juste après la DMZ et qui contiendra les reverses proxy pour les services autres que les environnements CTF ainqi qu'une Mail Gateway pour faire un relai entre l'extérieur et le serveur mail. Ce relai permettra de filtré les mails.
 
-- CTF qui sera la zone dédiée au reverse proxy CTF et aux containers/VMs des environnements CTF.
+- INT qui contiendra les containers des services permanents. La liaison entre INT et PROXY se fera à travers les reverses proxy NGINX et la Mail Gateway.
 
-Les requêtes arriveront sur le pare-feu qui effectura un premier filtrage et transmettra les requêtes sur les ports 80 et 443 à un des loadbalancer, c'est le loadbalancer qui décidera ensuite si la requête sera retransmise à l'un des reverses de la zone KRKN ou au reverse de la zone CTF.
+- CTF qui sera la zone dédiée au reverse proxy CTF et aux containers/VMs des environnements CTF. Le lien avec l'extérieur se ferra directement au niveau de la DMZ via HAProxy.
 
-## Pour les connexions à la partie administration
+Les requêtes arriveront sur le pare-feu qui effectura un premier filtrage et transmettra les requêtes sur les ports 80 et 443 à un des loadbalancer, c'est le loadbalancer qui décidera ensuite si la requête sera retransmise à l'un des reverses de la zone INT ou au reverse de la zone CTF.
 
-L'accès à l'interface d'administration de Proxmox se fera par la voie classique, en cas de connexion à pve.krhacken.org, HAProxy vérifiera le certificat client et son CN avant de rediriger vers un des deux panels.
+## Réseau Administation
 
-L'accès au port 8006 (port par défaut de l'UI Proxmox) et au port 22 se fera par un VPN qui sera géré par le pare feu (OPNSense) sur la zone ADMIN.
+L'accès au réseau administration se fera grâce à un VPN. Depuis le réseau administration on pourra accéder librement à tout les services hyperviseurs compris. Cela pourra par exemple permettre de mettre en place un système de monitoring.
 
-Voilà un schéma (très simplifié) de la topologie globale du réseau (user et admin)
-
-![Topologie de la zone Route](schema_global.png)
+De son côté l'accès à l'interface d'administration de Proxmox se fera aussi par la voie classique. En cas de connexion à pve.krhacken.org, HAProxy vérifiera le certificat client et son CN avant de rediriger vers un des deux panels.
