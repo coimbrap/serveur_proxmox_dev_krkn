@@ -4,9 +4,11 @@ Les services seront réparti en plusieurs zones à la manière du découpage du 
 
 
 ## Services Frontend
+
 Les services Frontend sont directement accessible depuis internet derrière OPNSense.
 
-### Zone WAN
+### Zone WAN
+
 Cette zone regroupe les pare-feux et les hyperviseurs.
 
 Les services DMZ devront avoir les interfaces réseau suivante
@@ -18,6 +20,7 @@ Pour OPNSense
 
 
 ### Zone DMZ
+
 Cette zone regroupe les services qui nécessite un accès direct à internet.
 
 C'est le cas de,
@@ -82,7 +85,8 @@ Les services de la zone CTF devront avoir les interfaces réseau suivante
 - Bridge Interne VLAN 40 (CTF)
 - Bridge Admin VLAN 100 (ADMIN)
 
-## Zone DIRTY
+### Zone DIRTY
+
 Cette zone regroupe rien de spécial à part d'éventuels containers de test. Elle ne sera d'ailleurs pas documenté ici.
 
 Les services de la zone DIRTY devront avoir les interfaces réseau suivante
