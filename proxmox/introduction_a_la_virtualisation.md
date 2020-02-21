@@ -6,7 +6,7 @@ Contrairement à un hyperviseur de type 2 (VirtualBox par exemple), celui-ci n�
 
 Donc proxmox permet la virtualisation de plusieurs machine au sein d’un seul serveur. Il est aussi possible de monter deux ou plus serveur en cluster.
 
-## Technologie de virtualisation propos
+## Technologie de virtualisation
 
 Proxmox propose deux types de virtualisation
 - KVM qui est une technologie de virtualisation similaire à ce qui est offert par VirtualBox. Tout le matériel est émulé par l'hyperviseur. Ainsi, le système d'exploitation croit s'exécuter sur une vraie machine physique. Les ressource alloué sont considérer comme totalement utilisé par Proxmox.
@@ -14,7 +14,7 @@ Proxmox propose deux types de virtualisation
 
 Pour notre infrastructure nous utiliserons dès que possible des containers LXC. Cependant pour les environnements CTF nécessitant Docker et pour OPNSense nous utiliserons des VMs KVM.
 
-## Qualité de Proxmox
+## Qualité de Proxmox
 Voilà un petit aperçu des fonctionnalité de Proxmox
 
 - Création de containers LXC et de VM en quelques clics.
