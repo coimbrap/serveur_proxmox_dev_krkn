@@ -1,2 +1,0 @@
-# Présentation de la zone KRKN
-Vous trouverez ici toute la documentation relative au fonctionnement et à la configuration de la zone KRKN. Cela comprend tous les containers des services publics (Nextcloud, Gitea...) et les services internes nécessaires au fonctionnement des services publics comme l'annuaire LDAP.

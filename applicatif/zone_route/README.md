@@ -1,2 +1,0 @@
-# Présentation de la zone ROUTE
-Vous trouverez ici toute la documentation relative au fonctionnement et à la configuration de la zone ROUTE. Cela comprend les deux HAProxy et les deux reverses proxy public nginx.

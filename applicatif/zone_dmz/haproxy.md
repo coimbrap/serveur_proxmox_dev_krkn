@@ -1,8 +1,8 @@
 # Gestion du flux post-firewall
- 
+
 ## Présentation des containers
 
-Deux containers Debian 10 identiques, un sur Alpha l'autre sur Bêta avec deux interfaces 
+Deux containers Debian 10 identiques, un sur Alpha l'autre sur Bêta avec deux interfaces
 - Sur Alpha le container HAProxy a comme IP 10.0.0.3/24 sur ROUTE (eth0) 10.0.1.3/24 sur CTF (eth1)
 - Sur Beta le container HAProxy a comme IP 10.0.0.4/24 sur ROUTE 10.0.1.4/24 sur CTF
 L'option Firewall PVE des interfaces est désactivée
@@ -19,7 +19,7 @@ Trois objectifs pour la gestion du flux post-firewall
 
 Voici les choix techniques faits afin de répondre à ces objectifs
 - Pour le load balancing entre les deux reverse proxy Nginx, on utilisera HAProxy.Le lien sécurisé sera entre l'utilisateur de HAProxy qui soumettra ensuite des requêtes HTTP à un des reverse proxy Nginx.
-- Pour la redondance du proxy entre les deux nodes, on utilisera keepalived et la technologie VRRP pour garantir la disponibilité du proxy via une ip virtuelle. 
+- Pour la redondance du proxy entre les deux nodes, on utilisera keepalived et la technologie VRRP pour garantir la disponibilité du proxy via une ip virtuelle.
 - Pour la vérification du certificat client - uniquement si le client veut se connecter au panel Proxmox- on fera une première frontend à la couche 4 (TCP) pour les connexions https qui rediregera les connexions vers le panel sur une frontend dédié et le reste vers une frontend par défaut.
 - Pour les certificats SSL, nous allons utiliser Let's Encrypt avec un serveur Nginx local dédié à l'obtention des certificats et des scripts pour le dépoiement sur les deux containers HAProxy.
 - La séparation des flux entre les deux reverse public et le reverse ctf ce fera au niveau de la seconde frontend par défaut tout comme le filtrage des requêtes par nom de domaine.
@@ -74,13 +74,13 @@ systemctl enable nginx
 ```
 Pour la vérification du certificat du client, la méthode est dans la git. Il faut placer le ca.crt dans /home/hasync/pve.crt et ajouter le CN autorisé dans /home/hasync/allowed_cn.txt
 
-### Configuration 
+### Configuration
 Voilà une rapide explication de la configuration faite
 - Une première frontend (all-web-in) de type TCP en écoute sur le port 443 qui vérifie si les requêtes tcp sont bien SSL et redirige tout vers la frontend principale via un proxy sauf les requêtes vers la panel Proxmox qui sont redirigées vers la frontend admin via un proxy.
 
-- La frontend principale (user-web-in) de type http écoute sur le ports 80 et le proxy évoqué plus haut. Filtrage des requêtes ne respectant pas le nom de domaine et forçage du https sans www sinon rejet du packet. Redirection des requêtes Let's Encrypt vers un serveur Nginx local dédié aux certifications sinon séparation du flux avec d'un côté une backend s'occupant du load balancing entre les deux reverse proxy Nginx public et de l'autre une backend redirigeant vers le reverse proxy ctf à l'aide du nom de domaine. 
+- La frontend principale (user-web-in) de type http écoute sur le ports 80 et le proxy évoqué plus haut. Filtrage des requêtes ne respectant pas le nom de domaine et forçage du https sans www sinon rejet du packet. Redirection des requêtes Let's Encrypt vers un serveur Nginx local dédié aux certifications sinon séparation du flux avec d'un côté une backend s'occupant du load balancing entre les deux reverse proxy Nginx public et de l'autre une backend redirigeant vers le reverse proxy ctf à l'aide du nom de domaine.
 
-#### /etc/haproxy/haproxy.cfg 
+#### /etc/haproxy/haproxy.cfg
 ```
 global
 	log /dev/log	local0
@@ -119,7 +119,7 @@ frontend all-web-in
     use_backend is-admin if { req_ssl_sni -i pve.sessionkrkn.fr }
     use_backend is-admin if { req_ssl_sni -i rspamd.sessionkrkn.fr }
     default_backend is-user
-        
+
 frontend user-web-in
     mode http
     bind *:80 interface eth0
@@ -138,7 +138,7 @@ frontend user-web-in
 
     redirect scheme https code 301 if !{ ssl_fc } authorized_host !host_letsencrypt !mail
     use_backend nginx-ctf if ctf_host !host_letsencrypt !mail
-    use_backend letsencrypt if host_letsencrypt !mail 
+    use_backend letsencrypt if host_letsencrypt !mail
     use_backend reverse-nginx if authorized_host !ctf_host OR mail
     default_backend drop-http
 
@@ -151,11 +151,11 @@ frontend admin-in
     use_backend reverse-nginx if { ssl_fc_has_crt } is_auth rspamd
     use_backend pve-interface if { ssl_fc_has_crt } is_auth pve
     default_backend drop-http
-        
+
 backend is-admin
     mode tcp
     server admin-in abns@haproxy-admin send-proxy-v2
-        
+
 backend is-user
     mode tcp
     server admin-in abns@haproxy-user send-proxy-v2
@@ -209,7 +209,7 @@ server {
 systemctl restart nginx.service
 systemctl restart haproxy.service
 ```
-### Obtention des premiers certificats et déploiement 
+### Obtention des premiers certificats et déploiement
 ```
 certbot certonly --webroot -w /home/hasync/letsencrypt-requests/ -d sub.sessionkrkn.fr
 ```
@@ -219,7 +219,7 @@ Voici un script pour mettre en place les certificats Let's Encrypt au bon endroi
 #!/bin/bash
 rm -f /etc/letsencrypt/live/README
 rm -rf /etc/ssl/letsencrypt/*
-for domain in $(ls /etc/letsencrypt/live); do 
+for domain in $(ls /etc/letsencrypt/live); do
     cat /etc/letsencrypt/live/$domain/privkey.pem /etc/letsencrypt/live/$domain/fullchain.pem > /etc/ssl/letsencrypt/$domain.pem
 done
 scp -r /etc/ssl/letsencrypt/* root@10.0.0.3:/etc/ssl/letsencrypt
@@ -252,7 +252,7 @@ vrrp_script chk_haproxy {
    interval 2
    weight 2
 }
- 
+
 vrrp_instance VI_1 {
    interface eth0
    state MASTER
@@ -276,7 +276,7 @@ vrrp_script chk_haproxy {
    interval 2
    weight 2
 }
- 
+
 vrrp_instance VI_1 {
    interface eth0
    state MASTER
@@ -308,7 +308,7 @@ Voilà un script d'automatisation à mettre sur les deux containers
 if [ "$(ip a | grep -c "10.0.0.5")" -ge 1 ]; then
 	certbot renew
 	rm -rf /etc/ssl/letsencrypt/*
-	for domain in $(ls /etc/letsencrypt/live); do 
+	for domain in $(ls /etc/letsencrypt/live); do
 		  cat /etc/letsencrypt/live/$domain/privkey.pem /etc/letsencrypt/live/$domain/fullchain.pem > /etc/ssl/letsencrypt/$domain.pem
 	done
 	scp -r /etc/ssl/letsencrypt/* hasync@<ip_autre_ct>:/etc/ssl/letsencrypt

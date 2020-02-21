@@ -12,7 +12,8 @@ Pour chacune des zones (INT ou CTF) il y a deux types de VM/CT,
 
 ## Les switchs virtuel
 
-- Un switch Administation pour toute les tâches d'administration avec comme lien extérieur eth2
+- Un switch WAN pour le lien entre l'extérieur, les pares-feu et les hyperviseurs avec comme lien extérieur eth0.
+- Un switch Administation pour toute les tâches d'administration avec comme lien extérieur eth2.
 - Un switch Interne qui devra gérer, avec des VLANs, l'accès (filtré) à internet des services qui ne sont pas directement derrière le FW (Nextcloud, Git, Serveur Web...) en séparant le tout en plusieurs zones et les services qui sont directement derrière le FW (HAProxy, Proxy des services, Mail et DNS). Avec comme lien extérieur un bond entre eth1 et eth3.
 
 ## Communication des switchs entre les nodes
@@ -21,7 +22,7 @@ Tout les hyperviseurs auront une pâte sur le VLAN 100 sur chaque switch pour le
 
 ## Services Frontend
 
-Concrètement les containers concernés auront des ports d'entrée DNAT vers eux ce qui signifie qu'ils seront accessible depuis internet à travers le firewall. C'est le cas de HAProxy, des Mails, du serveur DNS et du Proxy des services.
+Concrètement les containers concernés auront des ports d'entrée DNAT vers eux ce qui signifie qu'ils seront accessible depuis internet à travers le firewall. C'est le cas de HAProxy, du serveur DNS et du Proxy des services.
 
 Tout ces CT auront obligatoirement une pâte sur la VLAN 10 et une VLAN backend du switch Interne.
 
@@ -29,11 +30,11 @@ Tout ces CT auront obligatoirement une pâte sur la VLAN 10 et une VLAN backend 
 
 Les containers ou VMs concerné ne seront pas accessible depuis internet cependant certain seront accessible par l'intermédiaire de HAProxy (entre autres).
 
-Cette parti sera découpé en plusieures zones,
-- PROXY sur la VLAN 20 qui contiendra les reverses proxy public,
+Cette parti sera découpé en plusieurs zones,
+- PROXY sur la VLAN 20 qui contiendra les reverses proxy public et le relais mail,
 - INT sur la VLAN 30 qui contiendra tout les services de la partie krhacken,
 - CTF sur la VLAN 40 qui contiendra le reverse proxy CTF et les environnement CTF,
-- EXT sur la VLAN 50 qui contiendra les environnement de test.
+- DIRTY sur la VLAN 50 qui contiendra les environnement de test.
 
 ## Partie Internet
 
