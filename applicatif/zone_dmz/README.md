@@ -4,7 +4,7 @@ Vous trouverez ici toute la documentation relative au fonctionnement et à la co
 Cela comprend les deux HAProxy, le serveur DNS et le proxy pour l'accès à internet des contenants.
 
 ## Réseau
-Les services DMZ devront avoir les interfaces réseau suivante
+Les services DMZ devront avoir les interfaces réseau suivantes :
 - Bridge Interne VLAN 10 (DMZ)
 - Bridge Admin VLAN 100 (ADMIN)
 
