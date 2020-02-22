@@ -3,7 +3,7 @@
 Les services seront réparti en plusieurs zones à la manière du découpage du réseau. Il est donc recommandé d'avoir compris l'infrastructure réseau avant de lire cette partie.
 
 
-## Services Frontend
+## Services Frontend
 
 Les services Frontend sont directement accessible depuis internet derrière OPNSense.
 

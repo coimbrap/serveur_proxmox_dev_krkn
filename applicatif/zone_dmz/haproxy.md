@@ -1,4 +1,5 @@
-# Gestion du flux post-firewall
+# HAProxy
+Cela consiste en la gestion des flux post firewall.
 
 ## Présentation des containers
 
@@ -10,7 +11,7 @@ L'option Firewall PVE des interfaces est désactivée
 ## Objectifs et choix techniques
 
 Trois objectifs pour la gestion du flux post-firewall
-- Redondance du proxy/load balancer entre les deux nodes.
+- Redondance du proxy/load balanceur entre les deux nodes.
 - Séparation des flux (reverse public et reverse ctf).
 - Load balancing entre deux reverse proxy Nginx public (un sur chaque nodes).
 - Connexion SSL entre l'utilisateur et le proxy.
@@ -116,8 +117,8 @@ frontend all-web-in
     bind *:443 interface eth0
     tcp-request inspect-delay 5s
     tcp-request content accept if { req_ssl_hello_type 1 }
-    use_backend is-admin if { req_ssl_sni -i pve.sessionkrkn.fr }
-    use_backend is-admin if { req_ssl_sni -i rspamd.sessionkrkn.fr }
+    use_backend is-admin if { req_ssl_sni -i pve.krhacken.org }
+    use_backend is-admin if { req_ssl_sni -i rspamd.krhacken.org }
     default_backend is-user
 
 frontend user-web-in
@@ -126,10 +127,10 @@ frontend user-web-in
     bind abns@haproxy-user accept-proxy ssl accept-proxy no-sslv3 crt /etc/ssl/letsencrypt interface eth0
     acl host_letsencrypt path_beg /.well-known/acme-challenge
     acl authorized_host hdr_end(host) sessionkrkn.fr
-    acl mail hdr_end(host) mail.sessionkrkn.fr
+    acl mail hdr_end(host) mail.krhacken.org
     acl rspamd path_beg /rspamd/
-    acl ctf_host hdr_end(host) ctf.sessionkrkn.fr
-    acl ctf_host hdr_end(host) web.sessionkrkn.fr
+    acl ctf_host hdr_end(host) ctf.krhacken.org
+    acl ctf_host hdr_end(host) web.krhacken.org
     acl host_www hdr_beg(host) -i www.
 
     reqirep ^Host:\ www.(.*)$ Host:\ \1 if host_www !host_letsencrypt !mail
@@ -146,8 +147,8 @@ frontend admin-in
     mode http
     bind abns@haproxy-admin accept-proxy ssl no-sslv3 crt /etc/ssl/letsencrypt ca-file /home/hasync/pve.crt verify required interface eth0
     acl is_auth ssl_c_s_dn(cn) -i -f /etc/haproxy/allowed_cn.txt
-    acl pve hdr_end(host) pve.sessionkrkn.fr
-    acl rspamd hdr_end(host) rspamd.sessionkrkn.fr
+    acl pve hdr_end(host) pve.krhacken.org
+    acl rspamd hdr_end(host) rspamd.krhacken.org
     use_backend reverse-nginx if { ssl_fc_has_crt } is_auth rspamd
     use_backend pve-interface if { ssl_fc_has_crt } is_auth pve
     default_backend drop-http
@@ -211,7 +212,7 @@ systemctl restart haproxy.service
 ```
 ### Obtention des premiers certificats et déploiement
 ```
-certbot certonly --webroot -w /home/hasync/letsencrypt-requests/ -d sub.sessionkrkn.fr
+certbot certonly --webroot -w /home/hasync/letsencrypt-requests/ -d sub.krhacken.org
 ```
 
 Voici un script pour mettre en place les certificats Let's Encrypt au bon endroit qui s'occupe de propager les certificats sur l'autre container.
@@ -227,11 +228,11 @@ ssh root@10.0.0.3 'systemctl restart haproxy.service'
 service haproxy restart
 ```
 
-## Mise en place de la haute disponibilité du load balancer
+## Mise en place de la haute disponibilité du load balanceur
 Voilà la configuration que nous allons mettre en place,
 - Sur Alpha le container HAProxy aura comme IP 10.0.0.3
 - Sur Beta le container HAProxy aura comme IP 10.0.0.4
-- L'IP virtuelle 10.0.0.5 sera attribuée en fonction de la disponibilité des load balancer
+- L'IP virtuelle 10.0.0.5 sera attribuée en fonction de la disponibilité des load balanceur
 - La node Alpha sera le master et la node Beta sera le Slave
 
 ### Installation (commune au deux nodes)
