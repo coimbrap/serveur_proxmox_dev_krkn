@@ -4,8 +4,8 @@ Cela consiste en la gestion des flux post firewall.
 ## Présentation des containers
 
 Deux containers Debian 10 identiques, un sur Alpha l'autre sur Bêta avec deux interfaces
-- Sur Alpha le container HAProxy a comme IP 10.0.0.3/24 sur ROUTE (eth0) 10.0.1.3/24 sur CTF (eth1)
-- Sur Beta le container HAProxy a comme IP 10.0.0.4/24 sur ROUTE 10.0.1.4/24 sur CTF
+- Sur Alpha le container HAProxy a comme IP 10.0.0.3/24 sur DMZ et 10.0.1.3/24 sur CTF.
+- Sur Beta le container HAProxy a comme IP 10.0.0.4/24 sur DMZ et 10.0.1.4/24 sur CTF
 L'option Firewall PVE des interfaces est désactivée
 
 ## Objectifs et choix techniques
@@ -27,7 +27,7 @@ Voici les choix techniques faits afin de répondre à ces objectifs
 
 ### Voilà un schéma résumé
 
-![Topologie de la zone Route](schema_route.png)
+![Topologie de la zone DMZ](schema_dmz.png)
 
 ## Création d'un canal d'échange par clé entre les deux containers
 Afin de pouvoir faire des scp de manière automatique entre les deux containers, il faut mettre en place une connexion ssh par clé en root entre les deux containers.
@@ -126,7 +126,7 @@ frontend user-web-in
     bind *:80 interface eth0
     bind abns@haproxy-user accept-proxy ssl accept-proxy no-sslv3 crt /etc/ssl/letsencrypt interface eth0
     acl host_letsencrypt path_beg /.well-known/acme-challenge
-    acl authorized_host hdr_end(host) sessionkrkn.fr
+    acl authorized_host hdr_end(host) krhacken.fr.fr
     acl mail hdr_end(host) mail.krhacken.org
     acl rspamd path_beg /rspamd/
     acl ctf_host hdr_end(host) ctf.krhacken.org

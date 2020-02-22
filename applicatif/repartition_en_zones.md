@@ -24,7 +24,7 @@ Pour OPNSense
 Cette zone regroupe les services qui nécessitent un accès direct à internet.
 
 C'est le cas de,
-- HAProxy, le proxy/loadbalanceur qui filtre les accès aux services depuis l'extérieur.
+- HAProxy, le proxy / loadbalanceur qui filtre les accès aux services depuis l'extérieur.
 - Bind9, le serveur DNS qui servira à la fois de résolveur interne et de zone DNS pour le domaine krhacken.org.
 - Squid, le proxy filtrant qui s'occupe de gérer l'accès à internet des conteneurs/VM
 

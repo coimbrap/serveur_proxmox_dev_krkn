@@ -558,7 +558,7 @@ systemctl restart slapd
 Vérifions si TLS est obligatoire,
 Cette commande doit retourner une erreur
 ```
-ldapsearch -H ldap:// -x -b "dc=sessionkrkn,dc=fr" -LLL dn
+ldapsearch -H ldap:// -x -b "dc=krhacken,dc=org" -LLL dn
 ```
 et celle la doit aboutir
 ```

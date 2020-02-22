@@ -3,7 +3,7 @@ Nous allons ici détaillé la configuration du réseau physique et virtuel. Il e
 
 ## Map des IPs principales.
 Voilà les IPs attribuées aux services principaux qu'il faut impérativement respecter.
-### FrontEnd (Juste après le FW)
+### DMZ
 - Firewall Alpha : 10.0.0.1
 - Firewall Beta : 10.0.0.2
 - Firewall VIP : 10.0.0.3
@@ -13,7 +13,7 @@ Voilà les IPs attribuées aux services principaux qu'il faut impérativement re
 - Proxy Interne : 10.0.0.7
 - Mail : 10.0.0.10
 
-### PROXY (Juste après la frontend)
+### PROXY
 - HAProxy Alpha : 10.0.1.1
 - HAProxy Beta : 10.0.1.2
 - Nginx Public Alpha : 10.0.1.3
