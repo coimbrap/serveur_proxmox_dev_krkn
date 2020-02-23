@@ -11,7 +11,7 @@ L'option Firewall PVE des interfaces est désactivée
 ## Objectifs et choix techniques
 
 Trois objectifs pour la gestion du flux post-firewall
-- Redondance du proxy/load balanceur entre les deux nodes.
+- Redondance du proxy / load balanceur entre les deux nodes.
 - Séparation des flux (reverse public et reverse ctf).
 - Load balancing entre deux reverse proxy Nginx public (un sur chaque nodes).
 - Connexion SSL entre l'utilisateur et le proxy.
@@ -69,7 +69,7 @@ Le procédé est le même, en voici les variantes,
 ### Installation
 ```
 apt-get update
-apt-get install -y haproxy hatop certbot nginx
+apt-get install -y haproxy hatop certbot nginx psmisc
 systemctl enable haproxy
 systemctl enable nginx
 ```
@@ -280,7 +280,7 @@ vrrp_script chk_haproxy {
 
 vrrp_instance VI_1 {
    interface eth0
-   state MASTER
+   state SLAVE
    virtual_router_id 51
    priority 100 # 101 on master, 100 on backup
    virtual_ipaddress {
