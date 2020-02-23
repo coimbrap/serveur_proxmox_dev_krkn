@@ -12,6 +12,7 @@ Switch Interne VLAN 10
 - HAProxy Beta : 10.0.0.5
 - HAProxy VIP : 10.0.0.6
 - Proxy Interne : 10.0.0.7
+- DNS : 10.0.0.8
 - Mail : 10.0.0.10
 
 
@@ -31,7 +32,7 @@ Switch Interne VLAN 30
 - Nginx Public Alpha : 10.0.2.4
 - Nginx Public Beta : 10.0.2.5
 - Proxy Interne : 10.0.2.254
-- [...] Voir DNS
+- [...]
 
 ### CTF :
 Switch Interne VLAN 40
