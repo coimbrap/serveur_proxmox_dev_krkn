@@ -53,7 +53,7 @@ Vérifier la cohérence et lancer l'installation.
 ### Sur la deuxième node (Beta)
 Même procédure, dans "Management Network Configuration" il faut juste remplacer le Hostname par **beta.krhacken.org**
 
-## Préparation des hyperviseurs
+## Préparation des hyperviseurs
 La procédure est la même sur les deux nodes. Elle peut être faite via SSH (recommandé) ou sur l'interface d'administration **https://IP:8006**
 
 ### Mise à jour
@@ -79,7 +79,7 @@ pveam download local debian-10.0-standard_10.0-1_amd64.tar.gz
 ### Images VM
 Nous aurons besoin de VM OPNSense (Pare-Feu) et de VM debian, il faut donc télécharger les derniers ISO disponibles.
 
-#### OPNSense
+#### OPNSense
 VM nécessaire car c'est une distribution Free-BSD
 
 Obtention du lien de Téléchargement sur le [site officiel](https://opnsense.org/download/)
@@ -94,7 +94,7 @@ Le lien donné sera utilisé par la suite
 wget -P /var/lib/vz/template/iso <lien_obtenu>
 ```
 
-#### Debian
+#### Debian
 VM nécessaire pour faire tourner efficacement Docker
 
 Obtention du lien de Téléchargement sur le [site officiel](https://www.debian.org/distrib/netinst)

@@ -32,7 +32,7 @@ Une fois la VM redémarrée pour la première fois, il faut faut assigner les in
 Il faut configurer 2 interfaces pour commencer, une le WAN (wan vlan 10) et une pour le LAN (interne vlan 10). On ajoutera le reste plus tard.
 
 
-# En attente du choix WAN...
+# En attente du choix WAN...
 
 ### Règles (uniquement DNAT)
 - DNAT 80,443 dmz:10.0.0.5

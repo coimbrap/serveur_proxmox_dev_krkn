@@ -6,7 +6,7 @@ Ce service est redondé car vital, son IP est 10.0.0.6 sur Alpha et 10.0.0.7 sur
 ## Objectif
 Il doit rediriger les requêtes arrivant de HAProxy vers le bon container en fonction de l'hostname. Pour cela nous allons utiliser des serveurs web HTTP avec des proxy sur Nginx sans s'occuper de l'autre serveur web.
 
-## Création d'un canal d'échange par clé entre les deux containers
+## Création d'un canal d'échange par clé entre les deux containers
 Afin de pouvoir faire des scp de manière automatique entre les deux containers, il faut mettre en place une connexion ssh par clé en root entre les deux containers.
 
 Le procédé est le même, en voici les variantes,

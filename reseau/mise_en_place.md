@@ -80,14 +80,14 @@ Switch Administration VLAN 100
 - [...] Voir DNS
 
 
-# Réseau physique
+# Réseau physique
 
 La configuration et les branchement à faire sur le switch sera détaillé plus tard.
 
 # Réseau virtuel
 Cette partie consiste à mettre en place OpenvSwitch sur les deux nodes.
 
-## Installation
+## Installation
 Commune aux deux nodes
 ```
 apt-get update

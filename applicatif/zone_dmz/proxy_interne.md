@@ -2,7 +2,7 @@
 
 Nous allons mettre en place un proxy interne pour permettre au services des zones n'ayant pas un accès direct à internet (PROXY, INT, CTF et DIRTY) d'accéder au gestionnaire de packet et à internet (via WGET). Le proxy interne sera dans la zone DMZ, il fera donc le lien entre l'extérieur et les services.
 
-## Apt Cacher NG
+## Apt Cacher NG
 Pour l'accès au gestionnaire de packet nous allons utiliser Apt-Cacher NG.
 
 ### Installation
@@ -23,11 +23,11 @@ systemctl restart apt-cacher-ng.service
 ```
 Apt-Cacher est désormais sur le port 9999 du proxy interne. Il n'est accessible que depuis les zones PROXY, INT, CTF et DIRTY. Les requêtes depuis d'autres zones seront rejetées.
 
-## Squid
+## Squid
 
 Pour l'accès à internet via WGET nous allons utiliser Squid.
 
-### Installation
+### Installation
 ```
 apt-get install -y squid3 ca-certificates
 ```
@@ -59,7 +59,7 @@ systemctl restart squid.service
 Squid est maintenant accessible depuis le port 3128 du proxy interne uniquement depuis les zones PROXY, INT, CTF et DIRTY. Les requêtes depuis d'autres zones seront rejetées.
 
 
-## Accès au Proxy Interne depuis un container ou une VM
+## Accès au Proxy Interne depuis un container ou une VM
 
 Les outils principaux sont WGET et APT-GET on va donc les reliées au Proxy Interne.
 
@@ -69,10 +69,10 @@ Le proxy interne sera accessible uniquement depuis les zones PROXY, INT, CTF et 
 - CTF (VLAN 40) -> 10.0.3.254
 - DIRTY (VLAN 50) -> 10.0.4.254
 
-### WGET
+### WGET
 Les requêtes passerons désormais par le proxy interne sur le port 3128 pour les requêtes http et https. Seul le root aura accès au proxy.
 
-#### /root/.wgetrc
+#### /root/.wgetrc
 ```
 http_proxy = http://<ip_proxy_zone>:3128/
 https_proxy = http://<ip_proxy_zone>:3128/

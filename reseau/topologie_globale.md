@@ -1,7 +1,7 @@
 # Topologie globale de l'infrastructure
 Le réseau sera découpé en deux sous-réseaux matérialisés par des switchs virtuels : le réseau interne accessible directement depuis l'extérieur et le réseau d'administration accessible uniquement via un VPN.
 
-## Réseau WAN
+## Réseau WAN
 
 Le réseau WAN permettra de faire le lien entre l'extérieur, les pare-feux et les hyperviseurs.
 

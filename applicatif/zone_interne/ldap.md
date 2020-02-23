@@ -2,7 +2,7 @@
 Nous allons ici mettre en place le serveur LDAP qui sera répliqué sur les deux nodes. Tout les services utiliseront LDAP pour l'authentification des utilisateurs.
 A noté que pour des questions pratique nous n'allons pas utilisé Fusion Directory, il faudra donc créer un schéma pour chaque service et modifier les utilisateur avec ldapadd et ldapmodify.
 Pour la sécurisation de LDAP nous allons utiliser LDAP avec STARTTLS.
-## Installation slapd
+## Installation slapd
 On commence par installer le serveur ldap.
 ```
 apt-get update
@@ -25,13 +25,13 @@ Database backend to use: MDB
 Do you want the database to be removed when slapd is purged? YES
 Allow LDAPv2 protocol? No
 ```
-### /etc/ldap/ldap.conf
+### /etc/ldap/ldap.conf
 ```
 BASE dc=krhacken,dc=org
 URI ldap://IP.LDAP/
 ```
 
-## Centralisation des fichiers de configuration
+## Centralisation des fichiers de configuration
 Nous allons créer un répertoire /root/ldap/conf qui va centraliser tous nos fichiers de configuration
 ```
 mkdir -p /root/ldap/conf/
@@ -120,7 +120,7 @@ ldapsearch -xLLL -H ldap://localhost -D cn=viewer,ou=system,dc=krhacken,dc=org -
 doit retourner une erreur, si on ajout -ZZ à la fin ça doit fonctionner
 
 
-## Configuration des futurs client LDAP
+## Configuration des futurs client LDAP
 Sur tout les futurs client LDAP il faudra activer la connexion SSL.
 Il faut commencer par copier le certificat de la CA (ca_server.pem)
 ```
@@ -134,7 +134,7 @@ TLS_CACERT /etc/ldap/ca_certs.pem
 ...
 ```
 
-## Droits d'accès pour la configuration
+## Droits d'accès pour la configuration
 ### /root/ldap/conf/acces-conf-admin.ldif
 ```
 dn: olcDatabase={0}config,cn=config
@@ -186,7 +186,7 @@ Vérification
 ldapsearch -QLLLY EXTERNAL -H ldapi:/// -b "cn=config" "Objectclass=olcModuleList"
 ```
 
-## refint
+## refint
 L'overlay permet de s’assurer de la cohérence de l’annuaire lors de suppression d’entrées.
 ### /root/ldap/conf/refint_act.ldif
 ```
@@ -452,14 +452,14 @@ Commande pour la connexion à un utilisateur
 ldapsearch -xLLLH ldap://localhost -D uid=PSEUDO,ou=krhacken,ou=people,dc=krhacken,dc=org -W -b "dc=krhacken,dc=org" "uid=PSEUDO"
 ```
 
-## Groupes
+## Groupes
 
 Il existe deux types de groupes : les posixgroup et les groupofnames.
 Les posixgroup sont similaires au groupes Unix, et les groupofnames ressemblent plus à des groupes AD.
 Pour faire simple, l’avantage des groupofnames est qu’avec un filtre sur un utilisateur, on peut connaitre ses groupes (avec l’overlay memberof). Chose impossible avec les posixgroups.
 
 
-### /root/ldap/conf/Group.ldif
+### /root/ldap/conf/Group.ldif
 ```
 dn: cn=cloud,ou=sysgroup,ou=group,dc=krhacken,dc=org
 cn: cloud
@@ -494,14 +494,14 @@ On ajoute l'utilisateur avec
 ldapmodify -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f addusertogroup.ldif
 ```
 
-# Sécurisation de l'annuaire
+# Sécurisation de l'annuaire
 
-## Comptes avec permissions réduite
+## Comptes avec permissions réduite
 Nous allons créer deux compte systèmes.
 - Un viewer qui aura uniquement les droits en lecture de l'arbre
 - Un Writer qui lui aura les droits en écriture
 
-### /root/ldap/conf/viewer.ldif
+### /root/ldap/conf/viewer.ldif
 ```
 dn: cn=viewer,ou=system,dc=krhacken,dc=org
 objectClass: simpleSecurityObject
@@ -527,7 +527,7 @@ ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f writer.ldif
 ```
 
 On autorise la lecture de l'arbre uniquement au utilisateur authentifié en modifiant une ACL
-### /root/ldap/conf/acl.ldif
+### /root/ldap/conf/acl.ldif
 ```
 dn: olcDatabase={1}mdb,cn=config
 changetype: modify

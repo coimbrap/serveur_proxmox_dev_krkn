@@ -474,7 +474,7 @@ query_filter = (&(maildomain=%s)(objectClass=maildomainkrhacken)(maildomainactif
 result_attribute = maildomain
 result_filter = REJECT Goodbye
 ```
-### /etc/postfix/ldap/check_sender_domains_reject.cf
+### /etc/postfix/ldap/check_sender_domains_reject.cf
 Bloque les FROM TO vers les mails non attribués
 ```
 server_host = ldap://10.0.1.6
@@ -932,7 +932,7 @@ postfix reload
 systemctl restart rspamd
 ```
 
-## Machine Learning en fonction des actions des utilisateurs
+## Machine Learning en fonction des actions des utilisateurs
 Les mails Spam sont considérées comme Spam et les mails lisible sont considérées comme Ham.
 Couplé avec Dovecot, Rspamd nous propose de pouvoir apprendre également en fonction des actions des utilisateurs. Si un mail est déplacé vers le répertoire spam, il sera appris comme tel et au contraire,  s’il est sorti du répertoire Spam vers autre chose que la corbeille, il sera appris comme Ham.
 ### /etc/dovecot/conf.d/90-sieve-extprograms.conf
@@ -1052,7 +1052,7 @@ location /rspamd/ {
 }
 ```
 
-## Entrée DNS
+## Entrée DNS
 ### SPF
 Permet de valider auprès des récepteurs de nos mails que nous somme vraiment l'expéditeur légitime du mail.
 ```
