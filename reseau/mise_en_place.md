@@ -4,6 +4,7 @@ Nous allons ici détaillé la configuration du réseau physique et virtuel. Il e
 ## Map des IPs principales.
 Voilà les IPs attribuées aux services principaux qu'il faut impérativement respecter.
 ### DMZ
+Switch Interne VLAN 10
 - Firewall Alpha : 10.0.0.1
 - Firewall Beta : 10.0.0.2
 - Firewall VIP : 10.0.0.3
@@ -14,12 +15,14 @@ Voilà les IPs attribuées aux services principaux qu'il faut impérativement re
 - Mail : 10.0.0.10
 
 ### PROXY
+Switch Interne VLAN 20
 - HAProxy Alpha : 10.0.1.1
 - HAProxy Beta : 10.0.1.2
 - Nginx Public Alpha : 10.0.1.3
 - Nginx Public Beta : 10.0.1.4
 
 ### INT
+Switch Interne VLAN 30
 - LDAP Alpha : 10.0.2.1
 - LDAP Bêta : 10.0.2.2
 - LDAP VIP : 10.0.2.3
@@ -28,6 +31,7 @@ Voilà les IPs attribuées aux services principaux qu'il faut impérativement re
 - [...] Voir DNS
 
 ### CTF :
+Switch Interne VLAN 40
 - HAProxy Alpha : 10.0.3.1
 - HAProxy Beta : 10.0.3.2
 - Nginx CTF : 10.0.3.3
@@ -37,23 +41,34 @@ Voilà les IPs attribuées aux services principaux qu'il faut impérativement re
 - Environnement Web : 10.0.3.13
 - [...] Rajout possible
 
+### DIRTY :
+Switch Interne VLAN 50
+- 10.0.4.0/24
+
+Pas de containers permanent
+
 ### GRE internal
-- Alpha : 10.0.4.1
-- Beta : 10.0.4.2
+Switch Interne VLAN 100
+- Alpha : 10.0.10.1
+- Beta : 10.0.10.2
 
 ### CoroSync internal
-- Alpha : 10.0.5.1
-- Beta : 10.0.5.2
+Switch Administration VLAN 10
+- Alpha : 10.1.1.1
+- Beta : 10.1.1.2
 
 ### pfSync internal
-- Alpha : 10.0.6.1
-- Beta : 10.0.6.2
+Switch Administration VLAN 20
+- Alpha : 10.1.2.1
+- Beta : 10.1.2.2
 
 ### GRE admin
-- Alpha : 10.0.7.1
-- Beta : 10.0.7.2
+Switch Administration VLAN 30
+- Alpha : 10.1.10.1
+- Beta : 10.1.10.2
 
 ### Administration :
+Switch Administration VLAN 100
 - Firewall Alpha : 10.1.0.1
 - Firewall Bêta : 10.1.0.2
 - Proxmox Alpha : 10.1.0.3
@@ -109,7 +124,7 @@ iface wan inet manual
 #GRE interne
 allow-interne vx1
 iface gre1 inet static
-	address  10.0.4.1
+	address  10.0.10.1
 	netmask  24
 	ovs_type OVSIntPort
 	ovs_bridge interne
@@ -121,23 +136,23 @@ iface interne inet manual
 	ovs_type OVSBridge
 	ovs_ports bond0 vx1
   up ovs-vsctl set Bridge ${IFACE} rstp_enable=true
-	up ovs-vsctl --may-exist add-port interne gre1 -- set interface gre1 type=gre options:remote_ip='10.0.4.2'
+	up ovs-vsctl --may-exist add-port interne gre1 -- set interface gre1 type=gre options:remote_ip='10.0.10.2'
 	down ovs-vsctl --if-exists del-port interne gre1
 
 
 #Admin Task
 allow-admin admintask
 iface admintask inet static
-	address  10.1.0.1
+	address  10.1.0.3
 	netmask  24
 	ovs_type OVSIntPort
 	ovs_bridge admin
-	ovs_options tag=10
+	ovs_options tag=100
 
 #Corosync
 allow-admin coro
 iface coro inet static
-	address  10.0.5.1
+	address  10.1.1.1
 	netmask  24
 	ovs_type OVSIntPort
 	ovs_bridge admin
@@ -146,20 +161,20 @@ iface coro inet static
 #pfSync
 allow-admin pfsync
 iface pfsync inet static
-	address  10.0.6.1
+	address  10.1.2.1
 	netmask  24
 	ovs_type OVSIntPort
 	ovs_bridge admin
-	ovs_options tag=30
+	ovs_options tag=20
 
 #GRE admin
 allow-admin vx2
 iface vx2 inet static
-	address  10.0.7.1
+	address  10.1.10.1
 	netmask  24
 	ovs_type OVSIntPort
 	ovs_bridge admin
-	ovs_options tag=100
+	ovs_options tag=30
 
 #OVS Bridge administation
 auto admin
@@ -167,7 +182,7 @@ iface admin inet manual
 	ovs_type OVSBridge
 	ovs_ports eth2 vx2
 	up ovs-vsctl set Bridge ${IFACE} rstp_enable=true
-	up ovs-vsctl --may-exist add-port admin gre2 -- set interface gre2 type=gre options:remote_ip='10.0.7.2'
+	up ovs-vsctl --may-exist add-port admin gre2 -- set interface gre2 type=gre options:remote_ip='10.0.10.2'
 	down ovs-vsctl --if-exists del-port admin gre2
 ```
 
@@ -203,7 +218,7 @@ iface wan inet manual
 #GRE interne
 allow-interne vx1
 iface gre1 inet static
-	address  10.0.4.2
+	address  10.0.10.2
 	netmask  24
 	ovs_type OVSIntPort
 	ovs_bridge interne
@@ -215,23 +230,23 @@ iface interne inet manual
 	ovs_type OVSBridge
 	ovs_ports bond0 vx1
   up ovs-vsctl set Bridge ${IFACE} rstp_enable=true
-	up ovs-vsctl --may-exist add-port interne gre1 -- set interface gre1 type=gre options:remote_ip='10.0.4.1'
+	up ovs-vsctl --may-exist add-port interne gre1 -- set interface gre1 type=gre options:remote_ip='10.0.10.1'
 	down ovs-vsctl --if-exists del-port interne gre1
 
 
 #Admin Task
 allow-admin coro
 iface coro inet static
-	address  10.1.0.2
+	address  10.1.0.4
 	netmask  24
 	ovs_type OVSIntPort
 	ovs_bridge admin
-	ovs_options tag=10
+	ovs_options tag=100
 
 #Corosync
 allow-admin coro
 iface coro inet static
-	address  10.0.5.2
+	address  10.1.1.2
 	netmask  24
 	ovs_type OVSIntPort
 	ovs_bridge admin
@@ -240,20 +255,20 @@ iface coro inet static
 #pfSync
 allow-admin pfsync
 iface pfsync inet static
-	address  10.0.6.2
+	address  10.1.2.2
 	netmask  24
 	ovs_type OVSIntPort
 	ovs_bridge admin
-	ovs_options tag=30
+	ovs_options tag=20
 
 #GRE admin
 allow-admin vx2
 iface vx2 inet static
-	address  10.0.7.2
+	address  10.1.10.2
 	netmask  24
 	ovs_type OVSIntPort
 	ovs_bridge admin
-	ovs_options tag=100
+	ovs_options tag=30
 
 #OVS Bridge administation
 auto admin
@@ -261,6 +276,6 @@ iface admin inet manual
 	ovs_type OVSBridge
 	ovs_ports eth2 vx2
 	up ovs-vsctl set Bridge ${IFACE} rstp_enable=true
-	up ovs-vsctl --may-exist add-port admin gre2 -- set interface gre2 type=gre options:remote_ip='10.0.7.1'
+	up ovs-vsctl --may-exist add-port admin gre2 -- set interface gre2 type=gre options:remote_ip='10.1.10.1'
 	down ovs-vsctl --if-exists del-port admin gre2
 ```
