@@ -6,7 +6,7 @@ Il y a deux types principaux de configurations possible pour les serveurs DNS,
 
 On conseille généralement de ne pas faire les deux sur un même serveur. En effet, une attaque peut être menée sur un serveur récursif ce qui impacterait le service d'autorité. Grâce à la gestion de vu pas de risque vu que seul les container / VM on accès au récursif.
 
-## Installation
+## Installation
 ```
 apt-get install -y bind9 dnsutils
 ```
@@ -21,7 +21,7 @@ mkdir /etc/bind/zones
 
 ## Configuration
 
-### /etc/bind/named.conf.options
+### /etc/bind/named.conf.options
 Configuration globale de bind9. Remplacer le contenu par ce qui suit,
 ```
 options {
@@ -51,7 +51,7 @@ logging {
 };
 ```
 
-## Gestion par vue
+## Gestion par vue
 Pour savoir depuis quelle zone de notre réseau la requête est faites nous allons utiliser les vues de bind9 ainsi le serveur pourra renvoyer une IP différente en fonction de la zone.
 
 Le serveur aura une pâte sur chaque zone comme décrit ci-dessous,
@@ -61,7 +61,7 @@ Le serveur aura une pâte sur chaque zone comme décrit ci-dessous,
 
 On définit deux zones DNS, une première, **front**, qui regroupe les zones DMZ et PROXY et une seconde, **back** qui regroupe les zones PROXY et INT.
 
-### /etc/bind/named.conf
+### /etc/bind/named.conf
 ```
 include "/etc/bind/named.conf.options";
 

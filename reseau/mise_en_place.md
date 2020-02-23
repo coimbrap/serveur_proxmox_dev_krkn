@@ -22,6 +22,7 @@ Switch Interne VLAN 20
 - HAProxy Beta : 10.0.1.2
 - Nginx Public Alpha : 10.0.1.3
 - Nginx Public Beta : 10.0.1.4
+- DNS : 10.0.1.253
 - Proxy Interne : 10.0.1.254
 
 ### INT
@@ -31,6 +32,7 @@ Switch Interne VLAN 30
 - LDAP VIP : 10.0.2.3
 - Nginx Public Alpha : 10.0.2.4
 - Nginx Public Beta : 10.0.2.5
+- DNS : 10.0.2.253
 - Proxy Interne : 10.0.2.254
 - [...]
 
