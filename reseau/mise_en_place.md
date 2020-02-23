@@ -14,12 +14,14 @@ Switch Interne VLAN 10
 - Proxy Interne : 10.0.0.7
 - Mail : 10.0.0.10
 
+
 ### PROXY
 Switch Interne VLAN 20
 - HAProxy Alpha : 10.0.1.1
 - HAProxy Beta : 10.0.1.2
 - Nginx Public Alpha : 10.0.1.3
 - Nginx Public Beta : 10.0.1.4
+- Proxy Interne : 10.0.1.254
 
 ### INT
 Switch Interne VLAN 30
@@ -28,6 +30,7 @@ Switch Interne VLAN 30
 - LDAP VIP : 10.0.2.3
 - Nginx Public Alpha : 10.0.2.4
 - Nginx Public Beta : 10.0.2.5
+- Proxy Interne : 10.0.2.254
 - [...] Voir DNS
 
 ### CTF :
@@ -39,13 +42,14 @@ Switch Interne VLAN 40
 - CTFd Special : 10.0.3.11
 - Environnement Système : 10.0.3.12
 - Environnement Web : 10.0.3.13
+- Proxy Interne : 10.0.3.254
 - [...] Rajout possible
 
 ### DIRTY :
 Switch Interne VLAN 50
-- 10.0.4.0/24
+- Proxy Interne : 10.0.4.254
 
-Pas de containers permanent
+Pas d'autres containers permanent (10.0.4.0/24)
 
 ### GRE internal
 Switch Interne VLAN 100

@@ -21,9 +21,9 @@ Pour Squid
 - Bridge Interne VLAN 20 (PROXY)
 - Bridge Interne VLAN 30 (INT)
 - Bridge Interne VLAN 40 (CTF)
-- Bridge Interne VLAN 50 (EXT)
+- Bridge Interne VLAN 50 (DIRTY)
 
 # Table des matières
 1. [HAProxy](haproxy.md)
 2. [Serveur DNS](#)
-3. [Proxy pour les contenants](#)
+3. [Proxy pour les containers / VM](proxy_interne.md)

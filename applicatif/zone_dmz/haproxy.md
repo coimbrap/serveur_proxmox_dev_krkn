@@ -27,7 +27,7 @@ Voici les choix techniques faits afin de répondre à ces objectifs
 
 ### Voilà un schéma résumé
 
-![Topologie de la zone DMZ](schema_dmz.png)
+![Topologie de HAProxy](schema_haproxy.png)
 
 ## Création d'un canal d'échange par clé entre les deux containers
 Afin de pouvoir faire des scp de manière automatique entre les deux containers, il faut mettre en place une connexion ssh par clé en root entre les deux containers.
