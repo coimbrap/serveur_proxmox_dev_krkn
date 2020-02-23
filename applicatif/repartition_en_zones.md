@@ -45,7 +45,7 @@ Pour Squid
 - Bridge Interne VLAN 20 (PROXY)
 - Bridge Interne VLAN 30 (INT)
 - Bridge Interne VLAN 40 (CTF)
-- Bridge Interne VLAN 50 (INT)
+- Bridge Interne VLAN 50 (DIRTY)
 
 ## Services Backend
 
