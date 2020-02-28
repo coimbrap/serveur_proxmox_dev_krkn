@@ -1,0 +1,275 @@
+# HAProxy et DNS
+# HAProxy Master (CT100) : 10.0.0.6 | 10.0.1.1 | 10.0.3.1 | 10.1.0.100
+# HAProxy Slave (CT101) : 10.0.0.7 | 10.0.1.2  10.0.3.2 | 10.1.0.101
+# DNS (CT106): 10.0.0.253 | | 10.0.1.253 | 10.0.2.253 | 10.1.0.106
+# Gateway 10.0.0.0/24 -> 10.0.0.254
+# Gateway 10.0.1.0/24 -> 10.0.1.254
+# Gateway 10.0.3.0/24 -> 10.0.3.254
+# Gateway 10.1.0.0/24 -> 10.1.0.254
+
+# Créer les containers, les mets à jours, configure les mises à jours de sécurité automatique,
+# installe des paquets utile et ceux des services, met en place ferm via notre template.
+
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - include_vars: /root/src/source_pve.yml
+    - include_vars: /root/src/password_dmz.yml
+
+    - name: Create LXC for HAProxy Master (CT101)
+      proxmox:
+        api_user: root@pam
+        api_password: "{{ pass_pve }}"
+        api_host: '10.1.0.1'
+        node: alpha
+        cpus: 1
+        cores: 2
+        memory: 2048
+        disk: 16
+        swap: 1024
+        storage: local-zfs
+        ostemplate: 'local:vztmpl/debian-10.0-standard_10.0-1_amd64.tar.gz'
+        password: "{{ pass_haproxy_master }}"
+        hostname: HAProxyMaster
+        vmid: 101
+        onboot: yes
+        unprivileged: yes
+        nameserver: '10.0.0.253'
+        netif: '{"net0":"name=eth0,ip=10.0.0.6/24,gw=10.0.0.254,bridge=vmbr1,tag=10","net1":"name=eth1,ip=10.0.1.1/24,gw=10.0.1.254,bridge=vmbr1,tag=20","net2":"name=eth2,ip=10.0.3.1/24,gw=10.0.3.254,bridge=vmbr1,tag=40","net3":"name=eth3,ip=10.1.0.101/24,gw=10.1.0.254,bridge=vmbr2,tag=100"}'
+        pubkey: "{{ ssh_pub }}"
+        state: present
+
+    - name: Create LXC for HAProxy Slave (CT102)
+      proxmox:
+        api_user: root@pam
+        api_password: "{{ pass_pve }}"
+        api_host: '10.1.0.1'
+        node: beta
+        cpus: 1
+        cores: 2
+        memory: 2048
+        disk: 16
+        swap: 1024
+        storage: local-zfs
+        ostemplate: 'local:vztmpl/debian-10.0-standard_10.0-1_amd64.tar.gz'
+        password: "{{ pass_haproxy_slave }}"
+        hostname: HAProxySlave
+        vmid: 102
+        onboot: yes
+        unprivileged: yes
+        nameserver: '10.0.0.253'
+        netif: '{"net0":"name=eth0,ip=10.0.0.7/24,gw=10.0.0.254,bridge=vmbr1,tag=10","net1":"name=eth1,ip=10.0.1.2/24,gw=10.0.1.254,bridge=vmbr1,tag=20","net2":"name=eth2,ip=10.0.3.2/24,gw=10.0.3.254,bridge=vmbr1,tag=40","net3":"name=eth3,ip=10.1.0.102/24,gw=10.1.0.254,bridge=vmbr2,tag=100"}'
+        pubkey: "{{ ssh_pub }}"
+        state: present
+
+    - name: Create LXC for Bind9 (CT106)
+      proxmox:
+        api_user: root@pam
+        api_password: "{{ pass_pve }}"
+        api_host: '10.1.0.1'
+        node: beta
+        cpus: 1
+        cores: 1
+        memory: 1024
+        disk: 16
+        swap: 1024
+        storage: local-zfs
+        ostemplate: 'local:vztmpl/debian-10.0-standard_10.0-1_amd64.tar.gz'
+        password: "{{ pass_dns }}"
+        hostname: DNS
+        vmid: 106
+        onboot: yes
+        unprivileged: yes
+        nameserver: '80.67.169.12,80.67.169.40'
+        netif: '{"net0":"name=eth0,ip=10.0.0.253/24,gw=10.0.0.254,bridge=vmbr1,tag=10","net1":"name=eth1,ip=10.0.1.253/24,gw=10.0.1.254,bridge=vmbr1,tag=20","net2":"name=eth2,ip=10.0.2.253/24,gw=10.0.2.254,bridge=vmbr1,tag=30","net3":"name=eth3,ip=10.1.0.106/24,gw=10.1.0.254,bridge=vmbr2,tag=100"}'
+        pubkey: "{{ ssh_pub }}"
+        state: present
+
+    - name: Start DMZ containers
+      proxmox:
+        api_user: root@pam
+        api_password: "{{ pass_pve }}"
+        api_host: '10.1.0.1'
+        vmid: "{{ item }}"
+        state: started
+      with_items:
+        - '101'
+        - '102'
+        - '106'
+
+# Pas de config des proxy car sur accès au net depuis la DMZ.
+
+- hosts: zonedmz
+  tasks:
+    - name: Apt Update for DMZ
+      apt:
+        update_cache: yes
+
+    - name: Apt Upgrade for DMZ
+      apt:
+        upgrade: dist
+
+    - name: Install utils for DMZ
+      apt:
+        pkg:
+        - vim
+        - net-tools
+        - nmap
+        - dnsutils
+        - ferm
+        - unattended-upgrades
+        - apt-listchanges
+        - wget
+        - curl
+        - git
+
+    - name: Unattended-Upgrades Activation for DMZ
+      shell: |
+        echo unattended-upgrades unattended-upgrades/enable_auto_updates boolean true | debconf-set-selections
+        dpkg-reconfigure -f noninteractive unattended-upgrades
+        echo 'Unattended-Upgrade::Mail "root";' >> /etc/apt/apt.conf.d/50unattended-upgrades
+
+- hosts: haproxy
+  tasks:
+    - name: Install requirement for HAProxy
+      apt:
+        pkg:
+        - haproxy
+        - hatop
+        - certbot
+        - nginx
+        - psmisc
+        - keepalived
+
+    - name: Create hasync for HAProxy
+       user:
+        name: hasync
+        password: "{{ pass_hasync_same }}"
+        state: present
+
+    - name: Enable service for HAProxy
+      systemd:
+        name: "{{ item }}"
+        enabled: yes
+      with_items:
+        - 'haproxy'
+        - 'nginx'
+        - 'keepalived'
+
+    - name: Prepare NGINX for HAProxy
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - '/etc/nginx/sites-enabled/default'
+        - '/etc/nginx/sites-available/default'
+        - '/etc/letsencrypt/live/README'
+
+    - name: Prepare HAProxy for HAProxy
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - '/home/hasync/letsencrypt-requests'
+        - '/etc/ssl/letsencrypt'
+
+    - name: Prepare keepalived for HAProxy
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        sysctl_set: yes
+        state: present
+        reload: yes
+
+    - name: Prepare keepalived for HAProxy
+      sysctl:
+        name: net.ipv4.ip_nonlocal_bind
+        value: '1'
+        sysctl_set: yes
+        state: present
+        reload: yes
+
+    - name: Copy cert deploy script for HAProxy
+      copy:
+        src: /root/src/script_haproxy_deploy_cert.sh
+        dest: /root/install-certs.sh
+        owner: root
+        group: root
+        mode: '0740'
+
+    - name: Copy cert renew script for HAProxy
+      copy:
+        src: /root/src/script_haproxy_renew_cert.sh
+        dest: /home/hasync/renew.sh
+        owner: hasync
+        group: hasync
+        mode: '0740'
+
+    - name: Copy ferm configuration for HAProxy
+      copy:
+        src: /root/src/ferm/haproxy_ferm.conf
+        dest: /etc/ferm/ferm.conf
+        owner: root
+        group: root
+        mode: '0640'
+
+    - name: Restart ferm for HAProxy
+      systemd:
+        name: "ferm"
+        state: restarted
+
+- hosts: dns
+  tasks:
+    - name: Install requirement for Bind9
+      apt:
+        pkg:
+        - bind9
+
+    - name: Enable service for Bind9
+      systemd:
+        name: "{{ item }}"
+        enabled: yes
+      with_items:
+        - 'bind9'
+
+    - name: Prepare NGINX for HAProxy
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - '/etc/nginx/sites-enabled/default'
+        - '/etc/nginx/sites-available/default'
+        - '/etc/letsencrypt/live/README'
+
+    - name: Prepare Bind9
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - '/var/log/dns/'
+        - '/etc/bind/zones'
+
+    - name: Prepare Bind9
+      file:
+        path: "{{ item }}"
+        state: touch
+        owner: bind
+        group: bind
+        mode: '0640'
+      with_items:
+        - '/var/log/dns/query.log'
+        - '/var/log/dns/error.log'
+
+    - name: Copy ferm configuration for HAProxy
+      copy:
+        src: /root/src/ferm/dns_ferm.conf
+        dest: /etc/ferm/ferm.conf
+        owner: root
+        group: root
+        mode: '0640'
+
+    - name: Restart ferm for HAProxy
+      systemd:
+        name: "ferm"
+        state: restarted
