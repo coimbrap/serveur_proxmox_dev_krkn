@@ -9,7 +9,7 @@ Les 2 nodes du serveur, que nous appellerons Alpha et Beta, auront Proxmox comme
 ### Infrastructure logicielle
 
 #### Infrastructure réseau du serveur
-Les containers/VMs sensibles seront répliqués entre les deux nodes
+Les conteneurs/VMs sensibles seront répliqués entre les deux nodes
 
 L'infrastructure réseau du club s'articulerait de la manière suivante (sur chaque node) :
 - Un bloc pare-feu / routeur (OPNSense).
@@ -18,9 +18,9 @@ L'infrastructure réseau du club s'articulerait de la manière suivante (sur cha
 - Le reverse proxy (NGINX) de la partie CTF redirigera les requêtes vers les différents environnements CTF (CTFd, Challenges Web...).
 
 #### Services permanents
-Les containers/VMs permettant l'accès à ces services ne sont pas détaillés ici.
+Les conteneurs/VMs permettant l'accès à ces services ne sont pas détaillés ici.
 
-L'infrastructure du club s'articulerait de la manière suivante :
+L'infrastructure du club s'articulait de la manière suivante :
 - Le site web du club.
 - Le Wiki du club.
 - Un serveur mail pour remplacer le service fourni par OVH.
@@ -37,7 +37,7 @@ Ce qui permettrait d'auto-héberger tous les services du club.
 #### Environnements CTF
 L'objectif est de remplacer la banque de challenge du club stockée actuellement sur un poste en B141. Celui-ci n'est pas documenté, ce qui réduit les modifications que nous pouvons y apporter.
 
-A partir des sources des challenges actuels une nouvelle infrastructure CTF prendra forme, elle s'organisera de la manière suivante :
+A partir des sources des challenges actuels, une nouvelle infrastructure CTF prendra forme. Elle s'organisera de la manière suivante :
 - Un premier CTFd avec tous les challenges du club utilisés pour les OpenCTF.
 - Un autre CTFd que nous utiliserons pour les sessions en externe, comme par exemple pour la session 0.
 - Une VM avec différents environnements Docker temporaires pour les challenges système.
