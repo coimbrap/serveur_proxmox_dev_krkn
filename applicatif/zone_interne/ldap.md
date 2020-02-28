@@ -6,7 +6,7 @@ Pour la sécurisation de LDAP nous allons utiliser LDAP avec STARTTLS.
 On commence par installer le serveur ldap.
 ```
 apt-get update
-apt-get install slapd ldap-utils
+apt-get install -y slapd ldap-utils
 ```
 
 ## Configuration de sladp
@@ -22,13 +22,8 @@ Organization name? Kr[HACK]en
 Administrator password: PASSWORD
 Confirm password: PASSWORD
 Database backend to use: MDB
-Do you want the database to be removed when slapd is purged? YES
-Allow LDAPv2 protocol? No
-```
-### /etc/ldap/ldap.conf
-```
-BASE dc=krhacken,dc=org
-URI ldap://IP.LDAP/
+Do you want the database to be removed when slapd is purged? Yes
+Move old database? Yes
 ```
 
 ## Centralisation des fichiers de configuration
@@ -37,9 +32,16 @@ Nous allons créer un répertoire /root/ldap/conf qui va centraliser tous nos fi
 mkdir -p /root/ldap/conf/
 ```
 
+## Stockage du mot de passe administrateur
+Mettez le mot de passe d'administration de l'annuaire LDAP.
+```
+echo -n "mdpadmin" > /root/pwdldap
+chmod 600 /root/pwdldap
+```
+
 ## Mise en place SSL
 ```
-apt-get install gnutls-bin ssl-cert
+apt-get install -y gnutls-bin ssl-cert
 mkdir /etc/ssl/templates
 ```
 ### /etc/ssl/templates/ca_server.conf
@@ -79,28 +81,46 @@ chmod 640 /etc/ssl/private/ldap_server.key
 ```
 
 ## Ajout des certificat à OpenLDAP
-### /root/ldap/conf/addcerts.ldif
+### /root/ldap/conf/addCAcerts.ldif
 ```
 dn: cn=config
 changetype: modify
 replace: olcTLSCACertificateFile
 olcTLSCACertificateFile: /etc/ssl/certs/ca_server.pem
+```
+Application des modification et redémarrage de slapd
+```
+ldapmodify -H ldapi:// -Y EXTERNAL -f /root/ldap/conf/addCAcerts.ldif
+service slapd force-reload
+```
 
-dn: cn=config
-changetype: modify
-replace: olcTLSCertificateFile
-olcTLSCertificateFile: /etc/ssl/certs/ldap_server.pem
-
+### /root/ldap/conf/addcerts.ldif
+```
 dn: cn=config
 changetype: modify
 replace: olcTLSCertificateKeyFile
 olcTLSCertificateKeyFile: /etc/ssl/private/ldap_server.key
+-
+replace: olcTLSCertificateFile
+olcTLSCertificateFile: /etc/ssl/certs/ldap_server.pem
 ```
 Application des modification et redémarrage de slapd
 ```
-ldapmodify -H ldapi:// -Y EXTERNAL -f addcerts.ldif
+ldapmodify -H ldapi:// -Y EXTERNAL -f /root/ldap/conf/addcerts.ldif
 service slapd force-reload
 ```
+
+Le retour de la commande
+```
+ldapsearch -Y EXTERNAL -H ldapi:/// -b cn=config | grep olcTLS
+```
+doit contenir les informations ci-dessous, cela confirme l'installation des certificats.
+```
+olcTLSCACertificateFile: /etc/ssl/certs/ca_server.pem
+olcTLSCertificateFile: /etc/ssl/certs/ldap_server.pem
+olcTLSCertificateKeyFile: /etc/ssl/private/ldap_server.key
+```
+
 ## Sur le serveur
 ```
 cp /etc/ssl/certs/ca_server.pem /etc/ldap/ca_certs.pem
@@ -108,31 +128,18 @@ cp /etc/ssl/certs/ca_server.pem /etc/ldap/ca_certs.pem
 Il faut ensuite ajuster la configuration en modifiant la ligne suivante
 ### /etc/ldap/ldap.conf
 ```
-...
+BASE dc=krhacken,dc=org
+URI ldap://alpha.ldap.krhacken.org/
 TLS_CACERT /etc/ldap/ca_certs.pem
-...
 ```
+On redémarre le serveur slapd.
+```
+service slapd force-reload
+```
+
 ### Vérification
-La commande
-```
-ldapsearch -xLLL -H ldap://localhost -D cn=viewer,ou=system,dc=krhacken,dc=org -w passview -b "dc=krhacken,dc=org"
-```
-doit retourner une erreur, si on ajout -ZZ à la fin ça doit fonctionner
+La commande `ldapsearch -xLLL -H ldap://alpha.ldap.krhacken.org -ZZ` doit retourner des informations sur l'arbre.
 
-
-## Configuration des futurs client LDAP
-Sur tout les futurs client LDAP il faudra activer la connexion SSL.
-Il faut commencer par copier le certificat de la CA (ca_server.pem)
-```
-cat ca_server.pem | tee -a /etc/ldap/ca_certs.pem
-```
-Il faut ensuite modifier la configuration en modifiant la ligne suivante
-### /etc/ldap/ldap.conf
-```
-...
-TLS_CACERT /etc/ldap/ca_certs.pem
-...
-```
 
 ## Droits d'accès pour la configuration
 ### /root/ldap/conf/acces-conf-admin.ldif
@@ -326,6 +333,7 @@ olcPPolicyUseLockout: FALSE
 Explication,
 - olcPPolicyDefault : Indique le DN de configuration utilisé
 - olcPPolicyHashCleartext : Indique si les mots de passe doivent être cryptés.
+
 On applique les modifications,
 ```
 ldapadd -Q -Y EXTERNAL -H ldapi:/// -f ppolicy_act.ldif
@@ -427,29 +435,30 @@ Explication rapide
 
 
 ## Utilisateurs
-### /root/ldap/conf/User_PSEUDO.ldif
+Cas de la création d'un utilisateur adminsys.
+### /root/ldap/conf/adminsys.ldif
 ```
-dn: uid=PSEUDO,ou=krhacken,ou=people,dc=krhacken,dc=org
+dn: uid=adminsys,ou=krhacken,ou=people,dc=krhacken,dc=org
 objectclass: person
 objectclass: organizationalPerson
 objectclass: inetOrgPerson
-uid: niko
-sn: niko
-givenName: Nicolas
-cn: Nicolas
-displayName: Nicolas
+uid: adminsys
+sn: adminsys
+givenName: AdminSys
+cn: AdminSys
+displayName: AdminSys
 userPassword: password
-mail: mail@spam.com
+mail: adminsys@krhacken.org
 title: Admin
-initials: N
+initials: AS
 ```
 On ajoute l'utilisateur
 ```
-ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f User_PSEUDO.ldif
+ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f adminsys.ldif
 ```
-Commande pour la connexion à un utilisateur
+Commande pour la connexion à un utilisateur (ici adminsys)
 ```
-ldapsearch -xLLLH ldap://localhost -D uid=PSEUDO,ou=krhacken,ou=people,dc=krhacken,dc=org -W -b "dc=krhacken,dc=org" "uid=PSEUDO"
+ldapsearch -xLLLH ldap://localhost -D uid=adminsys,ou=krhacken,ou=people,dc=krhacken,dc=org -W -b "dc=krhacken,dc=org" "uid=adminsys"
 ```
 
 ## Groupes
@@ -461,9 +470,9 @@ Pour faire simple, l’avantage des groupofnames est qu’avec un filtre sur un 
 
 ### /root/ldap/conf/Group.ldif
 ```
-dn: cn=cloud,ou=sysgroup,ou=group,dc=krhacken,dc=org
-cn: cloud
-description: Cloud
+dn: cn=people,ou=sysgroup,ou=group,dc=krhacken,dc=org
+cn: people
+description: Not krkn
 objectClass: groupOfNames
 member: cn=admin,dc=krhacken,dc=org
 
@@ -473,7 +482,7 @@ description: krhacken
 objectClass: groupOfNames
 member: cn=admin,dc=krhacken,dc=org
 ```
-On ajoute les
+On ajoute les groupes
 ```
 ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f Group.ldif
 ```
@@ -482,12 +491,12 @@ On peu tester memberof pour voir si admin est bien dans les bon groupes
 ldapsearch -xLLLH ldap://localhost -D cn=admin,dc=krhacken,dc=org -y /root/pwdldap -b "dc=krhacken,dc=org" "cn=admin" memberof
 ```
 
-Pour rajouter un utilisateur dans un groupe avec un fichier ldif (addusertogroup.ldif)
+Exemple, pour rajouter un utilisateur dans un groupe avec un fichier ldif (addusertogroup.ldif) ici ajout de new au groupe people
 ```
-dn: cn=cloud,ou=sysgroup,ou=group,dc=krhacken,dc=org
+dn: cn=people,ou=sysgroup,ou=group,dc=krhacken,dc=org
 changetype: modify
 add: member
-member: uid=niko,ou=krhacken,ou=people,dc=krhacken,dc=org
+member: uid=user,ou=krhacken,ou=people,dc=krhacken,dc=org
 ```
 On ajoute l'utilisateur avec
 ```
@@ -555,16 +564,34 @@ Ajout des modifications et application
 ldapmodify -H ldapi:// -Y EXTERNAL -f forcetls.ldif
 systemctl restart slapd
 ```
-Vérifions si TLS est obligatoire,
-Cette commande doit retourner une erreur
+
+### Vérification
+La commande
 ```
-ldapsearch -H ldap:// -x -b "dc=krhacken,dc=org" -LLL dn
+ldapsearch -xLLL -H ldap://localhost -D cn=viewer,ou=system,dc=krhacken,dc=org -w passview -b "dc=krhacken,dc=org"
 ```
-et celle la doit aboutir
-```
-ldapsearch -H ldap:// -x -b "dc=example,dc=com" -LLL -Z dn
-```
+doit retourner une erreur, si on ajout -ZZ à la fin ça doit fonctionner
 
 Voilà pour la mise en place de base du LDAP cependant il faut configuré chaque client pour se connecter au serveur avec STARTTLS.
 
 NB : Il manque la réplication que nous mettrons en place plus tard.
+
+## Configuration des futurs client LDAP
+Sur tout les futurs client LDAP il faudra activer la connexion SSL.
+Il faut commencer par copier le certificat de la CA (ca_server.pem qu'il faudra copier via scp)
+```
+cat ca_server.pem | tee -a /etc/ldap/ca_certs.pem
+```
+Il faut ensuite modifier la configuration en modifiant la ligne suivante
+### /etc/ldap/ldap.conf
+```
+...
+TLS_CACERT /etc/ldap/ca_certs.pem
+...
+```
+
+La commande,
+```
+ldapsearch -xLLL -H ldap://localhost -D cn=viewer,ou=system,dc=krhacken,dc=org -w passview -b "dc=krhacken,dc=org" -ZZ
+```
+doit retourner des informations sur l'arbre.

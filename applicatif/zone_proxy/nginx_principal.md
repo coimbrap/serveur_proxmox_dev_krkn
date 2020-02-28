@@ -1,30 +1,33 @@
 # Reverse proxy NGINX sur le réseau public
 
-## Spécification des containers
-Ce service est redondé car vital, son IP est 10.0.0.6 sur Alpha et 10.0.0.7 sur Beta.
+## Spécification des conteneurs
+Ce service est redondé car vital, son IP est 10.0.1.3 sur Alpha et 10.0.1.4 sur Beta.
 
 ## Objectif
-Il doit rediriger les requêtes arrivant de HAProxy vers le bon container en fonction de l'hostname. Pour cela nous allons utiliser des serveurs web HTTP avec des proxy sur Nginx sans s'occuper de l'autre serveur web.
+Il doit rediriger les requêtes arrivant de HAProxy vers le bon conteneur en fonction de l'hostname. Pour cela nous allons utiliser des serveurs web HTTP avec des proxy sur Nginx sans s'occuper de l'autre serveur web.
 
-## Création d'un canal d'échange par clé entre les deux containers
-Afin de pouvoir faire des scp de manière automatique entre les deux containers, il faut mettre en place une connexion ssh par clé en root entre les deux containers.
+## Création d'un canal d'échange par clé entre les deux conteneurs
+Afin de pouvoir faire des scp de manière automatique entre les deux conteneurs, il faut mettre en place une connexion ssh par clé en root entre les deux conteneurs.
 
 Le procédé est le même, en voici les variantes,
-- Sur Alpha le container Nginx aura comme IP 10.0.0.6
-- Sur Beta le container HAProxy aura comme IP 10.0.0.7
+- Sur Alpha le conteneur Nginx aura comme IP 10.0.1.3
+- Sur Beta le conteneur HAProxy aura comme IP 10.0.1.4
 
 ### /etc/ssh/sshd_config
 Remplacer la ligne concernée par
 ```
 PermitRootLogin yes
 ```
+```
+systemctl restart sshd
+```
 
 ### Génération et échange de la clé
 ```
 ssh-keygen -o -a 100 -t ed25519 -f /root/.ssh/id_ed25519
 
-Alpha : ssh-copy-id -i /root/.ssh/id_ed25519 root@10.0.0.7
-Beta : ssh-copy-id -i /root/.ssh/id_ed25519 root@10.0.0.6
+Alpha : ssh-copy-id -i /root/.ssh/id_ed25519 root@10.0.1.4
+Beta : ssh-copy-id -i /root/.ssh/id_ed25519 root@10.0.1.3
 ```
 
 ### /etc/ssh/sshd_config
@@ -33,13 +36,21 @@ Remplacer les lignes concernées par
 PermitRootLogin without-password
 PubkeyAuthentication yes
 ```
-Il est maintenant possible de se connecter par clé entre les containers
+```
+systemctl restart sshd
+```
 
-## Installation de Nginx sur les deux containers
+Il est maintenant possible de se connecter par clé entre les conteneurs
+
+## Installation de Nginx sur les deux conteneurs
+Faite par le playbook Ansible
+
 ```
 apt-get update
 apt-get install -y nginx
 systemctl enable nginx.service
+rm /etc/nginx/sites-enabled/default
+rm /etc/nginx/sites-available/default
 ```
 
 ## Mise en place d'un serveur faisant office de reverse proxy
@@ -52,7 +63,7 @@ server {
 	listen 80;
 	server_name address.fr;
 	location / {
-		proxy_pass http://ip_reseau_public/;
+		proxy_pass http://ip_reseau_interne/;
 		proxy_set_header Host $http_host;
 		proxy_set_header X-Real-IP $remote_addr;
 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -61,7 +72,8 @@ server {
 }
 ```
 
-Voilà un script permetant l'installation d'un serveur web présent dans /etc/nginx/sites-available. Il prend en entrée le nom du fichier du serveur à activer
+Voilà un script permetant l'installation d'un serveur web présent dans /etc/nginx/sites-available. Il prend en entrée le nom du fichier du serveur à activer. Disponible dans `/root/deploy-webhost.sh` si déployer avec Ansible.
+
 ```
 if [ "$#" -eq  "0" ]
 	then

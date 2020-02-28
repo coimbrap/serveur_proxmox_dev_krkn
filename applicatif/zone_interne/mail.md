@@ -1,8 +1,10 @@
 # Service de Mail
 Nous allons ici mettre en place tout un service de mail qui va utiliser LDAP, Postfix, Dovecot et Rspamd. Avant de mettre en place le serveur Mail il faut déjà avoir mis en place le serveur LDAP.
 
+Il faut avoir établie une connexion TLS avec le serveur LDAP, la marche à suivre est disponible dans la partie LDAP (à la toute fin).
+
 # Configuration du serveur LDAP
-Le serveur LDAP est déjà en place sur le container LDAP il faut cependant faire ce qu'il suit pour ajouter le support des mails sur LDAP.
+Le serveur LDAP est déjà en place sur le conteneur LDAP il faut cependant faire ce qu'il suit pour ajouter le support des mails sur LDAP.
 
 ## Ajout d'un schéma
 
@@ -118,7 +120,7 @@ ldapsearch -xLLL -H ldap://localhost -D cn=admin,dc=krhacken,dc=org -y /root/pwd
 ```
 
 # Postfix
-Postfix et Dovecot seront dans le même container. Nous allons commencer par Postfix qui utilise le protocole SMTP pour envoyer et recevoir des mails. C'est un service très complet mais nécessaire.
+Postfix et Dovecot seront dans le même conteneur. Nous allons commencer par Postfix qui utilise le protocole SMTP pour envoyer et recevoir des mails. C'est un service très complet mais nécessaire.
 
 ## DNS
 Voilà les entrées à ajouter, on en rajoutera d'autres à la fin
@@ -133,14 +135,14 @@ dig krhacken.org MX +short
 Doit retourner _10 mail.krhacken.org._
 
 ## Redirection de ports
-Voilà la liste des ports qui vont être utilisé par le container Mail qui contient Postfix et Dovecot.
+Voilà la liste des ports qui vont être utilisé par le conteneur Mail qui contient Postfix et Dovecot.
 - 25 -> SMTP
 - 465 -> SMTPS
 - 587 -> SUBMISSION
 - 143 -> IMAP
 - 993 -> IMAPS
 - 4190 -> Managesieve
-Tout c'est ports sont déjà DNAT sur le container Mail grâce à OPNSense
+Tout c'est ports sont déjà DNAT sur le conteneur Mail grâce à OPNSense
 
 ## Installation
 ### Postfix
@@ -166,8 +168,8 @@ git clone https://github.com/Neilpang/acme.sh.git
 cd ./acme.sh
 ./acme.sh --install
 ```
-### Ajout d'un reverse proxy au niveau des containers nginx
-Pour que les requêtes ACME sur le domaine mail.krhacken.org arrive sur le container Postfix il faut rajouter un reverse dans les containers Nginx Public.
+### Ajout d'un reverse proxy au niveau des conteneurs nginx
+Pour que les requêtes ACME sur le domaine mail.krhacken.org arrive sur le conteneur Postfix il faut rajouter un reverse dans les conteneurs Nginx Public.
 ```
 server {
     listen 80;
@@ -902,7 +904,7 @@ reject = 30;
 }
 ```
 ### /etc/rspamd/local.d/milter_headers.conf
-Il indique d’ajouter des entêtes dans les mails. Grace à eux, vous pourrez voir directement dans votre logiciel ce qui a provoqué ou non le marquage en spam. 
+Il indique d’ajouter des entêtes dans les mails. Grace à eux, vous pourrez voir directement dans votre logiciel ce qui a provoqué ou non le marquage en spam.
 
 ```
 extended_spam_headers = true;

@@ -87,7 +87,7 @@ Les services de la zone CTF devront avoir les interfaces réseau suivantes :
 
 ### Zone DIRTY
 
-Cette zone ne regroupe rien de spécial mis à part d'éventuels containers de test. Elle ne sera d'ailleurs pas documentée ici.
+Cette zone ne regroupe rien de spécial mis à part d'éventuels conteneurs de test. Elle ne sera d'ailleurs pas documentée ici.
 
 Les services de la zone DIRTY devront avoir les interfaces réseau suivantes :
 - Bridge Interne VLAN 50 (DIRTY)
