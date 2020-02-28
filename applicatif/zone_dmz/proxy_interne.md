@@ -2,12 +2,34 @@
 
 Nous allons mettre en place un proxy interne pour permettre au services des zones n'ayant pas un accès direct à internet (PROXY, INT, CTF et DIRTY) d'accéder au gestionnaire de packet et à internet (via WGET). Le proxy interne sera dans la zone DMZ, il fera donc le lien entre l'extérieur et les services.
 
+## Création du conteneur
+Comme dit dans la partie déploiement, c'est le seul conteneur qu'il faut mettre en place manuellement. Avant de le mettre en place il faut avoir mis en place le réseau et générer la clé SSH du conteneur Ansible.
+
+Pour mon installation ce conteneur porte le numéro 103.
+
+Au niveau de la clé SSH, mettez celle que vous avez générer dans le conteneur Ansible. Elle se trouve dans `/root/.ssh/id_ed25519.pub`
+
+
+Au niveau des ressources allouées :
+- 2Gb de RAM
+- 1Gb de SWAP
+- 24Gb de Stockage
+
+Au niveau des interfaces réseaux :
+Firewall toujours désactiver.
+- eth0: vmbr1 / VLAN: 10 / IP: 10.0.0.9/24 / GW: 10.0.0.254
+- eth1: vmbr1 / VLAN: 20 / IP: 10.0.1.252/24
+- eth2: vmbr1 / VLAN: 30 / IP: 10.0.2.252/24
+- eth3: vmbr1 / VLAN: 40 / IP: 10.0.3.252/24
+- eth4: vmbr1 / VLAN: 50 / IP: 10.0.4.252/24
+- eth0: vmbr2 / VLAN: 100 / IP: 10.1.0.103/24 / GW: 10.1.0.254
+
 ## Apt Cacher NG
 Pour l'accès au gestionnaire de packet nous allons utiliser Apt-Cacher NG.
 
 ### Installation
 ```
-apt-get install apt-cacher-ng -y
+apt-get install -y apt-cacher-ng
 ```
 ```
 Allow HTTP tunnel throutgt Apt-Cacher NG? -> No
@@ -16,7 +38,7 @@ Allow HTTP tunnel throutgt Apt-Cacher NG? -> No
 ### /etc/apt-cacher-ng/acng.conf
 ```
 Port: 9999
-BindAddress: 10.0.1.254 10.0.2.254 10.0.3.254 10.0.4.254
+BindAddress: 10.0.1.252 10.0.2.252 10.0.3.252 10.0.4.252
 ```
 ```
 systemctl restart apt-cacher-ng.service
@@ -59,15 +81,15 @@ systemctl restart squid.service
 Squid est maintenant accessible depuis le port 3128 du proxy interne uniquement depuis les zones PROXY, INT, CTF et DIRTY. Les requêtes depuis d'autres zones seront rejetées.
 
 
-## Accès au Proxy Interne depuis un container ou une VM
+## Accès au Proxy Interne depuis un conteneur ou une VM
 
 Les outils principaux sont WGET et APT-GET on va donc les reliées au Proxy Interne.
 
-Le proxy interne sera accessible uniquement depuis les zones PROXY, INT, CTF et DIRTY voilà l'ip du proxy en fonction de la zone
-- PROXY (VLAN 20) -> 10.0.1.254
-- INT (VLAN 30) -> 10.0.2.254
-- CTF (VLAN 40) -> 10.0.3.254
-- DIRTY (VLAN 50) -> 10.0.4.254
+Le proxy interne sera accessible uniquement depuis les zones PROXY, INT, CTF et DIRTY voilà l'ip du proxy en fonction de la zone :
+- PROXY (VLAN 20) -> 10.0.1.252
+- INT (VLAN 30) -> 10.0.2.252
+- CTF (VLAN 40) -> 10.0.3.252
+- DIRTY (VLAN 50) -> 10.0.4.252
 
 ### WGET
 Les requêtes passerons désormais par le proxy interne sur le port 3128 pour les requêtes http et https. Seul le root aura accès au proxy.
