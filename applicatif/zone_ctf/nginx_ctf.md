@@ -1,10 +1,10 @@
 # Reverse proxy NGINX sur le réseau CTF
 
-## Spécification du container
+## Spécification du conteneur
 Ce service n'est pas redondé car non vital, son IP est 10.0.2.5 sur le réseau CTF.
 
 ## Objectif
-Il doit rediriger les requêtes arrivant de HAProxy vers le bon container en fonction de l'hostname. Pour cela nous allons utiliser des serveurs web HTTP Nginx.
+Il doit rediriger les requêtes arrivant de HAProxy vers le bon conteneur en fonction de l'hostname. Pour cela nous allons utiliser des serveurs web HTTP Nginx.
 
 ## Installation de nginx et persistance,
 ```

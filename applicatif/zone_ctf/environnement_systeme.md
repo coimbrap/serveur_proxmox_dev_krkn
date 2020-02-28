@@ -13,7 +13,7 @@ apt-get install docker-ce
 
 ## Mise en place de l'environement système
 
-La restauration des challenges actuels est expliquée à la fin. 
+La restauration des challenges actuels est expliquée à la fin.
 
 ### Procédure pour la création d'un nouveau challenge
 
@@ -105,7 +105,7 @@ suffix = ini['suffix']
 name_passed  = (name  != "")
 image_passed = (image != "")
 
-#Génération du container temporaire
+#Génération du conteneur temporaire
 
 #Création du nom random
 if not image_passed:
@@ -222,7 +222,7 @@ if [ "$#" -eq  "0" ]
 fi
 ```
 
-Une fois le programme mis au bon endroit et les deux scripts exécutés avec succès tout est prêt. Pour personnaliser le message d'accueil, il faut modifier le /etc/motd de la VM et non celui des containers Docker.
+Une fois le programme mis au bon endroit et les deux scripts exécutés avec succès tout est prêt. Pour personnaliser le message d'accueil, il faut modifier le /etc/motd de la VM et non celui des conteneurs Docker.
 
 ## Restauration des challenges déjà existants
 Voilà la correspondance utilisateur / challenge
