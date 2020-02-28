@@ -2,11 +2,11 @@
 
 La technologie corosync a besoin de 3 votes minimum pour avoir le quorum et éviter les risques de splitbrain en cas de crash d'une des nodes.
 
-Nous ne disposons que de deux nodes, nous allons donc mettre en place un "Corosync External Vote". Il suffit d'un container sur une autre machine que nous appellerons instance de quorum.
+Nous ne disposons que de deux nodes, nous allons donc mettre en place un "Corosync External Vote". Il suffit d'un conteneur sur une autre machine que nous appellerons instance de quorum.
 
 ## Mise en place de l'instance de quorum
 
-#### Sur le container de l'instance de quorum
+#### Sur le conteneur de l'instance de quorum
 ```
 apt-get install corosync-qnetd
 systemctl enable corosync-qnetd

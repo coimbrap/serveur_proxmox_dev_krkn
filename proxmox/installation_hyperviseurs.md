@@ -62,6 +62,17 @@ apt-get update
 apt-get full-upgrade
 ```
 
+### IP Forwarding
+Activation permanente de l'IP Forwarding
+#### /etc/sysctl.conf
+Ajouter
+```
+net.ipv4.ip_forward = 1
+```
+```
+sysctl -p /etc/sysctl.conf
+```
+
 ### Templates LXC
 Mise à jour de la liste
 ```
@@ -92,6 +103,7 @@ Le lien donné sera utilisé par la suite
 
 ```
 wget -P /var/lib/vz/template/iso <lien_obtenu>
+bunzip2 /var/lib/vz/template/iso/*.bz2
 ```
 
 #### Debian

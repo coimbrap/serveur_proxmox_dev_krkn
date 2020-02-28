@@ -10,13 +10,13 @@ Donc, Proxmox permet la virtualisation de plusieurs machines au sein d’un seul
 
 Proxmox propose deux types de virtualisation :
 - Une technologie de virtualisation (KVM) similaire à celle qui est offerte par VirtualBox. Tout le matériel est émulé par l'hyperviseur, ainsi le système d'exploitation croit s'exécuter sur une machine physique. Les ressources allouées sont considérées comme totalement utilisées par Proxmox. Si la VM a 2Go de RAM, l'hyperviseur lui alloue en permanence 2Go de RAM.
-- Une technologie de conteneurisation (LXC) qui utilise l'isolement pour séparer l'exécution de chaque environnement virtuel. En comparaison à KVM, le matériel n'est pas émulé, il est partagé par le système hôte, ainsi tous les containers utilisent le même noyau. Seules les ressources vraiment utilisées par le container sont considérées comme utilisées par Proxmox. Si on alloue 2Go de RAM au container et qu'il en utilise un seul, l'hyperviseur ne lui alloue qu'un 1Go.
+- Une technologie de conteneurisation (LXC) qui utilise l'isolement pour séparer l'exécution de chaque environnement virtuel. En comparaison à KVM, le matériel n'est pas émulé, il est partagé par le système hôte, ainsi tous les conteneurs utilisent le même noyau. Seules les ressources vraiment utilisées par le conteneur sont considérées comme utilisées par Proxmox. Si on alloue 2Go de RAM au conteneur et qu'il en utilise un seul, l'hyperviseur ne lui alloue qu'un 1Go.
 
-Pour notre infrastructure, nous utiliserons le plus possible des containers LXC. Cependant, pour les environnements CTF nécessitant Docker et pour le pare-feu (OPNSense), nous utiliserons des VM KVM.
+Pour notre infrastructure, nous utiliserons le plus possible des conteneurs LXC. Cependant, pour les environnements CTF nécessitant Docker et pour le pare-feu (OPNSense), nous utiliserons des VM KVM.
 
 ## Qualité de Proxmox
 Voici un petit aperçu des fonctionnalités de Proxmox :
-- Création de containers LXC et de VM en quelques clics.
+- Création de conteneurs LXC et de VM en quelques clics.
 - Possibilité de modifier les ressources allouées aux contenants (RAM, disques, nombres d’interfaces réseau, VLANs...)
 - Gestion des stockages (disques durs des machines, images iso, templates LXC,...) très simple et très bien intégrée à l'interface web.
 - Gestion complète des machines : Shell, éteindre, démarrer, redémarrer...
