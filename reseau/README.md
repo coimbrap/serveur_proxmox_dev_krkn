@@ -1,6 +1,10 @@
 # Réseau
 Vous trouverez ici toute la documentation relative à l'infrastructure réseau.
 
+# Schéma simplifié
+
+![Topologie du réseau](topologie_reseau.png)
+
 # Table des matières
 1. [Introduction à OpenvSwitch](introduction_ovs.md)
 2. [Topologie globale du réseau](topologie_globale.md)

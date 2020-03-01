@@ -9,6 +9,10 @@ Pour chacune des zones (INT ou CTF), il y a deux types de contenants (VM / CT) :
 - Les services frontend qui sont directement accessibles depuis internet, derrière le pare-feu (OPNSense).
 - Les services backend qui sont accessibles uniquement à travers une frontend.
 
+## Schéma simplifié
+
+![Topologie du réseau](topologie_reseau.png)
+
 ## Les switchs virtuels
 
 - Un switch WAN (vmbr0), qui permettra de réaliser le lien entre l'extérieur (via eth0) et les pare-feux et entre les pare-feux et les hyperviseurs.
