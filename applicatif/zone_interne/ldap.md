@@ -574,7 +574,302 @@ doit retourner une erreur, si on ajout -ZZ à la fin ça doit fonctionner
 
 Voilà pour la mise en place de base du LDAP cependant il faut configuré chaque client pour se connecter au serveur avec STARTTLS.
 
-NB : Il manque la réplication que nous mettrons en place plus tard.
+## Réplication de l'annuaire LDAP
+
+Nous allons mettre en place une réplication Master/Master. L’idée est de faire en sorte que n’importe lequel de nos serveurs LDAP soit capable à la fois de lire les données, mais également de les modifier. De plus, nous allons mettre en place une réplication, à la fois sur l’arbre de données dc=krhacken,dc=org mais également sur l’arbre de configuration cn=config.
+
+Vous avez déjà fait toute la configuration du premier conteneur LDAP (CT107). Pour gagner du temps clonez ce conteneur vers le conteneur 108 sur l'autre node.
+
+Avant le démarrage il vous faudra reconfigurer les interfaces comme suis :
+- eth0 : vmbr1 / VLAN: 30 / IP: 10.0.2.2/24 / GW: 10.0.2.254
+- eth1 : vmbr2 / VLAN: 100 / IP: 10.1.0.108/24 / GW: 10.1.0.254
+
+Nous avons désormais deux conteneurs LDAP identique
+
+## Réplication de l'arbre de configuration
+
+### 01-syncprov_act.ldif
+```
+dn: cn=module,cn=config
+cn: module
+objectclass: olcModuleList
+objectclass: top
+olcmoduleload: syncprov.la
+olcmodulepath: /usr/lib/ldap
+```
+```
+ldapadd -Y EXTERNAL -H ldapi:/// -f 01-syncprov_act.ldif
+```
+
+Vérifications :
+```
+ldapsearch -LLLY external -H ldapi:/// -b "cn=config" "objectClass=olcModuleList"
+ldapsearch -LLLY external -H ldapi:/// -b "cn=module{6},cn=config"
+```
+
+### 02-serverid.ldif
+X vaut 1 sur Alpha 2 sur Beta.
+```
+dn: cn=config
+changetype: modify
+add: olcServerID
+olcServerID: X
+```
+```
+ldapmodify -Y EXTERNAL -H ldapi:/// -f 02-serverid.ldif
+```
+Vérification :
+```
+ldapsearch -LLLY external -H ldapi:/// -b "cn=config" "objectClass=olcGlobal" olcServerID
+```
+
+### 03-replica_account.ldif
+```
+dn: cn=replica,ou=system,dc=krhacken,dc=org
+userPassword: PASS
+cn: replica
+objectclass: top
+objectclass: person
+sn: replica
+```
+```
+ldapadd -x -H ldap://localhost -D cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f 03-replica_account.ldif
+```
+
+### 04-droit_conf.ldif
+Gestion des droits du CN *replica*
+```
+dn: olcDatabase={0}config,cn=config
+changeType: modify
+add: olcAccess
+olcAccess: to * by dn.exact=cn=replica,ou=system,dc=krhacken,dc=org manage by * break
+```
+```
+ldapmodify -Y EXTERNAL -H ldapi:/// -f 04-droit_conf.ldif
+```
+
+### 05-syncprov_conf_conf.ldif
+```
+dn: olcOverlay=syncprov,olcDatabase={0}config,cn=config
+changetype: add
+objectClass: olcOverlayConfig
+objectClass: olcSyncProvConfig
+olcOverlay: syncprov
+```
+```
+ldapmodify -Y EXTERNAL -H ldapi:/// -f 05-syncprov_conf_conf.ldif
+```
+
+### 06-repl_conf_conf.ldif
+```
+dn: olcDatabase={0}config,cn=config
+changetype: modify
+add: olcSyncRepl
+olcSyncRepl: rid=01 provider=ldap://alpha.ldap.krhacken.org
+  binddn="cn=replica,ou=system,dc=krhacken,dc=org" bindmethod=simple
+  credentials=password searchbase="cn=config"
+  type=refreshAndPersist retry="5 5 300 5" timeout=1
+olcSyncRepl: rid=02 provider=ldap://beta.ldap.krhacken.org
+  binddn="cn=replica,ou=system,dc=krhacken,dc=org" bindmethod=simple
+  credentials=password searchbase="cn=config"
+  type=refreshAndPersist retry="5 5 300 5" timeout=1
+-
+add: olcMirrorMode
+olcMirrorMode: TRUE
+```
+```
+ldapmodify -Y EXTERNAL -H ldapi:/// -f 06-repl_conf_conf.ldif
+```
+Vérification :
+```
+ldapsearch -QLLLY external -H ldapi:/// -b "cn=config" "olcDatabase={0}config" olcSyncRepl
+```
+
+A partir d'ici l'arbre de configuration cn=config est synchronisé entre les deux conteneurs LDAP. Pour le reste de la configuration il faut faire les manipulations que sur un des deux conteneurs LDAP
+
+## Réplication de l'arbre de données
+Nous allons ici mettre en place la synchronisation automatique de l'arbre de données entre les deux conteneurs LDAP.
+
+### 07-acl_replica.ldif
+```
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+replace: olcAccess
+olcAccess: to attrs=userPassword by self write by anonymous auth by dn="cn=writer,ou=system,dc=krhacken,dc=org" write by dn="cn=viewer,ou=system,dc=krhacken,dc=org" read by dn="cn=admin,dc=krhacken,dc=org" write by dn.exact="cn=replica,ou=system,dc=krhacken,dc=org" read by * none
+olcAccess: to dn.subtree="dc=krhacken,dc=org" by users read by * none
+olcAccess: to * by self write by dn="cn=admin,dc=krhacken,dc=org" write by * read by anonymous none
+```
+```
+ldapmodify -Y EXTERNAL -H ldapi:/// -f 07-acl_replica.ldif
+```
+Vérification :
+```
+ldapsearch -QLLLY external -H ldapi:/// -b "cn=config" "olcDatabase={1}mdb" olcAccess
+```
+
+### 08-limit.ldif
+```
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+add: olcLimits
+olcLimits: dn.exact="cn=replica,ou=system,dc=krhacken,dc=org" time.soft=unlimited time.hard=unlimited size.soft=unlimited size.hard=unlimited
+```
+```
+ldapmodify -Y EXTERNAL -H ldapi:/// -f 08-limit.ldif
+```
+
+### 09-index.ldif
+```
+dn:olcDatabase={1}mdb,cn=config
+changetype: modify
+add: olcDbIndex
+olcDbIndex: entryCSN,entryUUID eq
+```
+```
+ldapmodify -Y EXTERNAL -H ldapi:/// -f 09-index.ldif
+```
+
+### 10-syncprov_conf_data.ldif
+```
+dn: olcOverlay=syncprov,olcDatabase={1}mdb,cn=config
+changetype: add
+objectClass: olcOverlayConfig
+objectClass: olcSyncProvConfig
+olcOverlay: syncprov
+```
+```
+ldapmodify -Y EXTERNAL -H ldapi:/// -f 10-syncprov_conf_data.ldif
+```
+
+### 11-repl_conf_data.ldif
+```
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+add: olcSyncRepl
+olcSyncRepl: rid=01 provider=ldap://alpha.ldap.krhacken.org
+  binddn="cn=replica,ou=system,dc=krhacken,dc=org"
+  bindmethod=simple credentials=password
+  searchbase="dc=krhacken,dc=org"
+  type=refreshAndPersist retry="5 5 300 5" timeout=1
+olcSyncRepl: rid=02 provider=ldap://beta.ldap.krhacken.org
+  binddn="cn=replica,ou=system,dc=krhacken,dc=org"
+  bindmethod=simple credentials=password
+  searchbase="dc=krhacken,dc=org"
+  type=refreshAndPersist retry="5 5 300 5" timeout=1
+-
+add: olcMirrorMode
+olcMirrorMode: TRUE
+```
+```
+ldapmodify -Y EXTERNAL -H ldapi:/// -f 11-repl_conf_data.ldif
+```
+
+## Configuration des ServerID
+A cause de la synchronisation de l'arbre de configuration les ServerID sont les mêmes.
+
+Il faut stoper **slapd** sur les deux conteneurs avec `systemctl stop slapd`
+
+Puis éditer `/etc/ldap/slapd.d/cn\=config.ldif` de la manière suivante
+- Alpha -> `olcServerID: 1`
+- Beta -> `olcServerID: 2`
+
+On peut maintenant relancer slapd sur les deux conterneurs avec `systemctl start slapd`
+
+Maintenant la commande ci-dessous donne un ID différent selon le conteneur.
+```
+ldapsearch -x -LLL -H ldap://localhost -D cn=admin,dc=krhacken,dc=org -w passadmin -b cn=config "objectClass=olcGlobal"
+```
+
+## Accès via une IP virtuelle
+Comme pour HAProxy nous allons utiliser keepalived pour avoir une IP virtuelle que se déplace entre les deux conteneurs en fonction de la disponibilité de l'annuaire LDAP.
+
+```
+apt-get install -y keepalived
+```
+
+### Script pour vérifier l'état des conteneurs LDAP
+
+Créer, sur les deux serveurs, le script `/etc/keepalived/test_ldap.sh`
+
+Il faut spécifier le mot de passe du compte viewer.
+```
+#!/bin/bash
+
+ldapsearch -x -H ldap://$1 -D cn=viewer,ou=system,dc=krhacken,dc=org -w passview -b dc=krhacken,dc=org -l 3 > /dev/null 2>&1
+ldapresponse=$?
+
+if [ "$ldapresponse" -gt 0 ]; then
+    echo "down"
+    exit 1
+else
+    echo "up"
+fi
+
+exit 0
+```
+```
+chmod /etc/keepalived/test_ldap.sh +x
+```
+
+## Configuration de keepalived
+
+### Configuration sur Alpha
+#### /etc/keepalived/keepalived.conf
+```
+vrrp_script check_server_health {
+    script "/etc/keepalived/test_ldap.sh 10.0.2.1" (mettre l'ip réel de votre serveur)
+    interval 2
+    fall 2
+    rise 2
+}
+vrrp_instance VI_LDAP {
+    interface eth0
+    state MASTER
+    virtual_router_id 50
+    priority 101 # 101 on master, 100 on backup
+    virtual_ipaddress {
+        10.0.2.3
+    }
+    track_script {
+        check_server_health
+    }
+}
+```
+```
+systemctl restart keepalived
+```
+    authentication {
+        auth_type PASS
+        auth_pass MON_MOT_DE_PASSE_SECRET
+    }
+
+### Configuration sur Beta
+#### /etc/keepalived/keepalived.conf
+```
+vrrp_script check_server_health {
+    script "/etc/keepalived/test_ldap.sh 10.0.2.2" (mettre l'ip réel de votre serveur)
+    interval 2
+    fall 2
+    rise 2
+}
+vrrp_instance VI_LDAP {
+    interface eth0
+    state MASTER
+    virtual_router_id 50
+    priority 101 # 101 on master, 100 on backup
+    virtual_ipaddress {
+        10.0.2.3
+    }
+    track_script {
+        check_server_health
+    }
+}
+```
+```
+systemctl restart keepalived
+```
+Un des deux conteneur est maintenant accessible à l'adresse 10.0.2.3. Les requêtes se feront sur cette adresse.
+
 
 ## Configuration des futurs client LDAP
 Sur tout les futurs client LDAP il faudra activer la connexion SSL.

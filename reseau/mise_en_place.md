@@ -146,7 +146,7 @@ iface eth2 inet manual
 
 iface eth3 inet manual
 
-# WAN
+# WAN
 allow-vmbr0 wan
 iface lan inet static
 	address  X.X.X.X
@@ -246,7 +246,7 @@ iface eth2 inet manual
 
 iface eth3 inet manual
 
-# WAN
+# WAN
 allow-vmbr0 wan
 iface lan inet static
 	address  X.X.X.X
