@@ -102,6 +102,10 @@
 
 - hosts: zonedmz
   tasks:
+    - name: Set timezone for DMZ
+      timezone:
+        name: Europe/Paris
+
     - name: Apt Update for DMZ
       apt:
         update_cache: yes
@@ -233,7 +237,7 @@
       with_items:
         - 'bind9'
 
-    - name: Prepare NGINX for HAProxy
+    - name: Prepare NGINX for Bind9
       file:
         path: "{{ item }}"
         state: absent
@@ -261,7 +265,7 @@
         - '/var/log/dns/query.log'
         - '/var/log/dns/error.log'
 
-    - name: Copy ferm configuration for HAProxy
+    - name: Copy ferm configuration for Bind9
       copy:
         src: /root/src/ferm/dns_ferm.conf
         dest: /etc/ferm/ferm.conf
@@ -269,7 +273,7 @@
         group: root
         mode: '0640'
 
-    - name: Restart ferm for HAProxy
+    - name: Restart ferm for Bind9
       systemd:
         name: "ferm"
         state: restarted

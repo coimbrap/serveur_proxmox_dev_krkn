@@ -74,6 +74,10 @@
 
 - hosts: zoneproxy
   tasks:
+    - name: Set timezone for Proxy
+      timezone:
+        name: Europe/Paris
+
     - name: APT configuration for Proxy
       copy:
         dest: "/etc/apt/apt.conf.d/01proxy"
