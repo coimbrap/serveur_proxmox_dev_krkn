@@ -8,4 +8,4 @@ Vous trouverez ici toute la documentation relative au déploiement de Proxmox.
 4. [Cluster](cluster)
 5. [Haute Disponibilité](#)
 6. [Gestion de l'authentification](#)
-7. [Sécurisation des container / VM](securisation)
+7. [Sécurisation des conteneurs / VM](securisation)

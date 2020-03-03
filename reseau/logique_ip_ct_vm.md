@@ -11,7 +11,7 @@ Les IP seront de la forme `10.1.0.ID_PROXMOX` ou l'ID Proxmox est le numéro du 
 
 ## Le reste
 
-Pour les autres interfaces chosissez une adresse cohérente vis à vis des adresses déjà allouées, la liste est disponible [ici](/reseau/mise_en_place.md).
+Pour les autres interfaces chosissez une adresse cohérente vis à vis des adresses déjà allouées, la liste est disponible [ici](mise_en_place.md).
 
 Les IP sont organisé avec la logique suivante :
 - Plus le service est important plus sont numéro est petit,

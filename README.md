@@ -27,7 +27,7 @@ charge de former leur successeurs.
 	4. [Cluster](proxmox/cluster)
 	5. [Haute Disponibilitée](#)
 	6. [Gestion de l'authentification](#)
-	7. [Sécurisation des container / VM](proxmox/securisation)
+	7. [Sécurisation des conteneurs / VM](proxmox/securisation)
 3. [Réseau](reseau)
 	1. [Introduction à OpenvSwitch](reseau/introduction_ovs.md)
 	2. [Topologie globale du réseau](reseau/topologie_globale.md)
