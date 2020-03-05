@@ -115,10 +115,10 @@ APT-GET doit maintenant fonctionner.
 
 Voilà c'est tout pour la mise en place du Proxy Interne.
 
-### Git
+### Git
 Les requêtes passerons désormais par le proxy interne sur le port 3128 pour les requêtes git via http.
 
-#### /root/.gitconfig
+#### /root/.gitconfig
 ```
 [http]
         proxy = http://<ip_proxy_zone>:3128
