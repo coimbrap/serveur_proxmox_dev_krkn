@@ -274,7 +274,8 @@ Dans **Administration du site / Sources d'authentification**
 - Utilisateur Search Base `ou=people,dc=krhacken,dc=org`
 - Filtre utilisateur `(&(objectClass=gitaccountkrhacken)(gitaccountactif=YES)(|(uid=%[1]s)(mail=%[1]s)))`
 - Attribut nom d'utilisateur `uid`
-- Attribut prénom `displayName`
+- Attribut prénom `cn`
+- Attribut nim de famille `sn`
 - Attribut e-mail `mail`
 - Cocher `Ne pas vérifier TLS`
 
