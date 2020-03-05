@@ -287,7 +287,7 @@ Vous pouvez lister les utilisateurs avec ldapsearch,
 ldapsearch -xLLL -H ldap://vip.ldap.krhacken.org -D cn=viewer,ou=system,dc=krhacken,dc=org -w PASSVIEWER -b "ou=people,dc=krhacken,dc=org" "(&(objectClass=gitaccountkrhacken)(gitaccountactif=YES))" -ZZ
 ```
 
-## Customisation
+## Customisation
 Les templates des pages sont disponible [ici](https://github.com/go-gitea/gitea/tree/master/templates)
 
 ### Page d'accueil
