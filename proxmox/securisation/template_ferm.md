@@ -22,7 +22,7 @@ Voici comment le filtrage ce fera en OUTPUT :
 
 La template utilise des paramètres pour éviter d'avoir à modifier la configuration. Il vous suffit d'adapter les paramètres suivant en fonction de la configuration souhaité.
 
-#### Interfaces
+#### Interfaces
 - IF_ADMIN : Nom de l'interface d'administration
 - IF_FRONT : Nom du point d'entrée principal sur le conteneur
 - IF_BACK : Liste des interfaces secondaire, ne doit inclure ni l'interface administration ni les interfaces qui n'ont pas besoin de règles autre que DROP.
@@ -34,7 +34,7 @@ OPEN_PORT_FRONT : Liste des ports TCP à ouvrir en entrée sur l'interface princ
 OPEN_PORT_BACK_REQUEST : Liste des ports TCP à ouvrir en entrée sur les interfaces secondaires
 OPEN_PORT_BACK_ACCESS : Liste des ports TCP à ouvrir en sortie sur les interfaces secondaires
 
-#### Ports UDP ouverts
+#### Ports UDP ouverts
 NEED_UDP_* : 0 si pas besoin d'ouvrir un port UDP 1 sinon
 UDP_OPEN_PORT_FRONT : Liste des ports UDP à ouvrir en entrée sur l'interface principale
 UDP_OPEN_PORT_BACK_ACCESS : Liste des ports UDP à ouvrir en sortie sur les interfaces secondaires
@@ -50,11 +50,13 @@ Les règles restrictives en sortie permettent d'éviter qu'un attaquant puisse a
 # REQUEST : EXT -> INT | ACCESS : INT -> EXT
 
 # Depuis l'extérieur sur l'interface principale
+@def $HAVE_FRONT_REQUEST = 1; #0 pour NON 1 pour OUI
 @def $OPEN_PORT_FRONT_REQUEST = ();
 @def $NEED_UDP_FRONT_REQUEST = 0; #0 pour NON 1 pour OUI
 @def $UDP_OPEN_PORT_FRONT_REQUEST = ();
 
 # Depuis l'intérieur sur l'interface principale
+@def $HAVE_FRONT_ACCESS = 1; #0 pour NON 1 pour OUI
 @def $OPEN_PORT_FRONT_ACCESS = ();
 @def $NEED_UDP_FRONT_ACCESS = 0; #0 pour NON 1 pour OUI
 @def $UDP_OPEN_PORT_FRONT_ACCESS = ();
@@ -72,6 +74,9 @@ Les règles restrictives en sortie permettent d'éviter qu'un attaquant puisse a
 @def $NEED_UDP_BACK_ACCESS = 1; #0 pour NON 1 pour OUI
 @def $UDP_OPEN_PORT_BACK_ACCESS = (53);
 
+# Besoin de VRRP sur IF_VRRP
+@def $NEED_VRRP = 0; #0 pour NON 1 pour OUI
+@def $IF_VRRP = eth0;
 
 table filter {
     chain INPUT {
@@ -81,8 +86,13 @@ table filter {
         interface lo ACCEPT;
         interface $IF_ADMIN ACCEPT;
 
+        @if $HAVE_FRONT_REQUEST {
+            interface $IF_FRONT proto tcp dport $OPEN_PORT_FRONT_REQUEST ACCEPT;
+        }
 
-        interface $IF_FRONT proto tcp dport $OPEN_PORT_FRONT_REQUEST ACCEPT;
+        @if $NEED_VRRP {
+            interface $IF_VRRP proto vrrp ACCEPT;
+        }
 
         @if $NEED_UDP_FRONT_REQUEST {
             interface $IF_FRONT proto udp dport $UDP_OPEN_PORT_FRONT_REQUEST ACCEPT;
@@ -107,8 +117,13 @@ table filter {
         mod state state (ESTABLISHED RELATED) ACCEPT;
         outerface lo ACCEPT;
 
+        @if $HAVE_FRONT_ACCESS {
+            outerface $IF_FRONT proto tcp dport $OPEN_PORT_FRONT_ACCESS ACCEPT;
+        }
 
-        outerface $IF_FRONT proto tcp dport $OPEN_PORT_FRONT_ACCESS ACCEPT;
+        @if $NEED_VRRP {
+            outerface $IF_VRRP proto vrrp ACCEPT;
+        }
 
         @if $NEED_UDP_FRONT_ACCESS {
             outerface $IF_BACK proto udp dport $UDP_OPEN_PORT_FRONT_ACCESS ACCEPT;
@@ -123,7 +138,7 @@ table filter {
         }
 
         proto icmp ACCEPT;
-    }   
+    }
 
     chain FORWARD policy DROP;
 }
