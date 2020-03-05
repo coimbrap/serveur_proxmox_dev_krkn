@@ -623,7 +623,7 @@ Vérification :
 ldapsearch -LLLY external -H ldapi:/// -b "cn=config" "objectClass=olcGlobal" olcServerID
 ```
 
-### 03-replica_account.ldif
+### 03-replica_account.ldif
 ```
 dn: cn=replica,ou=system,dc=krhacken,dc=org
 userPassword: PASS
@@ -636,7 +636,7 @@ sn: replica
 ldapadd -x -H ldap://localhost -D cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f 03-replica_account.ldif
 ```
 
-### 04-droit_conf.ldif
+### 04-droit_conf.ldif
 Gestion des droits du CN *replica*
 ```
 dn: olcDatabase={0}config,cn=config
@@ -687,7 +687,7 @@ ldapsearch -QLLLY external -H ldapi:/// -b "cn=config" "olcDatabase={0}config" o
 
 A partir d'ici l'arbre de configuration cn=config est synchronisé entre les deux conteneurs LDAP. Pour le reste de la configuration il faut faire les manipulations que sur un des deux conteneurs LDAP
 
-## Réplication de l'arbre de données
+## Réplication de l'arbre de données
 Nous allons ici mettre en place la synchronisation automatique de l'arbre de données entre les deux conteneurs LDAP.
 
 ### 07-acl_replica.ldif
@@ -741,7 +741,7 @@ olcOverlay: syncprov
 ldapmodify -Y EXTERNAL -H ldapi:/// -f 10-syncprov_conf_data.ldif
 ```
 
-### 11-repl_conf_data.ldif
+### 11-repl_conf_data.ldif
 ```
 dn: olcDatabase={1}mdb,cn=config
 changetype: modify
@@ -764,7 +764,7 @@ olcMirrorMode: TRUE
 ldapmodify -Y EXTERNAL -H ldapi:/// -f 11-repl_conf_data.ldif
 ```
 
-## Configuration des ServerID
+## Configuration des ServerID
 A cause de la synchronisation de l'arbre de configuration les ServerID sont les mêmes.
 
 Il faut stoper **slapd** sur les deux conteneurs avec `systemctl stop slapd`
@@ -811,9 +811,9 @@ exit 0
 chmod /etc/keepalived/test_ldap.sh +x
 ```
 
-## Configuration de keepalived
+## Configuration de keepalived
 
-### Configuration sur Alpha
+### Configuration sur Alpha
 #### /etc/keepalived/keepalived.conf
 ```
 vrrp_script check_server_health {
@@ -843,7 +843,7 @@ systemctl restart keepalived
         auth_pass MON_MOT_DE_PASSE_SECRET
     }
 
-### Configuration sur Beta
+### Configuration sur Beta
 #### /etc/keepalived/keepalived.conf
 ```
 vrrp_script check_server_health {
@@ -887,6 +887,6 @@ TLS_CACERT /etc/ldap/ca_certs.pem
 
 La commande,
 ```
-ldapsearch -xLLL -H ldap://localhost -D cn=viewer,ou=system,dc=krhacken,dc=org -w passview -b "dc=krhacken,dc=org" -ZZ
+ldapsearch -xLLL -H ldap://vip.ldap.krhacken.org -D cn=viewer,ou=system,dc=krhacken,dc=org -w passview -b "dc=krhacken,dc=org" -ZZ
 ```
 doit retourner des informations sur l'arbre.

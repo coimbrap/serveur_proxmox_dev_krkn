@@ -8,7 +8,7 @@ Le serveur LDAP est déjà en place sur le conteneur LDAP il faut cependant fair
 
 ## Ajout d'un schéma
 
-### schema.ldif
+### schemamail.ldif
 
 ```
 dn: cn=mailkrhacken,cn=schema,cn=config
@@ -26,7 +26,7 @@ olcObjectClasses: ( 1.3.6.1.4.1.99999.2.1.40 NAME 'mailaliaskrhacken' SUP TOP ST
 olcObjectClasses: ( 1.3.6.1.4.1.99999.2.1.60 NAME 'maildomainkrhacken' SUP TOP AUXILIARY MUST ( maildomain $ maildomainactif))
 ```
 ```
-ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f schema.ldif
+ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f schemamail.ldif -ZZ
 ```
 
 ### oumail.ldif
@@ -46,7 +46,7 @@ maildomain: krhacken.org
 maildomainactif: YES
 ```
 ```
-ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f oumail.ldif
+ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f oumail.ldif -ZZ
 ```
 
 ## Ajout d'un nouvel utilisateur
@@ -71,7 +71,7 @@ mailaccountquota: 0
 mailaccountactif: YES
 ```
 ```
-ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f adduser.ldif
+ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f adduser.ldif -ZZ
 ```
 
 ## Autoriser un utilisateur à utilisé le service des mails
@@ -79,8 +79,9 @@ ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f adduser.ldif
 Permet d'ajouter la classe mailaccountkrhacken à un utilisateur, il pourra ensuite utilisé le service.
 
 ### addtomail.ldif
+Pour le groupe, soit krhacken soit people.
 ```
-dn: uid=NAME,ou=people,dc=krhacken,dc=org
+dn: uid=NAME,ou=GROUP,dc=krhacken,dc=org
 changetype: modify
 add: objectclass
 objectclass: mailaccountkrhacken
@@ -92,7 +93,7 @@ add: mailaccountactif
 mailaccountactif: YES
 ```
 ```
-ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f addtomail.ldif
+ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f addtomail.ldif -ZZ
 ```
 
 On crée dès maintenant une adresse adminsys@krhacken.org, c'est impératif pour la suite.
@@ -111,12 +112,12 @@ mailaliasto: adminsys@krhacken.org
 mailaliasactif: YES
 ```
 ```
-ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f alias.ldif
+ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f alias.ldif -ZZ
 ```
 
 La commande suivante renvoie la liste des mails crée il faut y trouver adminsys@krhacken.org. A noté qu'un mail est considérés comme crée quand il est dans la classe mailaccountkrhacken.
 ```
-ldapsearch -xLLL -H ldap://localhost -D cn=admin,dc=krhacken,dc=org -y /root/pwdldap -b "ou=people,dc=krhacken,dc=org" "(&(objectClass=mailaccountkrhacken))"
+ldapsearch -xLLL -H ldap://localhost -D cn=admin,dc=krhacken,dc=org -y /root/pwdldap -b "ou=people,dc=krhacken,dc=org" "(&(objectClass=mailaccountkrhacken))" -ZZ
 ```
 
 # Postfix
@@ -168,6 +169,10 @@ git clone https://github.com/Neilpang/acme.sh.git
 cd ./acme.sh
 ./acme.sh --install
 ```
+```
+source /root/.bashrc
+```
+
 ### Ajout d'un reverse proxy au niveau des conteneurs nginx
 Pour que les requêtes ACME sur le domaine mail.krhacken.org arrive sur le conteneur Postfix il faut rajouter un reverse dans les conteneurs Nginx Public.
 ```
@@ -207,11 +212,12 @@ Cette configuration empêche des utilisateurs déjà connecté au SMTP de modife
 mynetworks = 10.0.0.0/8
 inet_interfaces = all
 inet_protocols = ipv4
-smtpd_banner = $myhostname ESMTP $mail_name (Debian/GNU)
+smtpd_banner = $myhostname - Kr[HACK]en SMTP Server
 biff = no
 append_dot_mydomain = yes
 readme_directory = no
 compatibility_level = 2
+
 
 notify_classes = bounce, delay, policy, protocol, resource, software
 myhostname = mail.krhacken.org
@@ -231,6 +237,21 @@ alias_database = hash:/etc/aliases
 broken_sasl_auth_clients=yes
 
 policyd-spf_time_limit = 3600s
+postscreen_greet_wait = 3s
+postscreen_greet_banner = On attend un pneu...
+postscreen_greet_action = drop
+postscreen_dnsbl_sites =
+ zen.spamhaus.org*2,
+ bl.spamcop.net,
+ b.barracudacentral.org*2
+postscreen_dnsbl_threshold = 3
+postscreen_dnsbl_action = drop
+postscreen_pipelining_enable = yes
+postscreen_pipelining_action = enforce
+postscreen_non_smtp_command_enable = yes
+postscreen_non_smtp_command_action = enforce
+postscreen_bare_newline_enable = yes
+postscreen_bare_newline_action = enforce
 
 smtp_tls_security_level = may
 smtp_tls_session_cache_database  = btree:${data_directory}/smtp_tlscache
@@ -315,7 +336,6 @@ smtpd_sender_login_maps = ldap:/etc/postfix/ldap/virtual_senders.cf
 ```
 
 ### /etc/postfix/master.cf
-Modifer les champs suivant, laisser les autres champs par défaut
 ```
 smtp      inet  n       -       y       -       1       postscreen
   -o cleanup_service_name=subcleanin
@@ -323,17 +343,14 @@ smtpd     pass  -       -       y       -       -       smtpd
 dnsblog   unix  -       -       y       -       0       dnsblog
 tlsproxy  unix  -       -       y       -       0       tlsproxy
 submission inet n       -       y       -       -       smtpd
-
-submission inet   n   -   y   -   -   smtpd
   -o smtpd_tls_security_level=encrypt
-  -o smtpd_client_restrictions=permit_sasl_authenticated,reject
   -o cleanup_service_name=subcleanout
-smtps      inet   n   -   y   -   -   smtpd
+  -o smtpd_relay_restrictions=permit_sasl_authenticated,reject
+smtps     inet  n       -       y       -       -       smtpd
   -o smtpd_tls_security_level=encrypt
   -o smtpd_tls_wrappermode=yes
-  -o smtpd_client_restrictions=permit_sasl_authenticated,reject
+  -o smtpd_relay_restrictions=permit_sasl_authenticated,reject
   -o cleanup_service_name=subcleanout
-
 cleanup     unix   n   -   y   -   0   cleanup
 subcleanout unix   n   -   -   -   0   cleanup
   -o header_checks=pcre:/etc/postfix/check/header_checks_out
@@ -341,6 +358,45 @@ subcleanout unix   n   -   -   -   0   cleanup
 subcleanin  unix   n   -   -   -   0   cleanup
   -o header_checks=pcre:/etc/postfix/check/header_checks_in
   -o mime_header_checks=pcre:/etc/postfix/check/header_checks_in
+
+pickup    unix  n       -       y       60      1       pickup
+cleanup   unix  n       -       y       -       0       cleanup
+qmgr      unix  n       -       n       300     1       qmgr
+tlsmgr    unix  -       -       y       1000?   1       tlsmgr
+rewrite   unix  -       -       y       -       -       trivial-rewrite
+bounce    unix  -       -       y       -       0       bounce
+defer     unix  -       -       y       -       0       bounce
+trace     unix  -       -       y       -       0       bounce
+verify    unix  -       -       y       -       1       verify
+flush     unix  n       -       y       1000?   0       flush
+proxymap  unix  -       -       n       -       -       proxymap
+proxywrite unix -       -       n       -       1       proxymap
+smtp      unix  -       -       y       -       -       smtp
+relay     unix  -       -       y       -       -       smtp
+        -o syslog_name=postfix/$service_name
+showq     unix  n       -       y       -       -       showq
+error     unix  -       -       y       -       -       error
+retry     unix  -       -       y       -       -       error
+discard   unix  -       -       y       -       -       discard
+local     unix  -       n       n       -       -       local
+virtual   unix  -       n       n       -       -       virtual
+lmtp      unix  -       -       y       -       -       lmtp
+anvil     unix  -       -       y       -       1       anvil
+scache    unix  -       -       y       -       1       scache
+postlog   unix-dgram n  -       n       -       1       postlogd
+maildrop  unix  -       n       n       -       -       pipe
+  flags=DRhu user=vmail argv=/usr/bin/maildrop -d ${recipient}
+uucp      unix  -       n       n       -       -       pipe
+  flags=Fqhu user=uucp argv=uux -r -n -z -a$sender - $nexthop!rmail ($recipient)
+ifmail    unix  -       n       n       -       -       pipe
+  flags=F user=ftn argv=/usr/lib/ifmail/ifmail -r $nexthop ($recipient)
+bsmtp     unix  -       n       n       -       -       pipe
+  flags=Fq. user=bsmtp argv=/usr/lib/bsmtp/bsmtp -t$nexthop -f$sender $recipient
+scalemail-backend unix	-	n	n	-	2	pipe
+  flags=R user=scalemail argv=/usr/lib/scalemail/bin/scalemail-store ${nexthop} ${user} ${extension}
+mailman   unix  -       n       n       -       -       pipe
+  flags=FR user=list argv=/usr/lib/mailman/bin/postfix-to-mailman.py
+  ${nexthop} ${user}
 
 policyd-spf unix - n n - - spawn
   user=nobody argv=/usr/bin/policyd-spf
@@ -352,7 +408,7 @@ Ce filtre permet de nettoyer les headers d'un mail en enlevant les informations 
 
 ### /etc/postfix/check/header_checks_in
 ```
-/^s*Content­.(Disposition|Type).*names*=s*"?(.+.(bat|exe|com|scr|vbs))"?s*$/ PREPEND X-DEBUGO:WARN
+/^s*Content­.(Disposition|Type).*names*=s*"?(.+.(bat|exe|com|scr|vbs))"?s*$/ PREPEND X-KRHACKEN:WARN
 ```
 ### /etc/postfix/check/header_checks_out
 Masquage des informations sensibles
@@ -389,38 +445,17 @@ skip_addresses = 127.0.0.0/8,10.0.0.0/8
 ```
 Les mails qui ne respectent pas les SPF seront rejetés. Par contre, s’il n’y a pas de SPF définis, on accepte.
 
-## Blocage des clients trop rapide
-On va ici bloquer les clients trop rapide et vérifier la légitimité du champs MX de serveur émetteur.
-
-### /etc/postfix/main.cf
-```
-postscreen_greet_wait = 3s
-postscreen_greet_banner = On attend un pneu...
-postscreen_greet_action = drop
-postscreen_dnsbl_sites =
- zen.spamhaus.org*2,
- bl.spamcop.net,
- b.barracudacentral.org*2
-postscreen_dnsbl_threshold = 3
-postscreen_dnsbl_action = drop
-postscreen_pipelining_enable = yes
-postscreen_pipelining_action = enforce
-postscreen_non_smtp_command_enable = yes
-postscreen_non_smtp_command_action = enforce
-postscreen_bare_newline_enable = yes
-postscreen_bare_newline_action = enforce
-```
-
 ## Filtre via LDAP
 On place tout les fichiers de configuration dans /etc/postfix/ldap, ces fichiers permettent de faire des requêtes au serveur LDAP pour l'authentification du client au service mail.
 
 ### /etc/postfix/ldap/virtual_domains.cf
 ```
-server_host = ldap://10.0.1.6
+server_host = ldap://vip.ldap.krhacken.org
 version = 3
+start_tls = yes
 bind = yes
 bind_dn = cn=viewer,ou=system,dc=krhacken,dc=org
-bind_pw = PASSWRITE
+bind_pw = PASSVIEWER
 search_base = ou=mail,dc=krhacken,dc=org
 scope = sub
 query_filter = (&(maildomain=%s)(objectClass=maildomainkrhacken)(maildomainactif=YES))
@@ -428,11 +463,12 @@ result_attribute = maildomain
 ```
 ### /etc/postfix/ldap/virtual_mailbox.cf
 ```
-server_host = ldap://10.0.1.6
+server_host = ldap://vip.ldap.krhacken.org
 version = 3
+start_tls = yes
 bind = yes
 bind_dn = cn=viewer,ou=system,dc=krhacken,dc=org
-bind_pw = PASSWRITE
+bind_pw = PASSVIEWER
 search_base = ou=people,dc=krhacken,dc=org
 scope = sub
 query_filter = (&(mail=%s)(objectClass=mailaccountkrhacken)(mailaccountactif=YES))
@@ -440,11 +476,12 @@ result_attribute = mail
 ```
 ### /etc/postfix/ldap/virtual_alias.cf
 ```
-server_host = ldap://10.0.1.6
+server_host = ldap://vip.ldap.krhacken.org
 version = 3
+start_tls = yes
 bind = yes
 bind_dn = cn=viewer,ou=system,dc=krhacken,dc=org
-bind_pw = PASSWRITE
+bind_pw = PASSVIEWER
 search_base = ou=mail,dc=krhacken,dc=org
 scope = sub
 query_filter = (&(mailaliasfrom=%s)(objectClass=mailaliaskrhacken)(mailaliasactif=YES))
@@ -452,11 +489,12 @@ result_attribute = mailaliasto
 ```
 ### /etc/postfix/ldap/virtual_senders.cf
 ```
-server_host = ldap://10.0.1.6
+server_host = ldap://vip.ldap.krhacken.org
 version = 3
+start_tls = yes
 bind = yes
 bind_dn = cn=viewer,ou=system,dc=krhacken,dc=org
-bind_pw = PASSWRITE
+bind_pw = PASSVIEWER
 search_base = dc=krhacken,dc=org
 scope = sub
 query_filter = (|(&(mailaliasfrom=%s)(objectClass=mailaliaskrhacken)(mailaliasactif=YES))(&(mail=%s)(objectClass=mailaccountkrhacken)(mailaccountactif=YES)))
@@ -464,11 +502,12 @@ result_attribute = mail mailaliasto
 ```
 ### /etc/postfix/ldap/check_helo_domains_reject.cf
 ```
-server_host = ldap://10.0.1.6
+server_host = ldap://vip.ldap.krhacken.org
 version = 3
+start_tls = yes
 bind = yes
 bind_dn = cn=viewer,ou=system,dc=krhacken,dc=org
-bind_pw = PASSWRITE
+bind_pw = PASSVIEWER
 search_base = ou=mail,dc=krhacken,dc=org
 scope = sub
 
@@ -479,11 +518,12 @@ result_filter = REJECT Goodbye
 ### /etc/postfix/ldap/check_sender_domains_reject.cf
 Bloque les FROM TO vers les mails non attribués
 ```
-server_host = ldap://10.0.1.6
+server_host = ldap://vip.ldap.krhacken.org
 version = 3
+start_tls = yes
 bind = yes
 bind_dn = cn=viewer,ou=system,dc=krhacken,dc=org
-bind_pw = PASSWRITE
+bind_pw = PASSVIEWER
 search_base = ou=mail,dc=krhacken,dc=org
 scope = sub
 
@@ -523,7 +563,7 @@ chmod 770 /home/vmail
 Tri des fichiers de configuration
 ```
 cd /etc/dovecot/conf.d
-rm 10-director 10-tcpwrapper 90-acl auth-* 10-auth.conf 10-logging.conf 10-mail.conf 10-master.conf 10-ssl.conf 15-mailboxes.conf 15-lda.conf 20-imap.conf 20-lmtp.conf /20-managesieve.conf 90-sieve.conf
+rm 10-director 10-tcpwrapper 90-acl auth-* 10-auth.conf 10-logging.conf 10-mail.conf 10-master.conf 10-ssl.conf 15-mailboxes.conf 15-lda.conf 20-imap.conf 20-lmtp.conf 20-managesieve.conf 90-sieve.conf
 cd /etc/dovecot
 rm dovecot-dict-* dovecot-sql.conf.ext dovecot-ldap.conf.ext dovecot.conf
 ```
@@ -650,8 +690,7 @@ ssl = required
 ssl_ca = </etc/ssl/private/krhacken.org/ca.pem
 ssl_cert = </etc/ssl/private/krhacken.org/cert.pem
 ssl_key = </etc/ssl/private/krhacken.org/key.pem
-ssl_dh_parameters_length = 2048
-ssl_protocols = !SSLv3 !TLSv1 !TLSv1.1 TLSv1.2
+ssl_min_protocol = TLSv1.2
 ssl_cipher_list = ALL:!LOW:!SSLv2:!EXP:!aNULL
 ssl_prefer_server_ciphers = yes
 ```
@@ -750,9 +789,10 @@ Cependant cela pose un problème, les requêtes LDAP ne sont pas correcte pour p
 
 ### /etc/dovecot/dovecot-ldap-pass.conf.ext
 ```
-uris = ldap://10.0.1.6
+uris = ldap://vip.ldap.krhacken.org
 dn = cn=viewer,ou=system,dc=krhacken,dc=org
-dnpass = PASSWRITE
+dnpass = PASSVIEWER
+tls = yes
 debug_level = 0
 auth_bind = no
 ldap_version = 3
@@ -764,9 +804,10 @@ pass_filter = (&(uid=%u)(objectClass=mailaccountkrhacken)(mailaccountactif=YES))
 ```
 ### /etc/dovecot/dovecot-ldap-user.conf.ext
 ```
-uris = ldap://10.0.1.6
+uris = ldap://vip.ldap.krhacken.org
 dn = cn=viewer,ou=system,dc=krhacken,dc=org
-dnpass = PASSWRITE
+dnpass = PASSVIEWER
+tls = yes
 debug_level = 0
 auth_bind = no
 ldap_version = 3
@@ -841,6 +882,7 @@ chown vmail /etc/dovecot/quota.sh
 dovecot reload
 ```
 Si on veut modifier le quota d'un utilisateur il faut passer par LDAP voilà le modèle du .ldif
+
 ### mod_quota.ldif
 Cela correspond à un quota de 2Go
 ```
