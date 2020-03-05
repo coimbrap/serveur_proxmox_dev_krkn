@@ -28,17 +28,17 @@ La template utilise des paramètres pour éviter d'avoir à modifier la configur
 - IF_BACK : Liste des interfaces secondaire, ne doit inclure ni l'interface administration ni les interfaces qui n'ont pas besoin de règles autre que DROP.
 
 #### Ports TCP ouverts
-HAVE_BACK_ACCESS : Doit accéder à des conteneurs qui sont sur des interfaces secondaires
-HAVE_BACK_REQUEST : Doit être accessible depuis des conteneurs qui sont sur des interfaces secondaires
-OPEN_PORT_FRONT : Liste des ports TCP à ouvrir en entrée sur l'interface principale
-OPEN_PORT_BACK_REQUEST : Liste des ports TCP à ouvrir en entrée sur les interfaces secondaires
-OPEN_PORT_BACK_ACCESS : Liste des ports TCP à ouvrir en sortie sur les interfaces secondaires
+- HAVE_BACK_ACCESS : Doit accéder à des conteneurs qui sont sur des interfaces secondaires
+- HAVE_BACK_REQUEST : Doit être accessible depuis des conteneurs qui sont sur des interfaces secondaires
+- OPEN_PORT_FRONT : Liste des ports TCP à ouvrir en entrée sur l'interface principale
+- OPEN_PORT_BACK_REQUEST : Liste des ports TCP à ouvrir en entrée sur les interfaces secondaires
+- OPEN_PORT_BACK_ACCESS : Liste des ports TCP à ouvrir en sortie sur les interfaces secondaires
 
 #### Ports UDP ouverts
-NEED_UDP_* : 0 si pas besoin d'ouvrir un port UDP 1 sinon
-UDP_OPEN_PORT_FRONT : Liste des ports UDP à ouvrir en entrée sur l'interface principale
-UDP_OPEN_PORT_BACK_ACCESS : Liste des ports UDP à ouvrir en sortie sur les interfaces secondaires
-UDP_OPEN_PORT_BACK_REQUEST : Liste des ports UDP à ouvrir en entrée sur les interfaces secondaires
+- NEED_UDP_* : 0 si pas besoin d'ouvrir un port UDP 1 sinon
+- UDP_OPEN_PORT_FRONT : Liste des ports UDP à ouvrir en entrée sur l'interface principale
+- UDP_OPEN_PORT_BACK_ACCESS : Liste des ports UDP à ouvrir en sortie sur les interfaces secondaires
+- UDP_OPEN_PORT_BACK_REQUEST : Liste des ports UDP à ouvrir en entrée sur les interfaces secondaires
 
 Les règles restrictives en sortie permettent d'éviter qu'un attaquant puisse accéder à tout le rester du réseau.
 

@@ -26,4 +26,4 @@ Pour Squid
 # Table des matières
 1. [HAProxy](haproxy.md)
 2. [Serveur DNS](dns.md)
-3. [Proxy pour les containers / VM](proxy_interne.md)
+3. [Proxy pour les conteneurs / VM](proxy_interne.md)

@@ -43,6 +43,8 @@ Switch Interne VLAN 30
 - Nginx Public Beta : 10.0.2.5
 - Mail Frontend : 10.0.2.10
 - Mail Backend : 10.0.2.11
+- Nextcloud : 10.0.2.20
+- Gitea : 10.0.2.21
 - [...]
 - Firewall Alpha : 10.0.2.250
 - Firewall Bêta : 10.0.2.251

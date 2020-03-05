@@ -9,11 +9,12 @@ if [ "$(ip a | grep -c "10.0.0.8")" -ge 1 ]; then
   	then
   		other_ip=10.0.0.6
   fi
-	certbot renew
-	rm -rf /etc/ssl/letsencrypt/*
-	for domain in $(ls /etc/letsencrypt/live); do
-		  cat /etc/letsencrypt/live/$domain/privkey.pem /etc/letsencrypt/live/$domain/fullchain.pem > /etc/ssl/letsencrypt/$domain.pem
-	done
-	scp -r /etc/ssl/letsencrypt/* hasync@$other_ip:/etc/ssl/letsencrypt
-else
+  rm -f /etc/letsencrypt/live/README
+  rm -rf /etc/ssl/letsencrypt/*
+  for domain in $(ls /etc/letsencrypt/live); do
+      cat /etc/letsencrypt/live/$domain/privkey.pem /etc/letsencrypt/live/$domain/fullchain.pem > /etc/ssl/letsencrypt/$domain.pem
+  done
+  scp -r /etc/ssl/letsencrypt/* root@$ct_ip:/etc/ssl/letsencrypt
+  ssh root@$ct_ip 'service haproxy reload'
+  service haproxy reload
 fi

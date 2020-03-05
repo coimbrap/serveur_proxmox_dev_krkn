@@ -5,7 +5,7 @@
 # Gateway 10.0.2.0/24 -> 10.0.2.254
 # Gateway 10.1.0.0/24 -> 10.1.0.254
 
-# Créer les containers, les mets à jours, configure les mises à jours de sécurité automatique,
+# Créer les conteneurs, les mets à jours, configure les mises à jours de sécurité automatique,
 # installe des paquets utile et ceux des services, met en place ferm via notre template.
 
 - hosts: localhost
@@ -61,7 +61,7 @@
         pubkey: "{{ ssh_pub }}"
         state: present
 
-    - name: Start Proxy containers
+    - name: Start Proxy container
       proxmox:
         api_user: root@pam
         api_password: "{{ pass_pve }}"
