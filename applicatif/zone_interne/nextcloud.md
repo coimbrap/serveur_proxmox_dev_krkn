@@ -350,7 +350,8 @@ Paramètres / Intégration LDAP/AD
 
 #### Avancé
 - Cocher `Configuration active`
-- Champ "nom d'affichage" de l'utilisateur `displayName`
+- Champ "nom d'affichage" de l'utilisateur `cn`
+- Second attribut pour le nom d'affichage `sn`
 - DN racine de l'arbre utilisateurs `ou=people,dc=krhacken,dc=org`
 - Champ "nom d'affichage" du groupe `cn`
 - DN racine de l'arbre groupes `cn=cloud,ou=people,dc=krhacken,dc=org`
