@@ -44,7 +44,7 @@ apt-get update
 apt-get dist-upgrade
 apt-get install -y ansible python python3-proxmoxer
 ```
-Il faut maintenant remplacer `/usr/lib/python3/dist-packages/ansible/modules/cloud/misc/proxmox.py` par le fichier proxmox.py qui est dans le même dossier.
+Il faut remplacer `/usr/lib/python3/dist-packages/ansible/modules/cloud/misc/proxmox.py` par le fichier proxmox.py fourni car ce fichier génère une erreur.
 
 Maintenant que Ansible est en place, on va pouvoir installer tous les conteneurs nécessaires. L'installation va se faire par zone, en commençant par la zone DMZ.
 
