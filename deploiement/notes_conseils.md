@@ -11,7 +11,7 @@ Ce document regroupe uniquement des notes et des conseils non ordonné, certains
 
 - Les adresses IP et VLAN à suivre sont dans mise_en_place.md
 
-- Pour se connecter à un container : SSH l'hyperviseur puis lxc-attact <number>
+- Pour se connecter à un conteneur : SSH l'hyperviseur puis lxc-attact <number>
 Voilà l'ordre à suivre
 
 installation_hyperviseurs.md
@@ -136,13 +136,13 @@ sont accessible et fonctionne.
 proxy_interne.md
 Rien de bien dur pour la mise en place
 Pour l'utilisation
-- Chaque container dans une zone autre que DMZ doit avoir comme gateway l'adresse du proxy dans la bonne zone
+- Chaque conteneur dans une zone autre que DMZ doit avoir comme gateway l'adresse du proxy dans la bonne zone
 - Il faut configurer impérativement wget et apt vers l'adresse du proxy
 - Mettre en place une interface dans chaque zone avec l'adresse en .252 avec comme gateway .254 (OPNSense)
 
 nginx_principal.md
 
-Création des deux container et connexion au proxy interne
+Création des deux conteneur et connexion au proxy interne
 
 #### /root/.wgetrc
 ```

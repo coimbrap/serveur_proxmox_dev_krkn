@@ -6,7 +6,7 @@ Mise en place du conteneur pour NextCloud et intégration à l'annuaire LDAP.
 Numéro 120
 #### Deux interfaces
 - eth0 : vmbr1 / VLAN 30 / IP 10.0.2.20 / GW 10.0.2.254
-- eth1 : vmbr2 / VLAN 100 / IP 10.0.2.120 / GW 10.1.0.254
+- eth1 : vmbr2 / VLAN 100 / IP 10.1.0.120 / GW 10.1.0.254
 
 ### Le proxy
 
@@ -350,8 +350,7 @@ Paramètres / Intégration LDAP/AD
 
 #### Avancé
 - Cocher `Configuration active`
-- Champ "nom d'affichage" de l'utilisateur `cn`
-- Second attribut pour le nom d'affichage `sn`
+- Champ "nom d'affichage" de l'utilisateur `displayName`
 - DN racine de l'arbre utilisateurs `ou=people,dc=krhacken,dc=org`
 - Champ "nom d'affichage" du groupe `cn`
 - DN racine de l'arbre groupes `cn=cloud,ou=people,dc=krhacken,dc=org`

@@ -1,7 +1,26 @@
 # Reverse proxy NGINX sur le réseau CTF
 
 ## Spécification du conteneur
-Ce service n'est pas redondé car non vital, son IP est 10.0.2.5 sur le réseau CTF.
+Ce service n'est pas redondé car non vital. Il portera le numéro 145.
+#### Deux interfaces
+- eth0 : vmbr1 / VLAN 40 / IP 10.0.3.3 / GW 10.0.2.254
+- eth1 : vmbr2 / VLAN 100 / IP 10.1.0.145 / GW 10.1.0.254
+
+### Le proxy
+
+#### /root/.wgetrc
+```
+http_proxy = http://10.0.3.252:3128/
+https_proxy = http://10.0.3.252:3128/
+use_proxy = on
+```
+
+#### /etc/apt/apt.conf.d/01proxy
+```
+Acquire::http {
+ Proxy "http://10.0.3.252:9999";
+};
+```
 
 ## Objectif
 Il doit rediriger les requêtes arrivant de HAProxy vers le bon conteneur en fonction de l'hostname. Pour cela nous allons utiliser des serveurs web HTTP Nginx.
@@ -11,6 +30,8 @@ Il doit rediriger les requêtes arrivant de HAProxy vers le bon conteneur en fon
 apt-get update
 apt-get install -y nginx
 systemctl enable nginx.service
+rm /etc/nginx/sites-enabled/default
+rm /etc/nginx/sites-available/default
 ```
 
 ## Mise en place d'un serveur faisant office de reverse proxy

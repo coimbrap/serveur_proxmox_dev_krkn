@@ -4,7 +4,7 @@
 Numéro 121
 #### Deux interfaces
 - eth0 : vmbr1 / VLAN 30 / IP 10.0.2.21 / GW 10.0.2.254
-- eth1 : vmbr2 / VLAN 100 / IP 10.0.2.121 / GW 10.1.0.254
+- eth1 : vmbr2 / VLAN 100 / IP 10.1.0.121 / GW 10.1.0.254
 
 ### Le proxy
 
@@ -120,7 +120,6 @@ apt-get update
 apt-get install -y git postgresql sudo
 wget -O gitea https://dl.gitea.io/gitea/1.11.1/gitea-1.11.1-linux-amd64
 ```
-pg_ctlcluster 11 main start
 
 
 ## Configuration de Nginx
@@ -241,7 +240,6 @@ Cocher uniquement
 - Activer le mode hors-ligne
 - Désactiver Gravatar
 - Désactiver le formulaire d'inscription
-- Exiger la connexion à un compte pour afficher les pages
 - Masquer les adresses e-mail par défaut
 - Activer le suivi le temps par défaut
 Ensuite
