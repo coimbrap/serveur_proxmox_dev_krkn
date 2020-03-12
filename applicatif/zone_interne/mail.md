@@ -891,6 +891,10 @@ changetype: modify
 replace: mailaccountquota
 mailaccountquota: 2147483648
 ```
+
+Au niveau des Quota voici le calcul :
+- Une unité vaut 1073741824
+
 A partir de là on peut envoyer et recevoir des mails avec par exemple Thunderbird pour augmenter la protection et la fiabilité de notre service des mails on va rajouter un antispam qui utile du machine learning. Pour authentifier notre serveur nous allons rajouter des entrées DNS
 
 # Rspamd

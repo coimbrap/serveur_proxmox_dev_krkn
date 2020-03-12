@@ -1,4 +1,5 @@
 # LDAP
+
 Nous allons ici mettre en place le serveur LDAP qui sera répliqué sur les deux nodes. Tout les services utiliseront LDAP pour l'authentification des utilisateurs.
 A noté que pour des questions pratique nous n'allons pas utilisé Fusion Directory, il faudra donc créer un schéma pour chaque service et modifier les utilisateur avec ldapadd et ldapmodify.
 Pour la sécurisation de LDAP nous allons utiliser LDAP avec STARTTLS.
@@ -157,10 +158,12 @@ ldapmodify -Y external -H ldapi:/// -f acces-conf-admin.ldif
 ```
 
 # Les overlays
-Les overlays sont des fonctionnalités supplémentaires. Si dessous l'ensemble des overlays que nous allons utiliser ainsi que leur utilité.
+Les overlays sont des fonctionnalités supplémentaires.
+
+Voici l'ensemble des overlays que nous allons utiliser
 
 ## MemberOf
-L’overlay memberof permet de savoir dans quels groupes se trouve un utilisateur en une seule requête au lieu de deux.
+L’overlay memberof permet de savoir dans quels groupes se trouve un utilisateur.
 ### /root/ldap/conf/memberof_act.ldif
 ```
 dn: cn=module,cn=config
@@ -187,8 +190,7 @@ olcMemberOfMemberOfAD: memberOf
 ```
 On applique les modifications
 ```
-ldapadd -Y EXTERNAL -H lda```
-service slapd force-reloadpi:/// -f memberof_act.ldif
+ldapadd -Y EXTERNAL -H ldapi:/// -f memberof_act.ldif
 ldapadd -Y EXTERNAL -H ldapi:/// -f memberof_conf.ldif
 ```
 Vérification
@@ -230,7 +232,7 @@ ldapsearch -QLLLY EXTERNAL -H ldapi:/// -b "cn=config" "Objectclass=olcRefintCon
 ```
 
 ## Audit Log
-Cet overlay sert à auditer chaque modification au sein de l’annuaire. Dans notre cas, cela sera inscrit dans le fichier : /var/log/openldap/audit.ldif
+Cet overlay audite chaque modification faites sur l’annuaire, les logs seront dans `/var/log/openldap/audit.ldif`
 
 ### /root/ldap/conf/auditlog_act.ldif
 ```
@@ -417,7 +419,7 @@ Avant ça nous allons décrire la structure comme un arbre.
 - Une petite branche pour le groupe des membres extérieur :
 `cn=ext,ou=krhacken,ou=group,dc=krhacken,dc=org`
 
-## Mise des grosses branches
+## Mise en place des grosses branches
 
 Les OUs sont des conteneurs qui permettent de ranger les données dans l’annuaire et de les hiérarchiser.
 
@@ -448,7 +450,7 @@ On rajoute les OU au ldap
 ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f OU.ldif
 ```
 
-## Mise des petites branches
+## Mise en place des petites branches
 
 Il existe deux types de groupes : les posixgroup et les groupofnames.
 
@@ -493,7 +495,7 @@ ldapsearch -xLLLH ldap://localhost -D cn=admin,dc=krhacken,dc=org -y /root/pwdld
 
 ## Création d'un compte root
 
-Cet utilisateur aura tout les droits sur l'annuaire.
+Cet utilisateur aura tout les droits sur l'annuaire, on ne lui donnera pas accès aux services son rôle est seulement d'administrer l'annuaire LDAP.
 
 ### /root/ldap/conf/root.ldif
 ```
@@ -505,12 +507,12 @@ uid: root
 cn: root
 sn: root
 displayName: root
-userPassword: password
+userPassword: PASSWORD
 mail: root@krhacken.org
 ```
 On ajoute l'utilisateur
 ```
-ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f adminsys.ldif
+ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f root.ldif
 ```
 
 Ajout de compte root au groupe adminsys pour qu'il est accès à l'interface d'administration
@@ -544,7 +546,7 @@ dn: cn=viewer,ou=system,dc=krhacken,dc=org
 objectClass: simpleSecurityObject
 objectClass: organizationalRole
 cn: viewer
-description: LDAP viewer
+description: LDAP Viewer
 userPassword: passview
 ```
 

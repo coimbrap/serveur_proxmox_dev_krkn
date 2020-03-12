@@ -272,6 +272,7 @@ wget https://download.nextcloud.com/server/releases/latest-18.zip
 unzip latest-18.zip
 chown -R www-data:www-data /var/www/nextcloud/
 ```
+
 ### Sur le conteneur HAProxy
 Obtention du certificat
 ```
