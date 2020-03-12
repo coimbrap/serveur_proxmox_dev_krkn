@@ -2,6 +2,7 @@
 Nous allons ici mettre en place le serveur LDAP qui sera répliqué sur les deux nodes. Tout les services utiliseront LDAP pour l'authentification des utilisateurs.
 A noté que pour des questions pratique nous n'allons pas utilisé Fusion Directory, il faudra donc créer un schéma pour chaque service et modifier les utilisateur avec ldapadd et ldapmodify.
 Pour la sécurisation de LDAP nous allons utiliser LDAP avec STARTTLS.
+
 ## Installation slapd
 On commence par installer le serveur ldap.
 ```
@@ -125,7 +126,8 @@ olcTLSCertificateKeyFile: /etc/ssl/private/ldap_server.key
 ```
 cp /etc/ssl/certs/ca_server.pem /etc/ldap/ca_certs.pem
 ```
-Il faut ensuite ajuster la configuration en modifiant la ligne suivante
+
+Il faut ensuite ajuster la configuration en modifiant les paramètres de connexions
 ### /etc/ldap/ldap.conf
 ```
 BASE dc=krhacken,dc=org
@@ -185,7 +187,8 @@ olcMemberOfMemberOfAD: memberOf
 ```
 On applique les modifications
 ```
-ldapadd -Y EXTERNAL -H ldapi:/// -f memberof_act.ldif
+ldapadd -Y EXTERNAL -H lda```
+service slapd force-reloadpi:/// -f memberof_act.ldif
 ldapadd -Y EXTERNAL -H ldapi:/// -f memberof_conf.ldif
 ```
 Vérification
@@ -391,10 +394,34 @@ ldapsearch -QLLLY EXTERNAL -H ldapi:/// -b "cn=config" "Objectclass=olcPpolicyCo
 ldapsearch -QLLLY EXTERNAL -H ldapi:/// -b "dc=krhacken,dc=org" "Objectclass=pwdPolicy"
 ```
 
-## Mise en place des OU
-Les OUs sont des conteneurs qui permettent de ranger les données dans l’annuaire, de les hiérarchiser.
 
-### /root/ldap/conf/OU.ldif
+## Structuration de l'annuaire LDAP.
+
+Maintenant que la base de l'annuaire est en place nous allons structurer l'intérieur de l'annuaire.
+
+Avant ça nous allons décrire la structure comme un arbre.
+
+### Le tronc (le DC)
+- Le tronc de cet arbre : `dc=krhacken,dc=org`, c'est ce que l'on appelle le DN de base.
+
+### Les grosses branches (les OU)
+- Une grosse branche pour les utilisateurs : `ou=people,dc=krhacken,dc=org`.
+- Une sous branche des utilisateurs pour les membres krhacken : `ou=krhacken,ou=people,dc=krhacken,dc=org`.
+- Une grosse branche pour les groupes : `ou=group,dc=krhacken,dc=org`.
+- Une sous branche des groupes pour les groupes krhacken : `ou=krhacken,ou=group,dc=krhacken,dc=org`.
+
+### Les petites branches (les CN)
+- Une petite branche pour le groupe des adminsys : `cn=adminsys,ou=krhacken,ou=group,dc=krhacken,dc=org`
+- Une petite branche pour le groupe des webmestres : `cn=webmestre,ou=krhacken,ou=group,dc=krhacken,dc=org`
+- Une petite branche pour le groupe des membres krhacken : `cn=krhacken,ou=krhacken,ou=group,dc=krhacken,dc=org`
+- Une petite branche pour le groupe des membres extérieur :
+`cn=ext,ou=krhacken,ou=group,dc=krhacken,dc=org`
+
+## Mise des grosses branches
+
+Les OUs sont des conteneurs qui permettent de ranger les données dans l’annuaire et de les hiérarchiser.
+
+### /root/ldap/conf/OU.ldif
 ```
 dn: ou=people,dc=krhacken,dc=org
 ou: people
@@ -412,16 +439,8 @@ dn: ou=krhacken,ou=people,dc=krhacken,dc=org
 ou: krhacken
 objectClass: organizationalUnit
 
-dn: ou=client,ou=people,dc=krhacken,dc=org
-ou: client
-objectClass: organizationalUnit
-
-dn: ou=sysgroup,ou=group,dc=krhacken,dc=org
-ou: sysgroup
-objectClass: organizationalUnit
-
-dn: ou=workgroup,ou=group,dc=krhacken,dc=org
-ou: workgroup
+dn: ou=krhacken,ou=group,dc=krhacken,dc=org
+ou: krhacken
 objectClass: organizationalUnit
 ```
 On rajoute les OU au ldap
@@ -429,78 +448,87 @@ On rajoute les OU au ldap
 ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f OU.ldif
 ```
 
-Explication rapide
-- krhacken contenant tout les utilisateurs krhacken
-- people contient tout les utilisateurs (krhacken ou non)
-
-
-## Utilisateurs
-Cas de la création d'un utilisateur adminsys.
-### /root/ldap/conf/adminsys.ldif
-```
-dn: uid=adminsys,ou=krhacken,ou=people,dc=krhacken,dc=org
-objectclass: person
-objectclass: organizationalPerson
-objectclass: inetOrgPerson
-uid: adminsys
-sn: adminsys
-givenName: AdminSys
-cn: AdminSys
-displayName: AdminSys
-userPassword: password
-mail: adminsys@krhacken.org
-title: Admin
-initials: AS
-```
-On ajoute l'utilisateur
-```
-ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f adminsys.ldif
-```
-Commande pour la connexion à un utilisateur (ici adminsys)
-```
-ldapsearch -xLLLH ldap://localhost -D uid=adminsys,ou=krhacken,ou=people,dc=krhacken,dc=org -W -b "dc=krhacken,dc=org" "uid=adminsys"
-```
-
-## Groupes
+## Mise des petites branches
 
 Il existe deux types de groupes : les posixgroup et les groupofnames.
-Les posixgroup sont similaires au groupes Unix, et les groupofnames ressemblent plus à des groupes AD.
-Pour faire simple, l’avantage des groupofnames est qu’avec un filtre sur un utilisateur, on peut connaitre ses groupes (avec l’overlay memberof). Chose impossible avec les posixgroups.
 
+Les posixgroup sont similaires au groupes Unix.
 
-### /root/ldap/conf/Group.ldif
+Pour faire simple, l’avantage des groupofnames est qu’avec un filtre sur un utilisateur, on peut connaitre ses groupes (avec l’overlay memberof). Chose impossible avec les posixgroups. On va donc utiliser des groupofnames.
+
+### /root/ldap/conf/group.ldif
 ```
-dn: cn=people,ou=sysgroup,ou=group,dc=krhacken,dc=org
-cn: people
-description: Not krkn
+dn: cn=adminsys,ou=krhacken,ou=group,dc=krhacken,dc=org
+cn: adminsys
+description: AdminSys Kr[HACK]en
 objectClass: groupOfNames
 member: cn=admin,dc=krhacken,dc=org
 
-dn: cn=krhacken,ou=workgroup,ou=group,dc=krhacken,dc=org
+dn: cn=webmestre,ou=krhacken,ou=group,dc=krhacken,dc=org
+cn: webmestre
+description: Webmestre Kr[HACK]en
+objectClass: groupOfNames
+member: cn=admin,dc=krhacken,dc=org
+
+dn: cn=krhacken,ou=krhacken,ou=group,dc=krhacken,dc=org
 cn: krhacken
-description: krhacken
+description: Membres du Kr[HACK]en
+objectClass: groupOfNames
+member: cn=admin,dc=krhacken,dc=org
+
+dn: cn=ext,ou=krhacken,ou=group,dc=krhacken,dc=org
+cn: ext
+description: Personnes extérieure au Kr[HACK]en
 objectClass: groupOfNames
 member: cn=admin,dc=krhacken,dc=org
 ```
 On ajoute les groupes
 ```
-ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f Group.ldif
+ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f group.ldif
 ```
-On peu tester memberof pour voir si admin est bien dans les bon groupes
+On peu utiliser **memberof** pour voir dans quels groupes est l'utilisateur admin
 ```
 ldapsearch -xLLLH ldap://localhost -D cn=admin,dc=krhacken,dc=org -y /root/pwdldap -b "dc=krhacken,dc=org" "cn=admin" memberof
 ```
 
-Exemple, pour rajouter un utilisateur dans un groupe avec un fichier ldif (addusertogroup.ldif) ici ajout de new au groupe people
+## Création d'un compte root
+
+Cet utilisateur aura tout les droits sur l'annuaire.
+
+### /root/ldap/conf/root.ldif
 ```
-dn: cn=people,ou=sysgroup,ou=group,dc=krhacken,dc=org
+dn: uid=root,ou=krhacken,ou=people,dc=krhacken,dc=org
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+uid: root
+cn: root
+sn: root
+displayName: root
+userPassword: password
+mail: root@krhacken.org
+```
+On ajoute l'utilisateur
+```
+ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f adminsys.ldif
+```
+
+Ajout de compte root au groupe adminsys pour qu'il est accès à l'interface d'administration
+
+### /root/ldap/conf/adminsysaddroot.ldif
+```
+dn: cn=adminsys,ou=krhacken,ou=group,dc=krhacken,dc=org
 changetype: modify
 add: member
-member: uid=user,ou=krhacken,ou=people,dc=krhacken,dc=org
+member: uid=root,ou=krhacken,ou=people,dc=krhacken,dc=org
 ```
-On ajoute l'utilisateur avec
 ```
-ldapmodify -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f addusertogroup.ldif
+ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f adminsysaddroot.ldif
+```
+
+Commande pour afficher les informations de l'utilisateur root
+```
+ldapsearch -xLLLH ldap://localhost -D uid=root,ou=krhacken,ou=people,dc=krhacken,dc=org -W -b "dc=krhacken,dc=org" "uid=root"
 ```
 
 # Sécurisation de l'annuaire
@@ -584,7 +612,31 @@ Avant le démarrage il vous faudra reconfigurer les interfaces comme suis :
 - eth0 : vmbr1 / VLAN: 30 / IP: 10.0.2.2/24 / GW: 10.0.2.254
 - eth1 : vmbr2 / VLAN: 100 / IP: 10.1.0.108/24 / GW: 10.1.0.254
 
-Nous avons désormais deux conteneurs LDAP identique
+Nous avons désormais deux conteneurs LDAP identique, ce qui ne fonctionnera pas dans l'état.
+
+Il faut donc ajuster la configuration en modifiant les paramètres de connexions
+
+
+### /etc/ldap/ldap.conf
+Sur Alpha :
+```
+BASE dc=krhacken,dc=org
+URI ldap://alpha.ldap.krhacken.org/
+URI ldap://vip.ldap.krhacken.org/
+TLS_CACERT /etc/ldap/ca_certs.pem
+```
+Sur Beta :
+```
+BASE dc=krhacken,dc=org
+URI ldap://beta.ldap.krhacken.org/
+URI ldap://vip.ldap.krhacken.org/
+TLS_CACERT /etc/ldap/ca_certs.pem
+```
+
+On redémarre les serveurs slapd.
+```
+service slapd force-reload
+```
 
 ## Réplication de l'arbre de configuration
 
@@ -880,9 +932,7 @@ cat ca_server.pem | tee -a /etc/ldap/ca_certs.pem
 Il faut ensuite modifier la configuration en modifiant la ligne suivante
 ### /etc/ldap/ldap.conf
 ```
-...
 TLS_CACERT /etc/ldap/ca_certs.pem
-...
 ```
 
 La commande,
