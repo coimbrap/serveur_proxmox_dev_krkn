@@ -3,6 +3,20 @@ Nous allons ici mettre en place tout un service de mail qui va utiliser LDAP, Po
 
 Il faut avoir établie une connexion TLS avec le serveur LDAP, la marche à suivre est disponible dans la partie LDAP (à la toute fin).
 
+## Le conteneur
+Numéro 111 (Alpha)
+#### Deux interfaces
+- eth0 : vmbr1 / VLAN 30 / IP 10.0.2.11 / GW 10.0.2.254
+- eth1 : vmbr2 / VLAN 100 / IP 10.1.0.111 / GW 10.1.0.254
+
+### Le proxy
+#### /etc/apt/apt.conf.d/01proxy
+```
+Acquire::http {
+ Proxy "http://10.0.2.252:9999";
+};
+```
+
 # Configuration du serveur LDAP
 Le serveur LDAP est déjà en place sur le conteneur LDAP il faut cependant faire ce qu'il suit pour ajouter le support des mails sur LDAP.
 
@@ -55,19 +69,18 @@ Ce .ldif permet d'ajouter un nouvel utilisateur dans l'anuaire LDAP et de lui au
 
 ### adduser.ldif
 ```
-dn: uid=new,ou=people,dc=krhacken,dc=org
+dn: uid=identifiant,ou=krhacken,ou=people,dc=krhacken,dc=org
 objectclass: person
 objectclass: organizationalPerson
 objectclass: inetOrgPerson
 objectclass: mailaccountkrhacken
-uid: new
-sn: new
-givenName: new
-cn: new
-displayName: new
+uid: identifiant
+cn: Prénom
+sn: Nom
+displayName: Nom d'affichage
 userPassword: PASSWORD
-mail: new@krhacken.org
-mailaccountquota: 0
+mail: identifiant@krhacken.org
+mailaccountquota: 2147483648
 mailaccountactif: YES
 ```
 ```
@@ -79,15 +92,14 @@ ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f adduser.ldif -ZZ
 Permet d'ajouter la classe mailaccountkrhacken à un utilisateur, il pourra ensuite utilisé le service.
 
 ### addtomail.ldif
-Pour le groupe, soit krhacken soit people.
 ```
-dn: uid=NAME,ou=GROUP,dc=krhacken,dc=org
+dn: uid=NAME,ou=krhacken,ou=people,dc=krhacken,dc=org
 changetype: modify
 add: objectclass
 objectclass: mailaccountkrhacken
 -
 add: mailaccountquota
-mailaccountquota: 0
+mailaccountquota: 2147483648
 -
 add: mailaccountactif
 mailaccountactif: YES
@@ -96,7 +108,7 @@ mailaccountactif: YES
 ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f addtomail.ldif -ZZ
 ```
 
-On crée dès maintenant une adresse adminsys@krhacken.org, c'est impératif pour la suite.
+On ajoute crée dès maintenant l'adresse adminsys@krhacken.org avec une template fournis. C'est impératif pour la suite.
 
 ## Ajout d'un alias pour le postmaster
 

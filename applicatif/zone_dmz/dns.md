@@ -6,6 +6,23 @@ Il y a deux types principaux de configurations possible pour les serveurs DNS :
 
 On conseille généralement de ne pas faire les deux sur un même serveur. En effet, une attaque peut être menée sur un serveur récursif ce qui impacterait le service d'autorité. Grâce à la gestion de vu pas de risque vu que seul les conteneurs / VM on accès au récursif.
 
+## Le conteneur
+Numéro 107 (Beta)
+#### Trois interfaces
+- eth0 : vmbr1 / VLAN 10 / IP 10.0.0.253 / GW 10.0.0.254
+- eth1 : vmbr1 / VLAN 20 / IP 10.0.1.253 / GW 10.0.1.254
+- eth2 : vmbr1 / VLAN 30 / IP 10.0.2.253 / GW 10.0.2.254
+- eth3 : vmbr2 / VLAN 100 / IP 10.1.0.107 / GW 10.1.0.254
+
+
+### Le proxy
+#### /etc/apt/apt.conf.d/01proxy
+```
+Acquire::http {
+ Proxy "http://10.0.2.252:9999";
+};
+```
+
 ## Installation
 Faites par le playbook Ansible.
 

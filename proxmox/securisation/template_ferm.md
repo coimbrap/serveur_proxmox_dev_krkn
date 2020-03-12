@@ -26,6 +26,7 @@ La template utilise des paramètres pour éviter d'avoir à modifier la configur
 - IF_ADMIN : Nom de l'interface d'administration
 - IF_FRONT : Nom du point d'entrée principal sur le conteneur
 - IF_BACK : Liste des interfaces secondaire, ne doit inclure ni l'interface administration ni les interfaces qui n'ont pas besoin de règles autre que DROP.
+- IF_VRRP : Nom de l'interface ayant besoin d'utiliser le protocole VRRP, mettre NEED_VRRP à 1 si besoin de VRRP.
 
 #### Ports TCP ouverts
 - HAVE_BACK_ACCESS : Doit accéder à des conteneurs qui sont sur des interfaces secondaires

@@ -1,7 +1,8 @@
 # Reverse proxy NGINX sur le réseau CTF
 
 ## Spécification du conteneur
-Ce service n'est pas redondé car non vital. Il portera le numéro 145.
+Ce service n'est pas redondé car non vital. Il portera le numéro 145 sur Beta.
+
 #### Deux interfaces
 - eth0 : vmbr1 / VLAN 40 / IP 10.0.3.3 / GW 10.0.2.254
 - eth1 : vmbr2 / VLAN 100 / IP 10.1.0.145 / GW 10.1.0.254

@@ -43,6 +43,7 @@ Switch Interne VLAN 30
 - Nginx Public Beta : 10.0.2.5
 - Mail Frontend : 10.0.2.10
 - Mail Backend : 10.0.2.11
+- LDAP WebUI : 10.0.2.15
 - Nextcloud : 10.0.2.20
 - Gitea : 10.0.2.21
 - [...]

@@ -3,7 +3,7 @@
 Mise en place du conteneur pour NextCloud et intégration à l'annuaire LDAP.
 
 ## Le conteneur
-Numéro 120
+Numéro 120 (Beta)
 #### Deux interfaces
 - eth0 : vmbr1 / VLAN 30 / IP 10.0.2.20 / GW 10.0.2.254
 - eth1 : vmbr2 / VLAN 100 / IP 10.1.0.120 / GW 10.1.0.254
@@ -50,25 +50,20 @@ ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f schemacloud.ldif -
 Ce .ldif permet d'ajouter un nouvel utilisateur dans l'anuaire LDAP et de lui autorisé l'accès au mail et au cloud.
 
 ### addusermailcloud.ldif
-Pour GROUPE :
-- ou=krhacken,ou=people -> Membre actif du club
-- ou=people -> Le reste
-
 ```
-dn: uid=new,GROUPE,dc=krhacken,dc=org
+dn: uid=identifiant,ou=krhacken,ou=people,dc=krhacken,dc=org
 objectclass: person
 objectclass: organizationalPerson
 objectclass: inetOrgPerson
 objectclass: mailaccountkrhacken
 objectclass: cloudaccountkrhacken
-uid: new
-sn: new
-givenName: new
-cn: new
-displayName: new
+uid: identifiant
+cn: Prénom
+sn: Nom
+displayName: Nom d'affichage
 userPassword: PASSWORD
-mail: new@krhacken.org
-mailaccountquota: 0
+mail: identifiant@krhacken.org
+mailaccountquota: 2147483648
 mailaccountactif: YES
 cloudaccountquota: 5GB
 cloudaccountactif: YES
@@ -82,12 +77,8 @@ ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f addusermailcloud.l
 Permet d'ajouter la classe cloudaccountkrhacken à un utilisateur, il pourra ensuite utiliser NextCloud.
 
 ### addtocloud.ldif
-Pour GROUPE :
-- ou=krhacken,ou=people -> Membre actif du club
-- ou=people -> Le reste
-
 ```
-dn: uid=NAME,GROUPE,dc=krhacken,dc=org
+dn: uid=NAME,ou=krhacken,ou=people,dc=krhacken,dc=org
 changetype: modify
 add: objectclass
 objectclass: cloudaccountkrhacken
@@ -106,9 +97,6 @@ Lister les utilisateurs :
 ```
 ldapsearch -xLLL -H ldap://vip.ldap.krhacken.org -D cn=admin,dc=krhacken,dc=org -y /root/pwdldap -b "ou=people,dc=krhacken,dc=org" "(&(objectClass=cloudaccountkrhacken))" -ZZ
 ```
-
-
-
 
 ## Installation des prérequis
 ```

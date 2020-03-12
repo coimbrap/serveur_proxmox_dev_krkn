@@ -5,10 +5,9 @@ Nous allons mettre en place un proxy interne pour permettre au services des zone
 ## Création du conteneur
 Comme dit dans la partie déploiement, c'est le seul conteneur qu'il faut mettre en place manuellement. Avant de le mettre en place il faut avoir mis en place le réseau et générer la clé SSH du conteneur Ansible.
 
-Pour mon installation ce conteneur porte le numéro 103.
+Pour mon installation ce conteneur porte le numéro 104 sur Alpha.
 
 Au niveau de la clé SSH, mettez celle que vous avez générer dans le conteneur Ansible. Elle se trouve dans `/root/.ssh/id_ed25519.pub`
-
 
 Au niveau des ressources allouées :
 - 2Gb de RAM

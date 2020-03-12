@@ -8,6 +8,27 @@ Deux conteneurs Debian 10 identiques, un sur Alpha l'autre sur Bêta avec deux i
 - Sur Beta le conteneur HAProxy a comme IP 10.0.0.7/24 sur DMZ et 10.0.1.7/24 sur CTF
 L'option Firewall PVE des interfaces est désactivée
 
+## Le conteneur
+Numéro 102 (Alpha)
+#### Trois interfaces
+- eth0 : vmbr1 / VLAN 10 / IP 10.0.0.6 / GW 10.0.0.254
+- eth1 : vmbr1 / VLAN 20 / IP 10.0.1.1 / GW 10.0.1.254
+- eth2 : vmbr2 / VLAN 100 / IP 10.1.0.102 / GW 10.1.0.254
+
+Numéro 103 (Beta)
+#### Trois interfaces
+- eth0 : vmbr1 / VLAN 10 / IP 10.0.0.7 / GW 10.0.0.254
+- eth1 : vmbr1 / VLAN 20 / IP 10.0.1.2 / GW 10.0.1.254
+- eth2 : vmbr2 / VLAN 100 / IP 10.1.0.103 / GW 10.1.0.254
+
+### Le proxy
+#### /etc/apt/apt.conf.d/01proxy
+```
+Acquire::http {
+ Proxy "http://10.0.2.252:9999";
+};
+```
+
 ## Objectifs et choix techniques
 
 Trois objectifs pour la gestion du flux post-firewall :

@@ -1,7 +1,7 @@
 # Topologie globale de l'infrastructure
 Le réseau sera découpé en deux sous-réseaux matérialisés par des switchs virtuels : le réseau interne accessible directement depuis l'extérieur et le réseau d'administration accessible uniquement via un VPN.
 
-## Schéma simplifié
+## Schéma simplifié de la zone interne
 
 ![Topologie du réseau](topologie_reseau.png)
 

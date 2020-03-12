@@ -73,11 +73,11 @@ Voici les tâches à réaliser avant de lancer le playbook.
 Ajoutez
 ```
 [haproxy]
-10.1.0.100 #HAProxy Alpha
-10.1.0.101 #HAProxy Beta
+10.1.0.102 #HAProxy Alpha
+10.1.0.103 #HAProxy Beta
 
 [dns]
-10.1.0.106 #DNS
+10.1.0.107 #DNS
 
 [zonedmz:children]
 haproxy

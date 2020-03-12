@@ -1,7 +1,7 @@
 # Gitea
 
 ## Le conteneur
-Numéro 121
+Numéro 121 (Beta)
 #### Deux interfaces
 - eth0 : vmbr1 / VLAN 30 / IP 10.0.2.21 / GW 10.0.2.254
 - eth1 : vmbr2 / VLAN 100 / IP 10.1.0.121 / GW 10.1.0.254
@@ -58,26 +58,22 @@ ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f schemagit.ldif -ZZ
 Ce .ldif permet d'ajouter un nouvel utilisateur dans l'anuaire LDAP et de lui autorisé l'accès au mail et au cloud.
 
 ### addusermailcloudgit.ldif
-Pour GROUPE :
-- ou=krhacken,ou=people -> Membre actif du club
-- ou=people -> Le reste
 
 ```
-dn: uid=new,GROUPE,dc=krhacken,dc=org
+dn: uid=identifiant,ou=krhacken,ou=people,dc=krhacken,dc=org
 objectclass: person
 objectclass: organizationalPerson
 objectclass: inetOrgPerson
 objectclass: mailaccountkrhacken
 objectclass: cloudaccountkrhacken
 objectclass: gitaccountkrhacken
-uid: new
-sn: new
-givenName: new
-cn: new
-displayName: new
+uid: identifiant
+cn: Prénom
+sn: Nom
+displayName: Nom d'affichage
 userPassword: PASSWORD
-mail: new@krhacken.org
-mailaccountquota: 0
+mail: identifiant@krhacken.org
+mailaccountquota: 2147483648
 mailaccountactif: YES
 cloudaccountquota: 5GB
 cloudaccountactif: YES
@@ -92,12 +88,8 @@ ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f addusermailcloudgi
 Permet d'ajouter la classe cloudaccountkrhacken à un utilisateur, il pourra ensuite utiliser NextCloud.
 
 ### addtogit.ldif
-Pour GROUPE :
-- ou=krhacken,ou=people -> Membre actif du club
-- ou=people -> Le reste
-
 ```
-dn: uid=adminsys,GROUPE,dc=krhacken,dc=org
+dn: uid=adminsys,ou=krhacken,ou=people,dc=krhacken,dc=org
 changetype: modify
 add: objectclass
 objectclass: gitaccountkrhacken

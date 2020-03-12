@@ -1,7 +1,27 @@
 # Reverse proxy NGINX sur le réseau public
 
 ## Spécification des conteneurs
-Ce service est redondé car vital, son IP est 10.0.1.3 sur Alpha et 10.0.1.4 sur Beta.
+Ce service est redondé car vital, il n'a pas d'IP virtuelle.
+
+Numéro 105 (Alpha)
+#### Trois interfaces
+- eth0 : vmbr1 / VLAN 20 / IP 10.0.1.3 / GW 10.0.1.254
+- eth1 : vmbr1 / VLAN 30 / IP 10.0.2.4 / GW 10.0.2.254
+- eth2 : vmbr2 / VLAN 100 / IP 10.1.0.105 / GW 10.1.0.254
+
+Numéro 106 (Beta)
+#### Trois interfaces
+- eth0 : vmbr1 / VLAN 20 / IP 10.0.1.4 / GW 10.0.1.254
+- eth1 : vmbr1 / VLAN 30 / IP 10.0.2.5 / GW 10.0.2.254
+- eth2 : vmbr2 / VLAN 100 / IP 10.1.0.106 / GW 10.1.0.254
+
+### Le proxy
+#### /etc/apt/apt.conf.d/01proxy
+```
+Acquire::http {
+ Proxy "http://10.0.2.252:9999";
+};
+```
 
 ## Objectif
 Il doit rediriger les requêtes arrivant de HAProxy vers le bon conteneur en fonction de l'hostname. Pour cela nous allons utiliser des serveurs web HTTP avec des proxy sur Nginx sans s'occuper de l'autre serveur web.
