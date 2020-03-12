@@ -395,16 +395,16 @@ ldapsearch -QLLLY EXTERNAL -H ldapi:/// -b "dc=krhacken,dc=org" "Objectclass=pwd
 ```
 
 
-## Structuration de l'annuaire LDAP.
+## Structuration de l'annuaire LDAP.
 
 Maintenant que la base de l'annuaire est en place nous allons structurer l'intérieur de l'annuaire.
 
 Avant ça nous allons décrire la structure comme un arbre.
 
-### Le tronc (le DC)
+### Le tronc (le DC)
 - Le tronc de cet arbre : `dc=krhacken,dc=org`, c'est ce que l'on appelle le DN de base.
 
-### Les grosses branches (les OU)
+### Les grosses branches (les OU)
 - Une grosse branche pour les utilisateurs : `ou=people,dc=krhacken,dc=org`.
 - Une sous branche des utilisateurs pour les membres krhacken : `ou=krhacken,ou=people,dc=krhacken,dc=org`.
 - Une grosse branche pour les groupes : `ou=group,dc=krhacken,dc=org`.
@@ -417,11 +417,11 @@ Avant ça nous allons décrire la structure comme un arbre.
 - Une petite branche pour le groupe des membres extérieur :
 `cn=ext,ou=krhacken,ou=group,dc=krhacken,dc=org`
 
-## Mise des grosses branches
+## Mise des grosses branches
 
 Les OUs sont des conteneurs qui permettent de ranger les données dans l’annuaire et de les hiérarchiser.
 
-### /root/ldap/conf/OU.ldif
+### /root/ldap/conf/OU.ldif
 ```
 dn: ou=people,dc=krhacken,dc=org
 ou: people
@@ -448,7 +448,7 @@ On rajoute les OU au ldap
 ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f OU.ldif
 ```
 
-## Mise des petites branches
+## Mise des petites branches
 
 Il existe deux types de groupes : les posixgroup et les groupofnames.
 
@@ -456,7 +456,7 @@ Les posixgroup sont similaires au groupes Unix.
 
 Pour faire simple, l’avantage des groupofnames est qu’avec un filtre sur un utilisateur, on peut connaitre ses groupes (avec l’overlay memberof). Chose impossible avec les posixgroups. On va donc utiliser des groupofnames.
 
-### /root/ldap/conf/group.ldif
+### /root/ldap/conf/group.ldif
 ```
 dn: cn=adminsys,ou=krhacken,ou=group,dc=krhacken,dc=org
 cn: adminsys
@@ -491,11 +491,11 @@ On peu utiliser **memberof** pour voir dans quels groupes est l'utilisateur admi
 ldapsearch -xLLLH ldap://localhost -D cn=admin,dc=krhacken,dc=org -y /root/pwdldap -b "dc=krhacken,dc=org" "cn=admin" memberof
 ```
 
-## Création d'un compte root
+## Création d'un compte root
 
 Cet utilisateur aura tout les droits sur l'annuaire.
 
-### /root/ldap/conf/root.ldif
+### /root/ldap/conf/root.ldif
 ```
 dn: uid=root,ou=krhacken,ou=people,dc=krhacken,dc=org
 objectclass: person
@@ -515,7 +515,7 @@ ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f adminsys.ldif
 
 Ajout de compte root au groupe adminsys pour qu'il est accès à l'interface d'administration
 
-### /root/ldap/conf/adminsysaddroot.ldif
+### /root/ldap/conf/adminsysaddroot.ldif
 ```
 dn: cn=adminsys,ou=krhacken,ou=group,dc=krhacken,dc=org
 changetype: modify
