@@ -1,4 +1,4 @@
-# Système de sauvegarde
+# Système de sauvegarde
 
 Afin de limiter encore plus le risque de perte de données nous allons mettre en place un système de sauvegarde de tout les conteneurs / VMs. Nous allons utilisé BorgBackup, le réseau de sauvegarde est un réseau local, en effet la quatrième node sera dédié au système de sauvegarde. De ce fait elle ne sera pas dans le cluster, au niveau du système de fichier nous utiliserons la encore un RAID-1 ZFS. Les sauvegardes passerons par la VLAN 100 du switch administration (10.1.0.0/24).
 

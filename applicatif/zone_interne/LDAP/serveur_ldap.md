@@ -2,7 +2,7 @@
 
 Nous allons ici mettre en place le serveur LDAP qui sera répliqué sur les deux nodes. Tout les services utiliseront LDAP pour l'authentification des utilisateurs.
 A noté que pour des questions pratique nous n'allons pas utilisé Fusion Directory, il faudra donc créer un schéma pour chaque service et modifier les utilisateur avec ldapadd et ldapmodify.
-Pour la sécurisation de LDAP nous allons utiliser LDAP avec STARTTLS.
+Pour la sécurisation de LDAP nous allons utiliser LDAP avec StartTLS.
 
 ## Le conteneur
 Numéro 107 (Alpha)

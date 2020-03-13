@@ -4,7 +4,7 @@ Proxmox est un hyperviseur de type 1 (bare metal). C’est une plateforme de vir
 
 Contrairement à un hyperviseur de type 2 (VirtualBox par exemple), Proxmox ne s'exécute pas dans un autre OS mais dispose de son propre OS (basé sur Debian) adapté à la virtualisation.
 
-Donc, Proxmox permet la virtualisation de plusieurs machines au sein d’un seul serveur. Proxmox nous permettra aussi des mettre les deux nodes du rack en cluster permettant entre autre de migrer des contenants d'une node à l'autre en cas de chute de l'une d'elles grâce aux fonctions de Haute Disponibilité de Proxmox.
+Donc, Proxmox permet la virtualisation de plusieurs machines au sein d’un seul serveur. Proxmox nous permettra aussi des mettre les quatres nodes du serveur en cluster permettant entre autre de migrer des contenants d'une node à l'autre en cas de chute de l'une d'elles grâce aux fonctions de Haute Disponibilité de Proxmox.
 
 ## Technologie de virtualisation
 

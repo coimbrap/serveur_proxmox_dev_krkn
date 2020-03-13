@@ -2,14 +2,14 @@
 
 ### Infrastructure matérielle
 
-Du côté infrastructure, nous disposons d'un rack 1U avec deux PC à l'intérieur possédant chacun 24Go de DDR3-ECC et un Xeon x5670 6 Coeurs cadencé à 2.93 GHz. Côté stockage, nous allons mettre en place un RAID1 ZFS avec deux disques par PC (les données du premier disque seront aussi présentes sur le second) ainsi le stockage sera répliqué pour éviter toute perte de données.
+Du côté infrastructure, nous disposons de deux rack 1U avec deux PC à l'intérieur possédant chacun 24Go de DDR3-ECC et un Xeon x5670 6 Coeurs cadencé à 2.93 GHz. Côté stockage, nous allons mettre en place un RAID1 ZFS avec deux disques par PC (les données du premier disque seront aussi présentes sur le second) ainsi le stockage sera répliqué pour éviter toute perte de données.
 
-Les 2 nodes du serveur, que nous appellerons Alpha et Beta, auront Proxmox comme hyperviseur et seront en cluster grâce à Proxmox.
+Les 4 nodes du serveur, que nous appellerons Alpha, Beta, Gamma et Sigma, auront Proxmox comme hyperviseur et les trois premières d'entre elles seront en cluster grâce à Proxmox.
 
 ### Infrastructure logicielle
 
 #### Infrastructure réseau du serveur
-Les conteneurs/VMs sensibles seront répliqués entre les deux nodes
+Les conteneurs/VMs sensibles seront répliqués entre les trois nodes de production
 
 L'infrastructure réseau du club s'articulerait de la manière suivante (sur chaque node) :
 - Un bloc pare-feu / routeur (OPNSense).

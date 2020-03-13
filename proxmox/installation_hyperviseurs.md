@@ -1,8 +1,8 @@
 # Installation des hyperviseurs
 
-Proxmox étant un hyperviseur de type 1, nous allons l'installer sur les deux nodes du serveur.
+Proxmox étant un hyperviseur de type 1, nous allons l'installer sur les quatres nodes du serveur.
 
-Pour cette installation, nous partons du principe que les deux nodes ont accès à internet soit via une IP publique soit via un réseau privé. Cela ne change rien car nous modifierons la configuration réseau par la suite.
+Pour cette installation, nous partons du principe que les quatres nodes ont accès à internet soit via une IP publique soit via un réseau privé. Cela ne change rien car nous modifierons la configuration réseau par la suite.
 
 Pour l'installation il faut :
 - Une clé USB,
@@ -53,8 +53,14 @@ Vérifier la cohérence et lancer l'installation.
 ### Sur la deuxième node (Beta)
 Même procédure, dans "Management Network Configuration" il faut juste remplacer le Hostname par **beta.krhacken.org**
 
+### Sur la troisième node (Gamma)
+Même procédure, dans "Management Network Configuration" il faut juste remplacer le Hostname par **gamma.krhacken.org**
+
+### Sur la deuxième node (Delta)
+Même procédure, dans "Management Network Configuration" il faut juste remplacer le Hostname par **delta.krhacken.org**
+
 ## Préparation des hyperviseurs
-La procédure est la même sur les deux nodes. Elle peut être faite via SSH (recommandé) ou sur l'interface d'administration **https://IP:8006**
+La procédure est la même sur les quatres nodes. Elle peut être faite via SSH (recommandé) ou sur l'interface d'administration **https://IP:8006**
 
 ### Mise à jour
 ```

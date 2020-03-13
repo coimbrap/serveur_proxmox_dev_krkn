@@ -4,7 +4,7 @@ On a quatres nodes dont 3 d'entre elle en production il faut donc limiter au max
 
 Nous avons choisi d'avoir 4 pools ZFS indépendante pour que la réplication des données soit indépendante d'une node à l'autre.
 
-## Avantage de ZFS
+## Avantages de ZFS
 
 
 ## Mise en place des pools

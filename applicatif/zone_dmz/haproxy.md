@@ -4,11 +4,7 @@ Cela consiste en la gestion des flux post firewall.
 ## Présentation des conteneurs
 
 Deux conteneurs Debian 10 identiques, un sur Alpha l'autre sur Bêta avec deux interfaces :
-- Sur Alpha le conteneur HAProxy a comme IP 10.0.0.6/24 sur DMZ et 10.0.1.6/24 sur CTF.
-- Sur Beta le conteneur HAProxy a comme IP 10.0.0.7/24 sur DMZ et 10.0.1.7/24 sur CTF
-L'option Firewall PVE des interfaces est désactivée
 
-## Le conteneur
 Numéro 102 (Alpha)
 #### Trois interfaces
 - eth0 : vmbr1 / VLAN 10 / IP 10.0.0.6 / GW 10.0.0.254
