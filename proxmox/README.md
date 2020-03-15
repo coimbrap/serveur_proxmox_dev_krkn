@@ -7,6 +7,6 @@ Vous trouverez ici toute la documentation relative au déploiement de Proxmox.
 3. [Système de fichiers](systeme_de_fichier.md)
 4. [Système de sauvegarde](systeme_de_sauvegarde.md)
 5. [Cluster](creation_cluster.md)
-6. [Haute Disponibilité](haute_disponibilite)
+6. [Haute Disponibilité](haute_disponibilite.md)
 7. [Gestion de l'authentification](#)
 8. [Sécurisation des conteneurs / VM](securisation)

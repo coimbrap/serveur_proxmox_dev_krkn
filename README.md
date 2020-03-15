@@ -25,7 +25,7 @@ charge de former leur successeurs.
 	2. [Installation des hyperviseurs](proxmox/installation_hyperviseurs.md)
 	3. [Système de fichiers](proxmox/systeme_de_fichier.md)
 	4. [Système de sauvegarde](proxmox/systeme_de_sauvegarde.md)
-	5. [Cluster](proxmox/cluster)
+	5. [Cluster](proxmox/creation_cluster.md)
 	6. [Haute Disponibilité](proxmox/haute_disponibilite.md)
 	7. [Gestion de l'authentification](#)
 	8. [Sécurisation des conteneurs / VM](proxmox/securisation)

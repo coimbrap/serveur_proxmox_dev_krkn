@@ -21,7 +21,7 @@ Les services redondés et utilisant keepalived seront :
 
 ## Répartition non exhaustive des conteneurs entre les nodes
 
-OPNSense -> Alpha, Beta et Sigma
+OPNSense -> Alpha et Sigma
 HAProxy -> Alpha, Beta et Sigma
 NGINX -> Alpha, Beta et Sigma
 Redis -> Alpha et Sigma

@@ -56,7 +56,7 @@ Même procédure, dans "Management Network Configuration" il faut juste remplace
 ### Sur la troisième node (Gamma)
 Même procédure, dans "Management Network Configuration" il faut juste remplacer le Hostname par **gamma.krhacken.org**
 
-### Sur la deuxième node (Delta)
+### Sur la quatrième node (Delta)
 Même procédure, dans "Management Network Configuration" il faut juste remplacer le Hostname par **delta.krhacken.org**
 
 ## Préparation des hyperviseurs
@@ -65,7 +65,7 @@ La procédure est la même sur les quatres nodes. Elle peut être faite via SSH 
 ### Mise à jour
 ```
 apt-get update
-apt-get full-upgrade
+apt-get dist-upgrade
 ```
 
 ### IP Forwarding

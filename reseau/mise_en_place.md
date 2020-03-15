@@ -14,12 +14,11 @@ Switch Interne VLAN 10
 - Proxmox Beta : 10.0.0.2
 - Proxmox Sigma : 10.0.0.3
 - Firewall Alpha : 10.0.0.4
-- Firewall Beta : 10.0.0.5
-- Firewall Sigma : 10.0.0.6
-- HAProxy Alpha : 10.0.0.7
-- HAProxy Beta : 10.0.0.8
-- HAProxy Sigma : 10.0.0.9
-- HAProxy VIP : 10.0.0.8
+- Firewall Sigma : 10.0.0.5
+- HAProxy Alpha : 10.0.0.6
+- HAProxy Beta : 10.0.0.7
+- HAProxy Sigma : 10.0.0.8
+- HAProxy VIP : 10.0.0.9
 - Proxy Interne : 10.0.0.252
 - DNS : 10.0.0.253
 - Firewall VIP : 10.0.0.254
@@ -35,8 +34,7 @@ Switch Interne VLAN 20
 - Mail Alpha : 10.0.1.10
 - Mail Sigma : 10.0.1.11
 - Mail VIP : 10.0.1.12
-- Firewall Alpha : 10.0.1.247
-- Firewall Beta : 10.0.1.248
+- Firewall Alpha : 10.0.1.248
 - Firewall Sigma : 10.0.1.249
 - DNS Alpha : 10.0.1.250
 - DNS Sigma : 10.0.1.251
@@ -60,8 +58,7 @@ Switch Interne VLAN 30
 - Nextcloud : 10.0.2.20
 - Gitea : 10.0.2.21
 - [...]
-- Firewall Alpha : 10.0.2.247
-- Firewall Beta : 10.0.2.248
+- Firewall Alpha : 10.0.2.248
 - Firewall Sigma : 10.0.2.249
 - DNS Alpha : 10.0.2.250
 - DNS Sigma : 10.0.2.251
@@ -81,8 +78,7 @@ Switch Interne VLAN 40
 - Environnement Système : 10.0.3.12
 - Environnement Web : 10.0.3.13
 - [...]
-- Firewall Alpha : 10.0.3.249
-- Firewall Bêta : 10.0.3.250
+- Firewall Alpha : 10.0.3.250
 - Firewall Sigma : 10.0.3.251
 - Proxy Interne : 10.0.3.252
 - Firewall VIP : 10.0.3.254
@@ -90,8 +86,7 @@ Switch Interne VLAN 40
 
 ### DIRTY :
 Switch Interne VLAN 50
-- Firewall Alpha : 10.0.4.6249
-- Firewall Bêta : 10.0.4.6250
+- Firewall Alpha : 10.0.4.250
 - Firewall Sigma : 10.0.4.251
 - Proxy Interne : 10.0.4.6252
 - Firewall VIP : 10.0.4.6254
@@ -113,8 +108,7 @@ Switch Administration VLAN 10
 ### pfSync internal
 Switch Administration VLAN 20
 - Alpha : 10.1.2.1
-- Beta : 10.1.2.2
-- Gamma : 10.1.2.3
+- Gamma : 10.1.2.2
 
 ### GRE admin
 Switch Administration VLAN 30
@@ -125,7 +119,7 @@ Switch Administration VLAN 30
 ### Administration :
 Switch Administration VLAN 100
 - Firewall Alpha : 10.1.0.1
-- Firewall Bêta : 10.1.0.2
+- Firewall Gamma : 10.1.0.2
 - Proxmox Alpha : 10.1.0.4
 - Proxmox Beta : 10.1.0.5
 - Proxmox Gamma : 10.1.0.6
@@ -330,15 +324,6 @@ iface coro inet static
 	ovs_bridge vmbr0
 	ovs_options tag=10
 
-#pfSync
-allow-vmbr0 pfsync
-iface pfsync inet static
-	address  10.1.2.2
-	netmask  24
-	ovs_type OVSIntPort
-	ovs_bridge vmbr0
-	ovs_options tag=20
-
 #GRE vmbr0
 allow-vmbr0 vx2
 iface vx2 inet static
@@ -437,7 +422,7 @@ iface coro inet static
 #pfSync
 allow-vmbr0 pfsync
 iface pfsync inet static
-	address  10.1.2.3
+	address  10.1.2.2
 	netmask  24
 	ovs_type OVSIntPort
 	ovs_bridge vmbr0
