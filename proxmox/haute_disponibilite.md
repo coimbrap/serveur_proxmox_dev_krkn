@@ -1,5 +1,7 @@
 # Haute Disponibilité
 
+**Partie Brouillon**
+
 Nous allons utiliser deux types de Hautes Disponibilité (HA) :
 - La solution de HA proposé par Proxmox qui permet de migrer des conteneurs entre des nodes,
 - De la Haute Disponibilité via une IP Virtuelle grâce à Keep-alived.
@@ -21,22 +23,22 @@ Les services redondés et utilisant keepalived seront :
 
 ## Répartition non exhaustive des conteneurs entre les nodes
 
-OPNSense -> Alpha et Sigma
-HAProxy -> Alpha, Beta et Sigma
-NGINX -> Alpha, Beta et Sigma
-Redis -> Alpha et Sigma
-LDAP -> Alpha et Sigma
-Git -> Alpha
-Mattermost -> Alpha
-NextCloud -> Beta
-Mail -> Alpha et Sigma
-CTF -> Beta (3 services)
-LDAPUI -> Alpha
-DNS -> Beta
-Proxy interne -> Beta
-Ansible -> Alpha
-Site Web KRKN -> Sigma
-Wiki KRKN -> Beta
-Etat des services -> Alpha
+- OPNSense -> Alpha et Sigma
+- HAProxy -> Alpha, Beta et Sigma
+- NGINX -> Alpha, Beta et Sigma
+- Redis -> Alpha et Sigma
+- LDAP -> Alpha et Sigma
+- Git -> Alpha
+- Mattermost -> Alpha
+- NextCloud -> Beta
+- Mail -> Alpha et Sigma
+- CTF -> Beta (3 services)
+- LDAPUI -> Alpha
+- DNS -> Beta
+- Proxy interne -> Beta
+- Ansible -> Alpha
+- Site Web KRKN -> Sigma
+- Wiki KRKN -> Beta
+- Etat des services -> Alpha
 
 Possibilité d'héberger des VPS d'autres Club sur la node Sigma (VLAN dédié) si accord et si stabilité.

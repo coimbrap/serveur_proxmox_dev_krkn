@@ -63,19 +63,20 @@ Même procédure, dans "Management Network Configuration" il faut juste remplace
 La procédure est la même sur les quatres nodes. Elle peut être faite via SSH (recommandé) ou sur l'interface d'administration **https://IP:8006**
 
 ### Mise à jour
+
 ```
+rm /etc/apt/sources.list.d/pve-enterprise.list
+echo 'deb http://download.proxmox.com/debian/pve buster pve-no-subscription' > /etc/apt/sources.list.d/pve.list
+sed -i.bak "s/data.status !== 'Active'/false/g" /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js && systemctl restart pveproxy.service
 apt-get update
 apt-get dist-upgrade
+apt-get install sudo
 ```
 
 ### IP Forwarding
 Activation permanente de l'IP Forwarding
-#### /etc/sysctl.conf
-Ajouter
 ```
-net.ipv4.ip_forward = 1
-```
-```
+echo 'net.ipv4.ip_forward = 1' >> etc/sysctl.conf
 sysctl -p /etc/sysctl.conf
 ```
 
@@ -124,3 +125,5 @@ Le lien donné sera utilisé par la suite
 ```
 wget -P /var/lib/vz/template/iso <lien_obtenu>
 ```
+
+On peux passer au [système d'authentification](securisation/systeme_authentification_base.md).

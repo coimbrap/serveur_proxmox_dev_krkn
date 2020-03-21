@@ -127,7 +127,7 @@ table filter {
         }
 
         @if $NEED_UDP_FRONT_ACCESS {
-            outerface $IF_BACK proto udp dport $UDP_OPEN_PORT_FRONT_ACCESS ACCEPT;
+            outerface $IF_FRONT proto udp dport $UDP_OPEN_PORT_FRONT_ACCESS ACCEPT;
         }
 
         @if $HAVE_BACK_ACCESS {
