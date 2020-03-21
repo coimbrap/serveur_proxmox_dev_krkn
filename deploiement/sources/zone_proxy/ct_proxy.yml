@@ -1,6 +1,6 @@
 # NGINX REVERSE
-# Nginx Alpha (CT105) : 10.0.1.3 | 10.0.2.4 | 10.1.0.105
-# Nginx Beta (CT106) : 10.0.1.4 | 10.0.2.5 | 10.1.0.106
+# Nginx Alpha (CT105) : 10.0.1.3 | 10.0.2.4 | 10.1.0.405
+# Nginx Beta (CT106) : 10.0.1.4 | 10.0.2.5 | 10.1.0.406
 # Gateway 10.0.1.0/24 -> 10.0.1.254
 # Gateway 10.0.2.0/24 -> 10.0.2.254
 # Gateway 10.1.0.0/24 -> 10.1.0.254
@@ -15,11 +15,11 @@
     - include_vars: /root/src/source_pve.yml
     - include_vars: /root/src/password_proxy.yml
 
-    - name: Create LXC for Nginx Master (CT104)
+    - name: Create LXC for Nginx Master (CT105)
       proxmox:
         api_user: root@pam
         api_password: "{{ pass_pve }}"
-        api_host: '10.1.0.1'
+        api_host: '10.1.0.4'
         node: alpha
         cpus: 1
         cores: 2
@@ -28,9 +28,9 @@
         swap: 1024
         storage: local-zfs
         ostemplate: 'local:vztmpl/debian-10.0-standard_10.0-1_amd64.tar.gz'
-        password: "{{ pass_nginx_alpha }}"
+        password: "{{ pass_nginx_master }}"
         hostname: NginxMaster
-        vmid: 104
+        vmid: 105
         onboot: yes
         unprivileged: yes
         nameserver: '10.0.1.253'
@@ -38,11 +38,11 @@
         pubkey: "{{ ssh_pub }}"
         state: present
 
-    - name: Create LXC for Nginx Slave (CT105)
+    - name: Create LXC for Nginx Slave (CT106)
       proxmox:
         api_user: root@pam
         api_password: "{{ pass_pve }}"
-        api_host: '10.1.0.1'
+        api_host: '10.1.0.4'
         node: beta
         cpus: 1
         cores: 2
@@ -53,7 +53,7 @@
         ostemplate: 'local:vztmpl/debian-10.0-standard_10.0-1_amd64.tar.gz'
         password: "{{ pass_nginx_slave }}"
         hostname: NginxSlave
-        vmid: 105
+        vmid: 106
         onboot: yes
         unprivileged: yes
         nameserver: '10.0.1.253'
@@ -65,12 +65,12 @@
       proxmox:
         api_user: root@pam
         api_password: "{{ pass_pve }}"
-        api_host: '10.1.0.1'
+        api_host: '10.1.0.4'
         vmid: "{{ item }}"
         state: started
       with_items:
-        - '104'
         - '105'
+        - '106'
 
 - hosts: zoneproxy
   tasks:

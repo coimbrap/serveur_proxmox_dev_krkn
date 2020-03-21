@@ -27,7 +27,7 @@ On alloue uniquement dmz et wan pour le moment
 
 vmbr1.10 C9:64 (dmz) -> 10.0.0.{3,4}/24 GW None
 vmbr2.100 42:85 (admin)
-vmbr3 21:73 (wan) -> 10.2.0.3/24 GW 10.2.0.1
+vmbr0 vlan20 (wan) -> 10.2.0.3/24 GW 10.2.0.1
 
 Attribution du sous réseau 10.2.0.0/24 au lien entre PVE et OPNSense
 PVE : 10.2.0.1
@@ -35,18 +35,14 @@ OPN : 10.2.0.3
 
 Ferm nécessaire car pas d'IP publique possible sur les VM
 ```
-@def $IF_OPN = lan;
+@def $IF_OPN = opnwan;
 @def $IF_EXT = vmbr0;
 @def $IF_DMZ = dmz;
-@def $IF_ADMIN = admin;
+@def $IF_ADMIN = admintask;
 
 @def $IP_PUBLIQUE = 195.154.163.18;
-@def $IP_OPNSENSE = 10.2.0.3;
+@def $IP_OPNSENSE = 10.2.0.2;
 @def $NET_OPN = 10.2.0.0/24;
-
-
-@def $NET_INT = 10.0.2.0/24;
-@def $IP_PROXY = 10.0.1.10;
 
 @def $PORTS_OPN = (80 443 8080);
 
@@ -74,7 +70,7 @@ table filter {
         policy DROP;
         mod state state INVALID DROP;
         mod state state (ESTABLISHED RELATED) ACCEPT;
-        interface $IF_DMZ {
+        interface $IF_OPN {
             outerface $IF_EXT ACCEPT;
             REJECT reject-with icmp-net-prohibited;
         }

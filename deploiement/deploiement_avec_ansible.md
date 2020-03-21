@@ -7,6 +7,11 @@ Avant de lancer la création et l'installation de tout les conteneurs il vous fa
 
 Une fois que c'est fait, créer un conteneur Ansible avec un numéro élevée (253 max).
 
+- Resource Pool : ADMIN
+- Disk size : 16 Gib
+- Cores : 1
+- Memory : 1024 Mib
+
 ### Réseau
 Au niveau des interfaces réseau, une sur la partie admin, l'autre sur le zone proxy pour l'accès au futur proxy interne.
 
@@ -16,7 +21,17 @@ Au niveau des interfaces réseau, une sur la partie admin, l'autre sur le zone p
 ### Configuration initiale
 Vous allez générer une clé ed25519 qui servira à l'administation des conteneurs.
 ```
-ssh-keygen -o -a 100 -t ed25519 -f /root/.ssh/id_ed25519
+ssh-keygen -o -a 100 -t ed25519 -f /root/.ssh/id_ed25519_ansible
+```
+
+La clé publique est dans `/root/.ssh/id_ed25519_ansible.pub`
+
+### /etc/ssh/ssh_config
+```
+Host *
+   StrictHostKeyChecking no
+   UserKnownHostsFile=/dev/null
+   IdentityFile ~/.ssh/id_ed25519_ansible
 ```
 
 Avant d'installer Ansible, il faut que vous mettiez en place (vous-même) le conteneur du proxy interne. C'est le seul conteneur, avec celui d'Ansible, que vous aurez à créer.
@@ -36,6 +51,7 @@ Acquire::http {
  Proxy "http://10.0.1.252:9999";
 };
 ```
+
 
 ## Installation d'Ansible
 
@@ -62,7 +78,6 @@ ssh_pub:
 
 Par exemple, il y aura un groupe HAProxy regroupant tous les conteneurs HAProxy et un groupe DMZ regroupant tous les groupes de conteneurs DMZ.
 
-
 ## Zone DMZ
 
 Un playbook Ansible est disponible pour la préparation de la zone DMZ, il s'occupera de l'installation de base. A vous de suivre la documentation pour la suite des opérations (sauf mention contraire).
@@ -76,12 +91,16 @@ Ajoutez
 10.1.0.102 #HAProxy Alpha
 10.1.0.103 #HAProxy Beta
 
+[proxyint] #Proxy Interne
+10.1.0.104
+
 [dns]
 10.1.0.107 #DNS
 
 [zonedmz:children]
 haproxy
-dmz
+proxyint
+dns
 ```
 
 Pour les mots de passe à vous de les générer, il vous faut ensuite les mettre dans ce fichier. Le mot de passe pour hasync et le même sur les deux HAProxy.
@@ -107,7 +126,12 @@ Lancez le avec
 ansible-playbook ct_dmz.yml
 ```
 
-Normalement tout est prêt, vous pouvez passer à la configuration des services.
+Normalement tout les conteneurs sont créer. Le playbook `configure_dmz.yml` permet de configurer automatiquement le proxy interne et le DNS. Pour le DNS si vous souhaitez modifier la configuration changé la configuration dans `sources/zone_dmz/dns/bind`.
+
+Lancez le avec
+```
+ansible-playbook configure_dmz.yml
+```
 
 ## Zone PROXY
 
@@ -122,21 +146,16 @@ Ajoutez
 10.1.0.104 #Reverse Alpha
 10.1.0.105 #Reverse Beta
 
-[mailgw]
-10.1.0.109 #Mail Gateway
-
 [zoneproxy:children]
 nginx
-mailgw
 ```
 
 Pour les mots de passe à vous de les générer, il vous faut ensuite les mettre dans ce fichier.
 
 ### /root/src/password_proxy.yml
 ```
-pass_nginx_alpha:
-pass_nginx_beta:
-pass_mailgw:
+pass_nginx_master:
+pass_nginx_slave:
 ```
 
 ### Templace Ferm pour les conteneurs
@@ -150,6 +169,58 @@ Une fois que tout est fait, vous trouverez le playbook sous le nom de `ct_proxy.
 Lancez le avec
 ```
 ansible-playbook ct_proxy.yml
+```
+
+Normalement tout est prêt, vous pouvez passer à la configuration des services.
+
+## Zone Interne
+
+Comme pour les autres zones un playbook Ansible est disponible pour l'installation et la sécurisation de base des conteneurs de base de la zone Interne.
+
+Voici les tâches à réaliser avant de lancer le playbook.
+
+### /etc/ansible/hosts
+Ajoutez
+```
+[ldap]
+10.1.0.108 #LDAPMaster
+
+[mail]
+10.1.0.109 #MailBackend
+
+[webinterface]
+10.1.0.110 #LDAPUI
+10.1.0.111 #NextCloud
+10.1.0.112 #Gitea
+
+[zoneinterne:children]
+ldap
+mail
+webinterface
+```
+
+Pour les mots de passe à vous de les générer, il vous faut ensuite les mettre dans ce fichier.
+
+### /root/src/password_interne.yml
+```
+pass_ldap_master:
+pass_mailback:
+pass_ldap_webui:
+pass_nextcloud:
+pass_gitea:
+```
+
+### Templace Ferm pour les conteneurs
+
+Le playbook Ansible s'occupe aussi de la mise en place d'un pare-feu. Une template a été réalisée pour la sécurisation des conteneurs avec ferm. Le détail de cette template est dans `proxmox/securisation/template_ferm.md`
+
+Il vous faut mettre dans `/root/src/ferm/` les fichiers de configuration qui sont dans `sources/zone_interne`
+
+Une fois que tout est fait, vous trouverez le playbook sous le nom de `ct_interne.yml` dans le dossier zone_interne.
+
+Lancez le avec
+```
+ansible-playbook ct_interne.yml
 ```
 
 Normalement tout est prêt, vous pouvez passer à la configuration des services.

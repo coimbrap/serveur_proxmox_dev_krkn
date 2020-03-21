@@ -1,10 +1,13 @@
-# HAProxy et DNS
+# HAProxy, DNS et Proxy Interne
 # HAProxy Master (CT102) : 10.0.0.6 | 10.0.1.1 | 10.0.3.1 | 10.1.0.102
 # HAProxy Slave (CT103) : 10.0.0.7 | 10.0.1.2  10.0.3.2 | 10.1.0.103
+# Proxy Interne (CT104) : 10.0.0.9 | 10.0.1.252 | 10.0.2.252 | 10.0.3.252 | 10.0.4.252 | 10.1.0.104
 # DNS (CT107): 10.0.0.253 | | 10.0.1.253 | 10.0.2.253 | 10.1.0.107
 # Gateway 10.0.0.0/24 -> 10.0.0.254
 # Gateway 10.0.1.0/24 -> 10.0.1.254
+# Gateway 10.0.2.0/24 -> 10.0.3.254
 # Gateway 10.0.3.0/24 -> 10.0.3.254
+# Gateway 10.0.4.0/24 -> 10.0.3.254
 # Gateway 10.1.0.0/24 -> 10.1.0.254
 
 # Créer les containers, les mets à jours, configure les mises à jours de sécurité automatique,
@@ -17,11 +20,11 @@
     - include_vars: /root/src/source_pve.yml
     - include_vars: /root/src/password_dmz.yml
 
-    - name: Create LXC for HAProxy Master (CT101)
+    - name: Create LXC for HAProxy Master (CT102)
       proxmox:
         api_user: root@pam
         api_password: "{{ pass_pve }}"
-        api_host: '10.1.0.1'
+        api_host: '10.1.0.4'
         node: alpha
         cpus: 1
         cores: 2
@@ -35,16 +38,16 @@
         vmid: 102
         onboot: yes
         unprivileged: yes
-        nameserver: '10.0.0.253'
+        nameserver: '10.0.0.253 80.67.169.12'
         netif: '{"net0":"name=eth0,ip=10.0.0.6/24,gw=10.0.0.254,bridge=vmbr1,tag=10","net1":"name=eth1,ip=10.0.1.1/24,gw=10.0.1.254,bridge=vmbr1,tag=20","net2":"name=eth2,ip=10.0.3.1/24,gw=10.0.3.254,bridge=vmbr1,tag=40","net3":"name=eth3,ip=10.1.0.102/24,gw=10.1.0.254,bridge=vmbr2,tag=100"}'
         pubkey: "{{ ssh_pub }}"
         state: present
 
-    - name: Create LXC for HAProxy Slave (CT102)
+    - name: Create LXC for HAProxy Slave (CT103)
       proxmox:
         api_user: root@pam
         api_password: "{{ pass_pve }}"
-        api_host: '10.1.0.1'
+        api_host: '10.1.0.4'
         node: beta
         cpus: 1
         cores: 2
@@ -58,16 +61,16 @@
         vmid: 103
         onboot: yes
         unprivileged: yes
-        nameserver: '10.0.0.253'
+        nameserver: '10.0.0.253 80.67.169.12'
         netif: '{"net0":"name=eth0,ip=10.0.0.7/24,gw=10.0.0.254,bridge=vmbr1,tag=10","net1":"name=eth1,ip=10.0.1.2/24,gw=10.0.1.254,bridge=vmbr1,tag=20","net2":"name=eth2,ip=10.0.3.2/24,gw=10.0.3.254,bridge=vmbr1,tag=40","net3":"name=eth3,ip=10.1.0.103/24,gw=10.1.0.254,bridge=vmbr2,tag=100"}'
         pubkey: "{{ ssh_pub }}"
         state: present
 
-    - name: Create LXC for Bind9 (CT106)
+    - name: Create LXC for Bind9 (CT107)
       proxmox:
         api_user: root@pam
         api_password: "{{ pass_pve }}"
-        api_host: '10.1.0.1'
+        api_host: '10.1.0.4'
         node: beta
         cpus: 1
         cores: 1
@@ -90,12 +93,13 @@
       proxmox:
         api_user: root@pam
         api_password: "{{ pass_pve }}"
-        api_host: '10.1.0.1'
+        api_host: '10.1.0.4'
         vmid: "{{ item }}"
         state: started
       with_items:
         - '102'
         - '103'
+        - '104'
         - '107'
 
 # Pas de config des proxy car sur accès au net depuis la DMZ.
@@ -136,6 +140,7 @@
 
 - hosts: haproxy
   tasks:
+    - include_vars: /root/src/password_dmz.yml
     - name: Install requirement for HAProxy
       apt:
         pkg:
@@ -147,7 +152,7 @@
         - keepalived
 
     - name: Create hasync for HAProxy
-       user:
+      user:
         name: hasync
         password: "{{ pass_hasync_same }}"
         state: present
@@ -237,15 +242,6 @@
       with_items:
         - 'bind9'
 
-    - name: Prepare NGINX for Bind9
-      file:
-        path: "{{ item }}"
-        state: absent
-      with_items:
-        - '/etc/nginx/sites-enabled/default'
-        - '/etc/nginx/sites-available/default'
-        - '/etc/letsencrypt/live/README'
-
     - name: Prepare Bind9
       file:
         path: "{{ item }}"
@@ -274,6 +270,30 @@
         mode: '0640'
 
     - name: Restart ferm for Bind9
+      systemd:
+        name: "ferm"
+        state: restarted
+
+
+- hosts: proxyint
+  tasks:
+    - name: Enable service for Proxy
+      systemd:
+        name: "{{ item }}"
+        enabled: yes
+      with_items:
+        - 'apt-cacher-ng'
+        - 'squid'
+
+    - name: Copy ferm configuration for Proxy
+      copy:
+        src: /root/src/ferm/proxyint_ferm.conf
+        dest: /etc/ferm/ferm.conf
+        owner: root
+        group: root
+        mode: '0640'
+
+    - name: Restart ferm for Proxy
       systemd:
         name: "ferm"
         state: restarted

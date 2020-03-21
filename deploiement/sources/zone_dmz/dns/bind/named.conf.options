@@ -1,0 +1,30 @@
+options {
+  directory "/var/cache/bind";
+  dnssec-validation auto;
+  auth-nxdomain no;
+  listen-on { any;};
+  version "V1.0";
+  forwarders {
+        80.67.169.12;
+        80.67.169.40;
+  };
+  forward only;
+  };
+logging {
+  channel query_log {
+    file "/var/log/dns/query.log";
+    severity debug 10;
+    print-category yes;
+    print-time yes;
+    print-severity yes;
+  };
+  channel error_log {
+    file "/var/log/dns/error.log";
+    severity error;
+    print-category yes;
+    print-time yes;
+    print-severity yes;
+  };
+  category queries { query_log;};
+  category security { error_log;};
+};
