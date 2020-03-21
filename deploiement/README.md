@@ -5,4 +5,3 @@ Vous trouverez ici toute la documentation relative au déploiement via Ansible a
 # Table des matières
 1. [Introduction à Ansible](#)
 2. [Déploiement via Ansible](deploiement_avec_ansible.md)
-3. [Notes et conseils](#)

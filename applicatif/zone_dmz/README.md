@@ -24,6 +24,8 @@ Pour Squid
 - Bridge Interne VLAN 50 (DIRTY)
 
 # Table des matières
-1. [HAProxy](haproxy.md)
+1. [HAProxy](haproxy)
+  1. [Container HAProxy](haproxy/haproxy.md)
+  2. [Certificat SSL Client](haproxy/certificat_ssl_client.md)
 2. [Serveur DNS](dns.md)
 3. [Proxy pour les conteneurs / VM](proxy_interne.md)
