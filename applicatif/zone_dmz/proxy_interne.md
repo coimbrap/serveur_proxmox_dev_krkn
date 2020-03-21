@@ -7,27 +7,31 @@ Comme dit dans la partie déploiement, c'est le seul conteneur qu'il faut mettre
 
 Pour mon installation ce conteneur porte le numéro 104 sur Alpha.
 
-Au niveau de la clé SSH, mettez celle que vous avez générer dans le conteneur Ansible. Elle se trouve dans `/root/.ssh/id_ed25519.pub`
+Au niveau de la clé SSH, mettez celle que vous avez générer dans le conteneur Ansible. Elle se trouve dans `/root/.ssh/id_ed25519_ansible.pub`
 
 Au niveau des ressources allouées :
-- 2Gb de RAM
+- 1 Coeur
+- 1Gb de RAM
 - 1Gb de SWAP
 - 24Gb de Stockage
 
 Au niveau des interfaces réseaux :
 Firewall toujours désactiver.
-- eth0: vmbr1 / VLAN: 10 / IP: 10.0.0.9/24 / GW: 10.0.0.254
+- eth0: vmbr1 / VLAN: 10 / IP: 10.0.0.252/24 / GW: 10.0.0.254
 - eth1: vmbr1 / VLAN: 20 / IP: 10.0.1.252/24
 - eth2: vmbr1 / VLAN: 30 / IP: 10.0.2.252/24
 - eth3: vmbr1 / VLAN: 40 / IP: 10.0.3.252/24
 - eth4: vmbr1 / VLAN: 50 / IP: 10.0.4.252/24
-- eth0: vmbr2 / VLAN: 100 / IP: 10.1.0.103/24 / GW: 10.1.0.254
+- eth5: vmbr2 / VLAN: 100 / IP: 10.1.0.104/24 / GW: 10.1.0.254
+
+Dans les options activé le démarrage automatique.
 
 ## Apt Cacher NG
 Pour l'accès au gestionnaire de packet nous allons utiliser Apt-Cacher NG.
 
 ### Installation
 ```
+apt-get update
 apt-get install -y apt-cacher-ng
 ```
 ```
@@ -37,7 +41,7 @@ Allow HTTP tunnel throutgt Apt-Cacher NG? -> No
 ### /etc/apt-cacher-ng/acng.conf
 ```
 Port: 9999
-BindAddress: 10.0.1.252 10.0.2.252 10.0.3.252 10.0.4.252
+BindAddress: 10.0.1.252 10.0.2.252 10.0.3.252 10.0.4.252 10.1.0.104
 ```
 ```
 systemctl restart apt-cacher-ng.service
@@ -67,6 +71,7 @@ acl localnet src 10.0.1.0/24   # Zone Proxy
 acl localnet src 10.0.2.0/24   # Zone Int
 acl localnet src 10.0.3.0/24   # Zone CTF
 acl localnet src 10.0.4.0/24   # Zone Dirty
+acl localnet src 10.1.0.0/24   # Zone Admin
 
 [...]
 
@@ -89,6 +94,7 @@ Le proxy interne sera accessible uniquement depuis les zones PROXY, INT, CTF et 
 - INT (VLAN 30) -> 10.0.2.252
 - CTF (VLAN 40) -> 10.0.3.252
 - DIRTY (VLAN 50) -> 10.0.4.252
+- ADMIN (VLAN 100) -> 10.1.0.104
 
 ### WGET
 Les requêtes passerons désormais par le proxy interne sur le port 3128 pour les requêtes http et https. Seul le root aura accès au proxy.
