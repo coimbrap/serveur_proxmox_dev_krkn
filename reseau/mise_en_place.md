@@ -93,24 +93,24 @@ Switch Interne VLAN 50
 
 Pas d'autres conteneurs permanent (10.0.4.0/24)
 
-### GRE internal
+### GRE interne
 Switch Interne VLAN 100
 - Alpha : 10.0.10.1
 - Beta : 10.0.10.2
 - Gamma : 10.0.10.3
 
-### CoroSync internal
+### CoroSync
 Switch Administration VLAN 10
 - Alpha : 10.1.1.1
 - Beta : 10.1.1.2
 - Gamma : 10.1.1.3
 
-### pfSync internal
+### pfSync
 Switch Administration VLAN 20
 - Alpha : 10.1.2.1
 - Gamma : 10.1.2.2
 
-### GRE admin
+### GRE Admin
 Switch Administration VLAN 30
 - Alpha : 10.1.10.1
 - Beta : 10.1.10.2
@@ -176,78 +176,98 @@ iface lan inet static
 	ovs_type OVSIntPort
 	ovs_bridge vmbr0
 	ovs_options tag=10
+#IP Publique
 
+#OVS Bridge WAN
 allow-ovs vmbr0
 iface vmbr0 inet manual
 	ovs_type OVSBridge
 	ovs_ports eth0
+#Switch WAN
 
 #GRE vmbr1
 allow-vmbr1 vx1
-iface gre1 inet static
+iface vx1 inet static
 	address  10.0.10.1
 	netmask  24
 	ovs_type OVSIntPort
 	ovs_bridge vmbr1
 	ovs_options tag=100
+#Synchronisation Switch Interne
+
+#DMZ vmbr1
+allow-vmbr1 dmz
+iface dmz inet static
+	address  10.0.0.1
+	netmask  24
+	ovs_type OVSIntPort
+	ovs_bridge vmbr1
+	ovs_options tag=10
+#Accès à la DMZ
 
 #OVS Bridge interne
 auto vmbr1
 iface vmbr1 inet manual
 	ovs_type OVSBridge
-	ovs_ports bond0 vx1
+	ovs_ports bond0 vx1 dmz
   up ovs-vsctl set Bridge ${IFACE} rstp_enable=true
 	up ovs-vsctl --may-exist add-port vmbr1 gre1 -- set interface gre1 type=gre options:remote_ip='10.0.10.2'
 	up ovs-vsctl --may-exist add-port vmbr1 gre2 -- set interface gre2 type=gre options:remote_ip='10.0.10.3'
 	down ovs-vsctl --if-exists del-port vmbr1 gre1
 	down ovs-vsctl --if-exists del-port vmbr1 gre2
+#Switch Interne
 
 #Admin Task
-allow-vmbr0 admintask
-iface vmbr0task inet static
+allow-vmbr2 admintask
+iface vmbr2 inet static
 	address  10.1.0.4
 	netmask  24
 	ovs_type OVSIntPort
-	ovs_bridge vmbr0
+	ovs_bridge vmbr2
 	ovs_options tag=100
+#Accès à la Admin
 
 #Corosync
-allow-vmbr0 coro
+allow-vmbr2 coro
 iface coro inet static
 	address  10.1.1.1
 	netmask  24
 	ovs_type OVSIntPort
-	ovs_bridge vmbr0
+	ovs_bridge vmbr2
 	ovs_options tag=10
+#Synchronisation des hyperviseurs
 
 #pfSync
-allow-vmbr0 pfsync
+allow-vmbr2 pfsync
 iface pfsync inet static
 	address  10.1.2.1
 	netmask  24
 	ovs_type OVSIntPort
-	ovs_bridge vmbr0
+	ovs_bridge vmbr2
 	ovs_options tag=20
+#Synchronisation des FW
 
-#GRE vmbr0
-allow-vmbr0 vx2
+#GRE vmbr2
+allow-vmbr2 vx2
 iface vx2 inet static
 	address  10.1.10.1
 	netmask  24
 	ovs_type OVSIntPort
-	ovs_bridge vmbr0
+	ovs_bridge vmbr2
 	ovs_options tag=30
+#Synchronisation du switch Administration
 
 #OVS Bridge administation
-auto vmbr0
-iface vmbr0 inet manual
+auto vmbr2
+iface vmbr2 inet manual
 	ovs_type OVSBridge
 	ovs_ports eth2 vx2
 	up ovs-vsctl set Bridge ${IFACE} rstp_enable=true
-	up ovs-vsctl --may-exist add-port vmbr0 gre3 -- set interface gre3 type=gre options:remote_ip='10.1.10.2'
-	up ovs-vsctl --may-exist add-port vmbr0 gre4 -- set interface gre4 type=gre options:remote_ip='10.1.10.3'
-	down ovs-vsctl --if-exists del-port vmbr0 gre3
-	down ovs-vsctl --if-exists del-port vmbr0 gre4
+	up ovs-vsctl --may-exist add-port vmbr2 gre3 -- set interface gre3 type=gre options:remote_ip='10.1.10.2'
+	up ovs-vsctl --may-exist add-port vmbr2 gre4 -- set interface gre4 type=gre options:remote_ip='10.1.10.3'
+	down ovs-vsctl --if-exists del-port vmbr2 gre3
+	down ovs-vsctl --if-exists del-port vmbr2 gre4
+#Switch Administration
 ```
 
 ### Pour Beta (/etc/network/interfaces)
@@ -280,69 +300,98 @@ iface lan inet static
 	ovs_type OVSIntPort
 	ovs_bridge vmbr0
 	ovs_options tag=10
+#IP Publique
 
+#OVS Bridge WAN
 allow-ovs vmbr0
 iface vmbr0 inet manual
 	ovs_type OVSBridge
 	ovs_ports eth0
+#Switch WAN
 
 #GRE vmbr1
 allow-vmbr1 vx1
-iface gre1 inet static
+iface vx1 inet static
 	address  10.0.10.2
 	netmask  24
 	ovs_type OVSIntPort
 	ovs_bridge vmbr1
 	ovs_options tag=100
+#Synchronisation Switch Interne
+
+#DMZ vmbr1
+allow-vmbr1 dmz
+iface dmz inet static
+	address  10.0.0.2
+	netmask  24
+	ovs_type OVSIntPort
+	ovs_bridge vmbr1
+	ovs_options tag=10
+#Accès à la DMZ
 
 #OVS Bridge interne
 auto vmbr1
 iface vmbr1 inet manual
 	ovs_type OVSBridge
-	ovs_ports bond0 vx1
+	ovs_ports bond0 vx1 dmz
   up ovs-vsctl set Bridge ${IFACE} rstp_enable=true
 	up ovs-vsctl --may-exist add-port vmbr1 gre1 -- set interface gre1 type=gre options:remote_ip='10.0.10.1'
 	up ovs-vsctl --may-exist add-port vmbr1 gre2 -- set interface gre2 type=gre options:remote_ip='10.0.10.3'
 	down ovs-vsctl --if-exists del-port vmbr1 gre1
 	down ovs-vsctl --if-exists del-port vmbr1 gre2
+#Switch Interne
 
 #Admin Task
-allow-vmbr0 admintask
-iface coro inet static
+allow-vmbr2 admintask
+iface vmbr2 inet static
 	address  10.1.0.5
 	netmask  24
 	ovs_type OVSIntPort
-	ovs_bridge vmbr0
+	ovs_bridge vmbr2
 	ovs_options tag=100
+#Accès à la Admin
 
 #Corosync
-allow-vmbr0 coro
+allow-vmbr2 coro
 iface coro inet static
 	address  10.1.1.2
 	netmask  24
 	ovs_type OVSIntPort
-	ovs_bridge vmbr0
+	ovs_bridge vmbr2
 	ovs_options tag=10
+#Synchronisation des hyperviseurs
 
-#GRE vmbr0
-allow-vmbr0 vx2
+#pfSync
+allow-vmbr2 pfsync
+iface pfsync inet static
+	address  10.1.2.2
+	netmask  24
+	ovs_type OVSIntPort
+	ovs_bridge vmbr2
+	ovs_options tag=20
+#Synchronisation des FW
+
+#GRE vmbr2
+allow-vmbr2 vx2
 iface vx2 inet static
 	address  10.1.10.2
 	netmask  24
 	ovs_type OVSIntPort
-	ovs_bridge vmbr0
+	ovs_bridge vmbr2
 	ovs_options tag=30
+#Synchronisation du switch Administration
 
-	#OVS Bridge administation
-	auto vmbr0
-	iface vmbr0 inet manual
-		ovs_type OVSBridge
-		ovs_ports eth2 vx2
-		up ovs-vsctl set Bridge ${IFACE} rstp_enable=true
-		up ovs-vsctl --may-exist add-port vmbr0 gre3 -- set interface gre3 type=gre options:remote_ip='10.1.10.1'
-		up ovs-vsctl --may-exist add-port vmbr0 gre4 -- set interface gre4 type=gre options:remote_ip='10.1.10.3'
-		down ovs-vsctl --if-exists del-port vmbr0 gre3
-		down ovs-vsctl --if-exists del-port vmbr0 gre4
+#OVS Bridge administation
+auto vmbr2
+iface vmbr2 inet manual
+	ovs_type OVSBridge
+	ovs_ports eth2 vx2
+	up ovs-vsctl set Bridge ${IFACE} rstp_enable=true
+	up ovs-vsctl --may-exist add-port vmbr2 gre3 -- set interface gre3 type=gre options:remote_ip='10.1.10.1'
+	up ovs-vsctl --may-exist add-port vmbr2 gre4 -- set interface gre4 type=gre options:remote_ip='10.1.10.3'
+	down ovs-vsctl --if-exists del-port vmbr2 gre3
+	down ovs-vsctl --if-exists del-port vmbr2 gre4
+#Switch Administration
 ```
 
 ### Pour Gamma (/etc/network/interfaces)
@@ -375,76 +424,96 @@ iface lan inet static
 	ovs_type OVSIntPort
 	ovs_bridge vmbr0
 	ovs_options tag=10
+#IP Publique
 
+#OVS Bridge WAN
 allow-ovs vmbr0
 iface vmbr0 inet manual
 	ovs_type OVSBridge
 	ovs_ports eth0
+#Switch WAN
 
 #GRE vmbr1
 allow-vmbr1 vx1
-iface gre1 inet static
+iface vx1 inet static
 	address  10.0.10.3
 	netmask  24
 	ovs_type OVSIntPort
 	ovs_bridge vmbr1
 	ovs_options tag=100
+#Synchronisation Switch Interne
+
+#DMZ vmbr1
+allow-vmbr1 dmz
+iface dmz inet static
+	address  10.0.0.3
+	netmask  24
+	ovs_type OVSIntPort
+	ovs_bridge vmbr1
+	ovs_options tag=10
+#Accès à la DMZ
 
 #OVS Bridge interne
 auto vmbr1
 iface vmbr1 inet manual
 	ovs_type OVSBridge
-	ovs_ports bond0 vx1
+	ovs_ports bond0 vx1 dmz
   up ovs-vsctl set Bridge ${IFACE} rstp_enable=true
 	up ovs-vsctl --may-exist add-port vmbr1 gre1 -- set interface gre1 type=gre options:remote_ip='10.0.10.1'
 	up ovs-vsctl --may-exist add-port vmbr1 gre2 -- set interface gre2 type=gre options:remote_ip='10.0.10.2'
 	down ovs-vsctl --if-exists del-port vmbr1 gre1
 	down ovs-vsctl --if-exists del-port vmbr1 gre2
+#Switch Interne
 
 #Admin Task
-allow-vmbr0 admintask
-iface vmbr0task inet static
+allow-vmbr2 admintask
+iface vmbr2 inet static
 	address  10.1.0.6
 	netmask  24
 	ovs_type OVSIntPort
-	ovs_bridge vmbr0
+	ovs_bridge vmbr2
 	ovs_options tag=100
+#Accès à la Admin
 
 #Corosync
-allow-vmbr0 coro
+allow-vmbr2 coro
 iface coro inet static
 	address  10.1.1.3
 	netmask  24
 	ovs_type OVSIntPort
-	ovs_bridge vmbr0
+	ovs_bridge vmbr2
 	ovs_options tag=10
+#Synchronisation des hyperviseurs
 
 #pfSync
-allow-vmbr0 pfsync
+allow-vmbr2 pfsync
 iface pfsync inet static
-	address  10.1.2.2
+	address  10.1.2.3
 	netmask  24
 	ovs_type OVSIntPort
-	ovs_bridge vmbr0
+	ovs_bridge vmbr2
 	ovs_options tag=20
+#Synchronisation des FW
 
-#GRE vmbr0
-allow-vmbr0 vx2
+#GRE vmbr2
+allow-vmbr2 vx2
 iface vx2 inet static
 	address  10.1.10.3
 	netmask  24
 	ovs_type OVSIntPort
-	ovs_bridge vmbr0
+	ovs_bridge vmbr2
 	ovs_options tag=30
+#Synchronisation du switch Administration
 
 #OVS Bridge administation
-auto vmbr0
-iface vmbr0 inet manual
+auto vmbr2
+iface vmbr2 inet manual
 	ovs_type OVSBridge
 	ovs_ports eth2 vx2
 	up ovs-vsctl set Bridge ${IFACE} rstp_enable=true
-	up ovs-vsctl --may-exist add-port vmbr0 gre3 -- set interface gre3 type=gre options:remote_ip='10.1.10.1'
-	up ovs-vsctl --may-exist add-port vmbr0 gre4 -- set interface gre4 type=gre options:remote_ip='10.1.10.2'
-	down ovs-vsctl --if-exists del-port vmbr0 gre3
-	down ovs-vsctl --if-exists del-port vmbr0 gre4
+	up ovs-vsctl --may-exist add-port vmbr2 gre3 -- set interface gre3 type=gre options:remote_ip='10.1.10.1'
+	up ovs-vsctl --may-exist add-port vmbr2 gre4 -- set interface gre4 type=gre options:remote_ip='10.1.10.2'
+	down ovs-vsctl --if-exists del-port vmbr2 gre3
+	down ovs-vsctl --if-exists del-port vmbr2 gre4
+#Switch Administration
 ```

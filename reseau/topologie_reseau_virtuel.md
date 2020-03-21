@@ -2,8 +2,8 @@
 
 Rappel:
 - eth0 sur un bridge OVS (vmbr0) accessible uniquement par OPNSense
-- eth2 formera le bridge OVS Admin (vmbr2)
 - eth1 et eth3 formerons le bond OVS bond0 sur le bridge OVS Interne (vmbr1)
+- eth2 formera le bridge OVS Admin (vmbr2)
 
 Pour chacune des zones (INT ou CTF), il y a deux types de contenants (VM / CT) :
 - Les services frontend qui sont directement accessibles depuis internet, derrière le pare-feu (OPNSense).
@@ -16,7 +16,7 @@ Pour chacune des zones (INT ou CTF), il y a deux types de contenants (VM / CT) :
 ## Les switchs virtuels
 
 - Un switch WAN (vmbr0), qui permettra de réaliser le lien entre l'extérieur (via eth0) et les pare-feux et entre les pare-feux et les hyperviseurs.
-- Un switch virtuel (vmbr1), en séparant le tout en plusieurs zones avec des VLANs, gèrera l'accès à Internet des services qui ne sont pas directement derrière le pare-feu (Nextcloud, Git, Serveur Web...) et les services qui sont directement derrière le pare-feu (HAProxy, DNS et Proxy Interne). Avec comme lien extérieur un bond entre eth1 et eth3.
+- Un switch Interne (vmbr1), en séparant le tout en plusieurs zones avec des VLANs, gèrera l'accès à Internet des services qui ne sont pas directement derrière le pare-feu (Nextcloud, Git, Serveur Web...) et les services qui sont directement derrière le pare-feu (HAProxy, DNS et Proxy Interne). Avec comme lien extérieur un bond entre eth1 et eth3.
 - Un switch Administation (vmbr2) pour toute les tâches d'administration (Ansible, monitoring). Avec eth2 pour communiquer avec l'autre node.
 
 ## Communication des switchs entre les nodes
