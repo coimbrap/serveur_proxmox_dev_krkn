@@ -10,6 +10,6 @@ Les services de la zone CTF devront avoir les interfaces réseaux suivantes :
 
 # Table des matières
 1. [Reverse Proxy NGINX](nginx_ctf.md)
-2. [Environnment Web](environnement_web.md)
-3. [Environnment Système](environnement_systeme.md)
+2. [Environnement Web](environnement_web.md)
+3. [Environnement Système](environnement_systeme.md)
 4. [CTFd](#)

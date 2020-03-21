@@ -9,7 +9,9 @@ Les services de la zone INT devront avoir les interfaces réseau suivantes :
 - Bridge Admin VLAN 100 (ADMIN)
 
 # Table des matières
-1. [LDAP](ldap/README.md)
+1. [LDAP](ldap)
+  1. [Serveur LDAP](ldap/serveur_ldap.md)
+  2. [Inteface de gestion](ldap/interface_web_ldap.md)
 2. [Serveur Mail](mail.md)
 3. [NextCloud](nextcloud.md)
 4. [Gitea](gitea.md)
