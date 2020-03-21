@@ -62,4 +62,3 @@ charge de former leur successeurs.
 5. [Déploiement](deploiement)
 	1. [Introduction à Ansible](#)
 	2. [Déploiement via Ansible](deploiement/deploiement_avec_ansible.md)
-	3. [Notes et conseils](#)

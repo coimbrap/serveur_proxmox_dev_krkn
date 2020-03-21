@@ -2,13 +2,13 @@
 
 **Partie Brouillon**
 
-Nous allons utiliser deux types de Hautes Disponibilité (HA) :
-- La solution de HA proposé par Proxmox qui permet de migrer des conteneurs entre des nodes,
+Nous allons utiliser deux types de Haute Disponibilité (HA) :
+- La solution de HA proposée par Proxmox qui permet de migrer des conteneurs entre des nodes,
 - De la Haute Disponibilité via une IP Virtuelle grâce à Keep-alived.
 
-Pour les services vitaux (HAProxy, NGINX, LDAP...) nous utiliserons une IP virtuelle, les services seront déjà présent sur toute les nodes c'est keepalived qui s'occupera de toujours rendre accessible le service.
+Pour les services vitaux (HAProxy, NGINX, LDAP...) nous utiliserons une IP virtuelle, les services seront déjà présents sur toute les nodes c'est keepalived qui s'occupera de toujours rendre accessible le service.
 
-Pour les services moins important (Cloud, Git...) nous utiliserons la solution proposé par Proxmox.
+Pour les services moins importants (Cloud, Git...) nous utiliserons la solution proposée par Proxmox.
 
 Nous avons fait cette distinction car ZFS ne permet pas la migration instantanée d'un conteneur en cas de chute d'une node, surtout s'il doit migrer plusieurs conteneurs en même temps.
 
@@ -22,6 +22,8 @@ Les services redondés et utilisant keepalived seront :
 
 
 ## Répartition non exhaustive des conteneurs entre les nodes
+
+En réflexion
 
 - OPNSense -> Alpha et Sigma
 - HAProxy -> Alpha, Beta et Sigma
@@ -41,4 +43,4 @@ Les services redondés et utilisant keepalived seront :
 - Wiki KRKN -> Beta
 - Etat des services -> Alpha
 
-Possibilité d'héberger des VPS d'autres Club sur la node Sigma (VLAN dédié) si accord et si stabilité.
+Possibilité d'héberger des VPS d'autres Clubs sur la node Sigma (VLAN dédié) si accord et si stabilité.
