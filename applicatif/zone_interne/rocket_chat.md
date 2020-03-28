@@ -168,10 +168,10 @@ rm /etc/nginx/{sites-available,sites-enabled}/default
 ln -s /etc/nginx/sites-available/rocketchat /etc/nginx/sites-enabled
 ```
 
-# Configuration du LDAP
+# Configuration du LDAP
 Nous allons relier Rocket Chat à l'annuaire LDAP en faisant en sorte que tout le monde est accès à ce service.
 
-## Dans l'onglet LDAP du panel d'administration
+## Dans l'onglet LDAP du panel d'administration
 
 Cocher / Modifier
 
