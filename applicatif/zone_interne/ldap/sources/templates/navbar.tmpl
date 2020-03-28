@@ -1,0 +1,36 @@
+## -*- coding: utf-8 -*-
+#<%inherit file="base.tmpl"/>
+<%block name="navbar">
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<nav class="navbar navbar-inverse" role="navigation">
+                <div class="navbar-header">
+                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"> <span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+                <a class="navbar-brand" href="/"><img src="/static/img/icon.png" alt="Gestionnaire LDAP" height="22" width="22"></a>
+                <a class="navbar-brand" href="/selfmodify">Changer de mot de passe</a>
+                % if is_admin:
+                <a class="navbar-brand" href="/adduser">Ajouter un utilisateur</a>
+                <a class="navbar-brand" href="/searchadmin">Supprimer/Editer un utilisateur</a>
+                % endif
+                </div>
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                   <a class="navbar-brand navbar-right" href='/logout'><span class="glyphicon glyphicon-off"></span> Déconnexion</a>
+<!--  njj
+                          % if is_admin:
+		            <form method='GET' action='/searchadmin' class="navbar-form navbar-right" role="search" data-toggle="validator">
+                            % endif
+                        <div class="form-group">
+                            % if is_admin:
+                            <input type="text" class="form-control" name="searchstring" placeholder="Recherche">
+	                        	% endif
+                        </div>
+												% if is_admin:
+                        <button type="submit" class="btn btn-default">Chercher</button>
+												% endif
+                    </form>-->
+                </div>
+            </nav>
+		</div>
+	</div>
+</%block>
+

@@ -1,11 +1,13 @@
 # Génération du certificat SSL client pour HAProxy
 
+Faire les commandes dans `/home/hasync/ssl`
+
 ## Création du premier certificat client
 ### Création du certificat serveur
 
 ```
 openssl genrsa -des3 -out ca.key 4096
-openssl req -new -x509 -days 365 -key ca.key -out ca.crt
+openssl req -new -x509 -days 3650 -key ca.key -out ca.crt
 ```
 
 #### Spécification du certificat serveur
@@ -44,7 +46,7 @@ An optional company name []:
 ```
 
 ```
-openssl x509 -req -days 365 -in client.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out client.crt
+openssl x509 -req -days 3650 -in client.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out client.crt
 openssl req -newkey rsa:2048 -nodes -keyout haproxy.key -out haproxy.csr
 ```
 

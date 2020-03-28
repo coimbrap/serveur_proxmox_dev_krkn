@@ -29,10 +29,12 @@ Acquire::http {
 };
 ```
 
+Il vous faut mettre en place le certificat SSL pour LDAP. La démarche et la même que dans la partie LDAP.
 
 ## Installation
 ```
 git clone https://github.com/kakwa/ldapcherry
+cd ldapcherry
 apt-get install python-ldap python-pip
 pip install --proxy http://10.0.2.252:3128 cherrypy mako pyyaml
 export SYSCONFDIR=/etc
@@ -113,7 +115,7 @@ mailaccountactif:
         ldap: mailaccountactif
 
 mailaccountquota:
-    description: "0 par défaut"
+    description: "2147483648 par défaut"
     display_name: "Mail Quota"
     search_displayed: True
     weight: 61
@@ -170,8 +172,8 @@ gitaccountactif:
 ### /etc/ldapcherry/ldapcherry.ini
 ```
 [global]
-server.socket_host = '0.0.0.0'
-server.socket_port = 8080
+server.socket_host = '10.0.2.15'
+server.socket_port = 80
 server.thread_pool = 8
 
 request.show_tracebacks = False
@@ -194,14 +196,14 @@ ldap.uri = 'ldap://alpha.ldap.sessionkrkn.fr'
 ldap.ca = '/etc/ldap/ca_certs.pem'
 ldap.starttls = 'on'
 ldap.checkcert = 'off'
-ldap.binddn = 'cn=admin,dc=sessionkrkn,dc=fr'
-#ldap.binddn = 'cn=writer,ou=system,dc=sessionkrkn,dc=fr'
+ldap.binddn = 'cn=admin,dc=krhacken,dc=org'
+#ldap.binddn = 'cn=writer,ou=system,dc=krhacken,dc=org'
 ldap.password = '8PizMOVqhDwSVChJwNy8Xcb1rPzDEuYbwXdd'
 ldap.timeout = 1
-ldap.groupdn = 'ou=workgroup,ou=group,dc=sessionkrkn,dc=fr'
-ldap.userdn = 'ou=krhacken,ou=people,dc=sessionkrkn,dc=fr'
+ldap.groupdn = 'ou=krhacken,ou=group,dc=krhacken,dc=org'
+ldap.userdn = 'ou=krhacken,ou=people,dc=krhacken,dc=org'
 ldap.user_filter_tmpl = '(uid=%(username)s)'
-ldap.group_filter_tmpl = '(member=uid=%(username)s,ou=krhacken,ou=people,dc=sessionkrkn,dc=fr)'
+ldap.group_filter_tmpl = '(member=uid=%(username)s,ou=krhacken,ou=people,dc=krhacken,dc=org)'
 ldap.search_filter_tmpl = '(|(uid=%(searchstring)s*)(sn=%(searchstring)s*))'
 ldap.group_attr.member = "%(dn)s"
 ldap.dn_user_attr = 'uid'
@@ -266,13 +268,13 @@ Placer le contenu du dossier **sources** dans **/usr/share/ldapcherry/**
 Mise en place de HAProxy et de NGINX pour l'accès à l'interface et mise en place d'un daemon systemd pour le démarrage automatique de l'interface Web.
 
 ### Dans le conteneur Nginx
-#### /etc/nginx/sites-available/nextcloud
+#### /etc/nginx/sites-available/ldapui
 ```
 server {
         listen 80;
         server_name ldapui.krhacken.org;
         location / {
-                proxy_pass http://10.0.2.15:8080/;
+                proxy_pass http://10.0.2.15:80/;
                 proxy_set_header Host $http_host;
                 proxy_set_header X-Real-IP $remote_addr;
                 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -281,7 +283,7 @@ server {
 }
 ```
 ```
-sh ~/deploy-webhost.sh nextcloud
+sh ~/deploy-webhost.sh ldapui
 ```
 
 ### Dans le conteneur HAProxy
@@ -296,6 +298,7 @@ sh ~/install-certs.sh
 ## Daemon Systemd
 ### /etc/systemd/system/ldapui.service
 ```
+[Unit]
 Description=LDAP WebUI
 Requires=ldapui.service
 After=ldapui.service

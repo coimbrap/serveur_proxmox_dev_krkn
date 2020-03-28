@@ -109,17 +109,13 @@ mkdir -p /etc/ssl/letsencrypt
 
 ### Certificat client
 
-Pour la vérification du certificat du client, la méthode est dans la git. Il faut placer le ca.crt dans /home/hasync/pve.crt et ajouter le CN autorisé dans /home/hasync/allowed_cn.txt
+Pour la vérification du certificat du client, la méthode est dans la git. Il faut placer le ca.crt dans /home/hasync/pve.crt et ajouter le CN autorisé dans /etc/haproxy/allowed_cn.txt
 
 ### Copie du certificat de la Web UI
 ```
 Alpha :
 scp root@10.0.0.1:/etc/pve/local/pve-ssl.key .
 scp root@10.0.0.1:/etc/pve/local/pve-ssl.pem .
-
-Beta :
-scp root@10.0.0.2:/etc/pve/local/pve-ssl.key .
-scp root@10.0.0.2:/etc/pve/local/pve-ssl.pem .
 
 Ensuite :
 cat pve-ssl.key pve-ssl.pem > /etc/ssl/letsencrypt/crt
@@ -227,8 +223,8 @@ backend pve-interface
 backend opn-interface
     mode http
     balance roundrobin
-    server opn-alpha 10.0.0.3:443 check ssl verify none
-    server opn-beta 10.0.0.4:443 check ssl verify none
+    server opn-alpha 10.0.0.4:443 check ssl verify none
+    server opn-beta 10.0.0.5:443 check ssl verify none
 
 backend reverse-nginx
     mode http
@@ -352,14 +348,25 @@ certbot certonly --webroot -w /home/hasync/letsencrypt-requests/ -d sub.krhacken
 Voici un script pour mettre en place les certificats Let's Encrypt au bon endroit qui s'occupe de propager les certificats sur l'autre conteneur (depuis Alpha vers Beta). Disponible dans `/root/install-certs.sh` si créer avec Ansible.
 ```
 #!/bin/bash
-rm -f /etc/letsencrypt/live/README
-rm -rf /etc/ssl/letsencrypt/*
-for domain in $(ls /etc/letsencrypt/live); do
-    cat /etc/letsencrypt/live/$domain/privkey.pem /etc/letsencrypt/live/$domain/fullchain.pem > /etc/ssl/letsencrypt/$domain.pem
-done
-scp -r /etc/ssl/letsencrypt/* root@10.0.0.7:/etc/ssl/letsencrypt
-ssh root@10.0.0.7 'service haproxy reload'
-service haproxy reload
+if [ "$(ip a | grep -c "10.0.0.8")" -ge 1 ]; then
+  ct_ip=$(ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1 | head -n 1 | tail -c2)
+  if [ $ct_ip = 6 ]
+  	then
+  		other_ip=10.0.0.7
+  fi
+  if [ $ct_ip = 7 ]
+  	then
+  		other_ip=10.0.0.6
+  fi
+  rm -f /etc/letsencrypt/live/README
+  rm -rf /etc/ssl/letsencrypt/*
+  for domain in $(ls /etc/letsencrypt/live); do
+      cat /etc/letsencrypt/live/$domain/privkey.pem /etc/letsencrypt/live/$domain/fullchain.pem > /etc/ssl/letsencrypt/$domain.pem
+  done
+  scp -r /etc/ssl/letsencrypt/* root@$other_ip:/etc/ssl/letsencrypt
+  ssh root@$other_ip 'service haproxy reload'
+  service haproxy reload
+fi
 ```
 
 ## Renouvellement automatique des certificats
@@ -371,15 +378,25 @@ Voilà un script d'automatisation à mettre sur les deux conteneurs. Déjà pré
 ```
 #!/bin/bash
 if [ "$(ip a | grep -c "10.0.0.8")" -ge 1 ]; then
+  ct_ip=$(ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1 | head -n 1 | tail -c2)
+  if [ $ct_ip = 6 ]
+    then
+      other_ip=10.0.0.7
+  fi
+  if [ $ct_ip = 7 ]
+    then
+      other_ip=10.0.0.6
+  fi
 	certbot renew
 	rm -rf /etc/ssl/letsencrypt/*
 	for domain in $(ls /etc/letsencrypt/live); do
 		  cat /etc/letsencrypt/live/$domain/privkey.pem /etc/letsencrypt/live/$domain/fullchain.pem > /etc/ssl/letsencrypt/$domain.pem
 	done
-	scp -r /etc/ssl/letsencrypt/* hasync@<ip_autre_ct>:/etc/ssl/letsencrypt
+	scp -r /etc/ssl/letsencrypt/* hasync@$other_ip:/etc/ssl/letsencrypt
 else
 fi
 ```
+
 Le script est stocké dans /home/hasync/renew.sh, voici la crontab à ajouter (crontab -e) sur les deux conteneurs.
 ```
 0 4 */15 * * /bin/sh /home/hasync/renew.sh >/dev/null 2>&1

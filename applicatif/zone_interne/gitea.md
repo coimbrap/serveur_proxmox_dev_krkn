@@ -31,9 +31,7 @@ cat ca_certs.pem | tee -a /etc/ldap/ca_certs.pem
 Il faut ensuite modifier la configuration en modifiant la ligne suivante
 #### /etc/ldap/ldap.conf
 ```
-...
 TLS_CACERT /etc/ldap/ca_certs.pem
-...
 ```
 
 # Configuration du serveur LDAP
@@ -103,16 +101,18 @@ ldapadd -cxWD cn=admin,dc=krhacken,dc=org -y /root/pwdldap -f addtogit.ldif -ZZ
 
 Lister les utilisateurs :
 ```
-ldapsearch -xLLL -H ldap://vip.ldap.krhacken.org -D cn=admin,dc=krhacken,dc=org -y /root/pwdldap -b "ou=people,dc=krhacken,dc=org" "(&(objectClass=cloudaccountkrhacken))" -ZZ
+ldapsearch -xLLL -H ldap://vip.ldap.krhacken.org -D cn=admin,dc=krhacken,dc=org -y /root/pwdldap -b "ou=people,dc=krhacken,dc=org" "(&(objectClass=gitaccountkrhacken))" -ZZ
 ```
 
 ## Installation
 ```
 apt-get update
 apt-get install -y git postgresql sudo
-wget -O gitea https://dl.gitea.io/gitea/1.11.1/gitea-1.11.1-linux-amd64
+pg_ctlcluster 11 main start
+wget -O gitea https://dl.gitea.io/gitea/1.11.3/gitea-1.11.3-linux-amd64
 ```
 
+Dans Ferm ajoutez le port 3000 à la liste des ports ouverts.
 
 ## Configuration de Nginx
 ### Dans le conteneur Nginx
@@ -222,9 +222,9 @@ Via la page **https://git.krhacken.org/install**
 - Répertoire racine Git LFS `/var/lib/gitea/data/lfs`
 - Exécuter avec le compte d'un autre utilisateur : `git`
 - Domaine du serveur SSH `localhost`
-- Port du serveur SSH `None`
+- Port du serveur SSH `22`
 - Port d'écoute HTTP de Gitea `3000`
-- URL de base de Gitea `https://git.krhacken.org`
+- URL de base de Gitea `https://git.krhacken.org/`
 - Chemin des fichiers log `/var/lib/gitea/log`
 
 ### Paramètres facultatifs
@@ -265,7 +265,7 @@ Dans **Administration du site / Sources d'authentification**
 - Filtre utilisateur `(&(objectClass=gitaccountkrhacken)(gitaccountactif=YES)(|(uid=%[1]s)(mail=%[1]s)))`
 - Attribut nom d'utilisateur `uid`
 - Attribut prénom `cn`
-- Attribut nim de famille `sn`
+- Attribut nom de famille `sn`
 - Attribut e-mail `mail`
 - Cocher `Ne pas vérifier TLS`
 

@@ -1,0 +1,92 @@
+## -*- coding: utf-8 -*-
+<script type="text/javascript">
+    var graph = ${graph_js | n};
+    var roles = ${roles_js | n};
+    function enableParentRoles(roleid){
+        var parentRoles = graph[roleid]['parent_roles'];
+        var DnRole = roles[roleid];
+        var len = parentRoles.length;
+        for (var i = 0; i < len; i++) {
+            var role = parentRoles[i];
+            var DnParentRole = roles[role];
+            var checked = document.getElementById('role.'+ role).checked;
+            $('input[name="role.' + role +'"]').bootstrapSwitch('state', true, true);
+            if ( ! checked){
+                $.notify("Enable Role '" + DnParentRole + "' (Parent Role of '" + DnRole  +"')",
+                    {
+                        type: 'info',
+                        delay: 6500,
+                    }
+                );
+            }
+        }
+    }
+    function disableSubRoles(roleid){
+        var parentRoles = graph[roleid]['sub_roles'];
+        var DnRole = roles[roleid];
+        var len = parentRoles.length;
+        for (var i = 0; i < len; i++) {
+            var role = parentRoles[i];
+            var DnParentRole = roles[role];
+            var checked = document.getElementById('role.'+role).checked;
+            $('input[name="role.' + role +'"]').bootstrapSwitch('state', false, true);
+            if (checked){
+                $.notify("Disable Role '" + DnParentRole + "' (Sub Role of '" + DnRole  +"')",
+                    {
+                        type: 'warning',
+                        delay: 6500,
+                    }
+                );
+            }
+        }
+    }
+</script>
+<table id="RecordTable" class="table table-hover table-condensed tablesorter">
+    <thead>
+        <tr>
+            <th>
+                Rôle
+            </th>
+            <th class="sorter-false">
+                Description
+            </th>
+            <th class="sorter-false">
+                Activer/Désactiver
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        %for role in roles:
+            <%
+                if not current_roles is None and role in current_roles:
+                    checked = ' checked '
+                else:
+                    checked = ''
+            %>
+        <tr>
+            <td>
+                ${roles[role]['display_name']}
+            </td>
+            <td>
+                ${roles[role]['description']}
+            </td>
+            <td>
+                <input data-on-color="success" data-off-color="danger" data-on-text="Activé"
+                       data-off-text="Désactivé" data-handle-width="75" type="checkbox"
+                       name="role.${role}" data-size="mini" id="role.${role}" ${checked}>
+                <script>$("[name='role.${role}']").bootstrapSwitch();
+                    $('input[name="role.${role}"]').on('switchChange.bootstrapSwitch', function(event, state) {
+                        if (state) {
+                            enableParentRoles('${role}');
+                        }
+                        else {
+                            disableSubRoles('${role}');
+                        }
+                    });
+                </script>
+            </td>
+        </tr>
+        % endfor
+    </tbody>
+</table>
+

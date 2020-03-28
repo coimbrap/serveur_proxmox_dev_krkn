@@ -42,6 +42,7 @@ Allow HTTP tunnel throutgt Apt-Cacher NG? -> No
 ```
 Port: 9999
 BindAddress: 10.0.1.252 10.0.2.252 10.0.3.252 10.0.4.252 10.1.0.104
+PassThroughPattern: ^(.*):443$
 ```
 ```
 systemctl restart apt-cacher-ng.service

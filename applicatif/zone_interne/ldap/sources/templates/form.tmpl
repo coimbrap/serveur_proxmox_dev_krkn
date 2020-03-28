@@ -1,0 +1,139 @@
+## -*- coding: utf-8 -*-
+<%
+from markupsafe import Markup
+len_attr = len(attributes)
+switch = len_attr / 2
+if not switch * 2 == len_attr:
+    switch = switch + 1
+counter = 1
+lc1 = []
+lc2 = []
+for a in sorted(attributes.keys(), key=lambda attr: attributes[attr]['weight']):
+    if counter <= switch:
+        lc1.append(a)
+    else:
+        lc2.append(a)
+    counter = counter + 1
+%>
+<%def name="form_col(l)">
+% for a in l:
+<% attr = attributes[a] %>
+<div class="form-group">
+<div class="input-group">
+  <%
+    if modify:
+        required = ''
+    else:
+        required = ' required '
+    if not values is None and a in values:
+        if type(values[a]) is list:
+            raw_value = values[a][0]
+        else:
+            raw_value = values[a]
+        if raw_value is None:
+           raw_value = ''
+        value = Markup(' value="{}"').format(raw_value)
+        value2 = Markup('<option>{}</option>').format(raw_value)
+    else:
+        raw_value = ''
+        value = ''
+        value2 = ''
+    if 'default' in attr and value == '':
+        value = Markup(' value="{}"').format(attr['default'])
+  %>
+
+  <span class="input-group-addon" id="basic-addon-${a}">${attr['display_name']}</span>
+    % if modify and a == keyattr:
+  <input type="hidden" id="attr.${a}" name="attr.${a}" class="form-control" autocomplete='off' aria-describedby="basic-addon-${a}" ${required} ${value | n} readonly  onfocus="this.removeAttribute('readonly');">
+  <span class="form-control" aria-describedby="basic-addon-${a}">${raw_value}</span>
+    % elif attr['type'] == 'string':
+  <input type="text"   id="attr.${a}" name="attr.${a}" class="form-control" autocomplete='off' placeholder="${attr['description']}" aria-describedby="basic-addon-${a}" ${required} ${value | n} readonly  onfocus="this.removeAttribute('readonly');">
+    % elif attr['type'] == 'email':
+  <input type="email"  id="attr.${a}" name="attr.${a}" class="form-control" autocomplete='off' placeholder="${attr['description']}" aria-describedby="basic-addon-${a}" ${required} ${value | n} data-error="email address is invalid" readonly  onfocus="this.removeAttribute('readonly');">
+    % elif attr['type'] == 'int':
+  <input type="number" id="attr.${a}" name="attr.${a}" class="form-control" autocomplete='off' placeholder="${attr['description']}" aria-describedby="basic-addon-${a}" ${required} ${value | n} readonly  onfocus="this.removeAttribute('readonly');">
+    % elif attr['type'] == 'fix':
+  <input type="hidden" id="attr.${a}" name="attr.${a}" class="form-control" autocomplete='off' aria-describedby="basic-addon-${a}" ${required} value="${attr['value']}" readonly  onfocus="this.removeAttribute('readonly');">
+  <span class="form-control" placeholder="${attr['description']}" aria-describedby="basic-addon-${a}">${attr['value']}</span>
+    % elif attr['type'] == 'stringlist':
+  <select class="form-control" id="attr.${a}" name="attr.${a}">
+        ${value2 | n}
+        %for val in attr['values']:
+        %if '<option>' + val + '</option>' != value2:
+        <option>${val}</option>
+        %endif
+        %endfor
+  </select>
+    % elif attr['type'] == 'password':
+      <input type="password" class="form-control" data-ppolicy="ppolicy" name="attr.${a}1" id="${a}1" autocomplete='off' placeholder="${attr['description']}" ${required} readonly  onfocus="this.removeAttribute('readonly');">
+      <span class="input-group-addon" id="basic-addon-${a}2">Retaper le mot de passe</span>
+      <input type="password" class="form-control" data-match="#${a}1"  data-match-error="Passwords don't match" name="attr.${a}2" id="#${a}2" autocomplete='off' placeholder="Confirm" ${required} readonly  onfocus="this.removeAttribute('readonly');">
+    % elif attr['type'] == 'textfield':
+      <textarea id="attr.${a}" name="attr.${a}" class="form-control" placeholder="${attr['description']}">${raw_value}</textarea>
+    % endif
+</div>
+<div class="help-block with-errors"></div>
+</div>
+% endfor
+</%def>
+<div class="row">
+<div class="col-md-6 column lcform-col-1" style="display:none;">
+${form_col(lc1)}
+</div>
+<div class="col-md-6 column lcform-col-2" style="display:none;">
+${form_col(lc2)}
+</div>
+</div>
+% if autofill:
+<%
+attr_set = []
+attr_events = {}
+functions = {}
+for attrid in attributes:
+    attr = attributes[attrid]
+    field = 'attr.' + attrid
+    if field not in attr_set:
+        attr_set.append(field)
+        if 'autofill' in attr:
+            function = attr['autofill']['function']
+            tuple = (field, function)
+            if not tuple in functions:
+                functions[tuple] = []
+            for arg in attr['autofill']['args']:
+                if arg[0] == '$':
+                    field_arg = 'attr.' + arg[1:]
+                    if field_arg not in attr_set:
+                        attr_set.append(field_arg)
+                    functions[tuple].append("fields['" + field_arg + "'].value")
+                    if not field_arg in attr_events:
+                        attr_events[field_arg] = []
+                    attr_events[field_arg].append(tuple)
+                else:
+                    value = arg
+                    functions[tuple].append("'" + value + "'")
+%>
+<script>
+var fields = new Object();
+% for attr in attr_set:
+fields['${attr}'] = document.getElementById('${attr}');
+% endfor
+
+% for attrid in attr_events:
+if (fields['${attrid}'] != null) {
+    fields['${attrid}'].onchange = function () {
+    % for tuple in attr_events[attrid]:
+        if (typeof(${tuple[1]}) == "function") {
+            fields['${tuple[0]}'].value = ${tuple[1] | n}(${', '.join(functions[tuple]) | n});
+        }
+    % endfor
+    };
+};
+% endfor
+</script>
+% endif
+<script>
+$(document).ready(function() {
+    $('form:eq(1) *:input[type!=hidden]:first').focus();
+});
+</script>
+

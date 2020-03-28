@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ "$(ip a | grep -c "10.0.0.8")" -ge 1 ]; then
-  ct_ip=$(ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1 | tail -c2)
+  ct_ip=$(ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1 | head -n 1 | tail -c2)
   if [ $ct_ip = 6 ]
     then
       other_ip=10.0.0.7

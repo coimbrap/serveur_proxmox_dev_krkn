@@ -62,7 +62,7 @@ mkdir /etc/ssl/templates
 ```
 ### /etc/ssl/templates/ca_server.conf
 ```
-cn = LDAP Server CA
+cn = LDAP Server CA - Kr[HACK]en
 ca
 cert_signing_key
 ```
@@ -73,7 +73,7 @@ cn = *.ldap.krhacken.org
 tls_www_server
 encryption_key
 signing_key
-expiration_days = 3652
+expiration_days = 3650
 ```
 ### CA clé et certificat
 ```
@@ -612,7 +612,7 @@ systemctl restart slapd
 ### Vérification
 La commande
 ```
-ldapsearch -xLLL -H ldap://localhost -D cn=viewer,ou=system,dc=krhacken,dc=org -w passview -b "dc=krhacken,dc=org"
+ldapsearch -xLLL -H ldap://alpha.ldap.krhacken.org -D cn=viewer,ou=system,dc=krhacken,dc=org -w passview -b "dc=krhacken,dc=org"
 ```
 doit retourner une erreur, si on ajout -ZZ à la fin ça doit fonctionner
 

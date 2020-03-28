@@ -1,0 +1,75 @@
+## -*- coding: utf-8 -*-
+<%inherit file="navbar.tmpl"/>
+<%block name="core">
+    <div class="row clearfix">
+        <div class="col-md-12 column">
+            <form method='get' action='/searchadmin' role="form" class="form-inline" data-toggle="validator">
+                <div class="form-group">
+                     <label for="searchstring">Recherche d'un utilisateur:</label>
+                     <input type="text" class="form-control" id="searchstring" name="searchstring" placeholder="Rechercher un utilisateur">
+                </div>
+                <div class="form-group">
+                    <label for="submit"></label>
+                    <button type="submit" id="submit" class="form-control btn btn-default green">
+                    <span class="glyphicon glyphicon-search"></span> Chercher</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    % if not searchresult is None:
+    <div class="row clearfix top-buffer bottom-buffer">
+        <div class="col-md-12 column">
+            <div class="well well-sm">
+                    <table id="RecordTable" class="table table-hover table-condensed tablesorter">
+                        <thead>
+                            <tr>
+                            %for attr in sorted(attrs_list.keys(), key=lambda attr: attrs_list[attr]['weight']):
+                                <th>
+                                    ${attrs_list[attr]['display_name']}
+                                </th>
+                            % endfor
+                                <th class="sorter-false">
+                                    Modify
+                                </th>
+                                <th class="sorter-false">
+                                    Delete
+                               </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            %for user in searchresult:
+                            <tr>
+                            %for attr in sorted(attrs_list.keys(), key=lambda attr: attrs_list[attr]['weight']):
+                                <td>
+                                    % if attr in searchresult[user]:
+                                        <% 
+                                        value = searchresult[user][attr] 
+                                        if type(value) is list:
+                                            value = ', '.join(value)
+                                        %>
+                                        ${value}
+                                    % endif
+                                </td>
+                            % endfor
+                                <td>
+                                    <a href="/modify?user=${user | n,u}" class="btn btn-xs blue pad" ><span class="glyphicon glyphicon-cog"></span> Modifier</a>
+                                </td>
+                                <td>
+                                    <a href="/delete?user=${user | n,u}" data-toggle='confirmation-delete' class="btn btn-xs red pad"><span class="glyphicon glyphicon-remove-sign"></span> Supprimer</a>
+                                </td>
+                            </tr>
+                            % endfor
+                        </tbody>
+                    </table>
+            </div>
+        </div>
+    </div>
+    %endif
+    <script>
+    // Full featured example
+    $("[data-toggle='confirmation-delete']").popConfirm({
+        content: "Supprimer cet utilisateur ?",
+        placement: "right" // (top, right, bottom, left)
+    });
+    </script>
+</%block>
