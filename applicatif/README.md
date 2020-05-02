@@ -27,6 +27,6 @@ L'accès au réseau des services est décrit dans la partie réseau, il est donc
   4. [Gitea](zone_interne/gitea.md)
 6. [Zone CTF](zone_ctf)
   1. [Reverse Proxy NGINX](zone_ctf/nginx_ctf.md)
-  2. [Environnment Web](zone_ctf/environnement_web.md)
-  3. [Environnment Système](zone_ctf/environnement_systeme.md)
+  2. [Environnement Web](zone_ctf/environnement_web.md)
+  3. [Environnement Système](zone_ctf/environnement_systeme.md)
   4. [CTFd](#)

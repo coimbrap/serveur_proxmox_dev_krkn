@@ -8,18 +8,15 @@ On conseille généralement de ne pas faire les deux sur un même serveur. En ef
 
 ## Le conteneur
 Numéro 107 (Beta)
-#### Trois interfaces
-- eth0 : vmbr1 / VLAN 10 / IP 10.0.0.253 / GW 10.0.0.254
-- eth1 : vmbr1 / VLAN 20 / IP 10.0.1.253 / GW 10.0.1.254
-- eth2 : vmbr1 / VLAN 30 / IP 10.0.2.253 / GW 10.0.2.254
-- eth3 : vmbr2 / VLAN 100 / IP 10.1.0.107 / GW 10.1.0.254
 
+#### Interface réseau
+- eth0 : vmbr1 / VLAN 20 / IP 10.0.1.253 / GW 10.0.1.254
 
 ### Le proxy
 #### /etc/apt/apt.conf.d/01proxy
 ```
 Acquire::http {
- Proxy "http://10.0.2.252:9999";
+ Proxy "http://10.0.0.252:9999";
 };
 ```
 
@@ -77,45 +74,65 @@ logging {
 ```
 
 ## Gestion par vue
-Pour savoir depuis quelle zone de notre réseau la requête est faites nous allons utiliser les vues de bind9 ainsi le serveur pourra renvoyer une IP différente en fonction de la zone.
 
-Le serveur aura une pâte sur chaque zone comme décrit ci-dessous :
-- DMZ -> 10.0.0.253
-- PROXY -> 10.0.1.253
-- INT -> 10.0.2.253
+Pour savoir depuis quelle zone de notre réseau la requête est faites nous allons utiliser les vues de bind9 ainsi le serveur pourra renvoyer une IP différente en fonction de la zone. Bind choisi la zone du client en fonction de l'adresse IP source.
 
-On définit deux zones DNS, une première, **front**, qui regroupe les zones DMZ et PROXY et une seconde, **back** qui regroupe les zones PROXY et INT.
+On définit quatres zones DNS, une première, **front**, pour la zones DMZ, une seconde, **proxy** pour la zone PROXY, une troisième **back** pour la zone Interne et une quatrième **admin** qui regroupe toutes les zones.
 
 ### /etc/bind/named.conf
 ```
 include "/etc/bind/named.conf.options";
 
-acl front {
-  127.0.0.1;
+acl proxy {
   10.0.0.0/24;
 };
-acl back {
+acl proxy {
+  127.0.0.1;
   10.0.1.0/24;
+};
+acl back {
   10.0.2.0/24;
+};
+acl admin {
+  10.1.0.0/24;
 };
 
 view "internalfront" {
   recursion yes;
-  match-clients {front;};
-  allow-query {front;};
-  allow-recursion {front;};
-  allow-query-cache {front;};
+  match-clients {proxy;};
+  allow-query {proxy;};
+  allow-recursion {proxy;};
+  allow-query-cache {proxy;};
   include "/etc/bind/named.conf.default-zones";
   include "/etc/bind/zones.rfc1918";
   zone "krhacken.org" {
     notify no;
     type master;
-    file "/etc/bind/zones/db.krhacken.org.front";
+    file "/etc/bind/zones/db.krhacken.org.proxy";
+   };
+  zone "0.0.10.in-addr.arpa" {
+    notify no;
+    type master;
+    file "/etc/bind/zones/db.krhacken.org.intrafront.rev";
+  };
+};
+view "internalproxy" {
+  recursion yes;
+  match-clients {proxy;};
+  allow-query {proxy;};
+  allow-recursion {proxy;};
+  allow-query-cache {proxy;};
+  include "/etc/bind/named.conf.default-zones";
+  include "/etc/bind/zones.rfc1918";
+  zone "krhacken.org" {
+    notify no;
+    type master;
+    file "/etc/bind/zones/db.krhacken.org.proxy";
    };
   zone "1.0.10.in-addr.arpa" {
     notify no;
     type master;
-    file "/etc/bind/zones/db.krhacken.org.intrafront.rev";
+    file "/etc/bind/zones/db.krhacken.org.intraproxy.rev";
   };
 };
 view "internalback" {
@@ -131,105 +148,256 @@ view "internalback" {
     type master;
     file "/etc/bind/zones/db.krhacken.org.back";
    };
-  zone "1.1.10.in-addr.arpa" {
+  zone "2.0.10.in-addr.arpa" {
     notify no;
     type master;
     file "/etc/bind/zones/db.krhacken.org.intraback.rev";
   };
 };
+view "internaladmin" {
+  recursion yes;
+  match-clients {admin;};
+  allow-query {admin;};
+  allow-recursion {admin;};
+  allow-query-cache {admin;};
+  include "/etc/bind/named.conf.default-zones";
+  include "/etc/bind/zones.rfc1918";
+  zone "krhacken.org" {
+    notify no;
+    type master;
+    file "/etc/bind/zones/db.krhacken.org.admin";
+   };
+  zone "0.1.10.in-addr.arpa" {
+    notify no;
+    type master;
+    file "/etc/bind/zones/db.krhacken.org.intraadmin.rev";
+  };
+};
 ```
+
+## Les serveurs récursif-cache
+
+Voici les trois fichiers pour la configuration pour les forward DNS.
+
+Pour la zone **front** :
 
 ### /etc/bind/zones/db.krhacken.org.front
 ```
 $TTL    10800
-@       IN      SOA     dns.krhacken.org. dnsmaster.krhacken.org. (
-        2015010101      ; Serial
+@       IN      SOA     dns.krhacken.org. r.krhacken.org. (
+        2020050101      ; Serial
         5400            ; Refresh
         2700            ; Retry
         2419200         ; Expire
         300 )           ; Negative TTL
-         IN      NS      dns.krhacken.org.        ;Nom du serveur
-alpha.fw         IN      A       10.0.0.1
-beta.fw          IN      A       10.0.0.2
-vip.fw           IN      A       10.0.0.3
-alpha.haproxy    IN      A       10.0.0.4
-beta.haproxy     IN      A       10.0.0.5
-vip.haproxy      IN      A       10.0.0.6
-proxyint         IN      A       10.0.0.7
-mail             IN      A       10.0.0.10
-dns              IN      A       10.0.0.253
-alpha.nginx      IN      A       10.0.1.3
-beta.nginx       IN      A       10.0.1.4
+         IN      NS      dns.krhacken.org.
+alpha.pve        IN      A       10.0.0.1
+beta.pve         IN      A       10.0.0.2
+alpha.fw         IN      A       10.0.0.3
+beta.fw          IN      A       10.0.0.4
+alpha.haproxy    IN      A       10.0.0.5
+beta.haproxy     IN      A       10.0.0.6
+vip.haproxy      IN      A       10.0.0.7
+proxy            IN      A       10.0.0.252
+dns              IN      A       10.0.1.253
+vip.fw           IN      A       10.0.1.254
 ```
+
+Pour la zone **proxy** :
+```
+$TTL    10800
+@       IN      SOA     dns.krhacken.org. r.krhacken.org. (
+        2020050101      ; Serial
+        5400            ; Refresh
+        2700            ; Retry
+        2419200         ; Expire
+        300 )           ; Negative TTL
+         IN      NS      dns.krhacken.org.
+alpha.nginx      IN      A       10.0.1.1
+beta.nginx       IN      A       10.0.1.2
+mail             IN      A       10.0.1.5
+alpha.fw         IN      A       10.0.1.252
+beta.fw          IN      A       10.0.1.253
+vip.fw           IN      A       10.0.1.254
+```
+
+Pour la zones **back** :
 
 ### /etc/bind/zones/db.krhacken.org.back
 ```
 $TTL    10800
-@       IN      SOA     dns.krhacken.org. dnsmaster.krhacken.org. (
-        2015010101      ; Serial
+@       IN      SOA     dns.krhacken.org. r.krhacken.org. (
+        2020050101      ; Serial
+        5400            ; Refresh
+        2700            ; Retry
+        2419200         ; Expire
+        300 )           ; Negative TTL
+         IN      NS      dns.krhacken.org.
+                 IN      A       10.0.2.7
+alpha.ldap       IN      A       10.0.2.1
+beta.ldap        IN      A       10.0.2.2
+vip.ldap         IN      A       10.0.2.3
+mail             IN      A       10.0.2.4
+back.mail        IN      A       10.0.2.5
+ldapui           IN      A       10.0.2.6
+wiki             IN      A       10.0.2.8
+cloud            IN      A       10.0.2.10
+git              IN      A       10.0.2.11
+keyserver        IN      A       10.0.2.12
+pass             IN      A       10.0.2.13
+alpha.fw         IN      A       10.0.2.252
+beta.fw          IN      A       10.0.2.253
+vip.fw           IN      A       10.0.2.254
+```
+
+Pour la zone **admin** :
+
+### /etc/bind/zones/db.krhacken.org.admin
+```
+$TTL    10800
+@       IN      SOA     dns.krhacken.org. r.krhacken.org (
+        2020050101      ; Serial
         5400            ; Refresh
         2700            ; Retry
         2419200         ; Expire
         300 )           ; Negative TTL
          IN      NS      dns.krhacken.org.        ;Nom du serveur
-alpha.haproxy    IN      A       10.0.1.1
-beta.haproxy     IN      A       10.0.1.2
-alpha.ldap       IN      A       10.0.2.1
-beta.ldap        IN      A       10.0.2.2
-vip.ldap         IN      A       10.0.2.3
-alpha.nginx      IN      A       10.0.2.4
-beta.nginx       IN      A       10.0.2.5
-dns              IN      A       10.0.2.253
-proxyint         IN      A       10.0.2.254
+master.haproxy          IN      A       10.0.0.6
+slave.haproxy           IN      A       10.0.0.7
+proxy                   IN      A       10.0.0.252
+master.nginx            IN      A       10.0.1.3
+slave.nginx             IN      A       10.0.1.4
+dns                     IN      A       10.0.0.253
+ldap                    IN      A       10.0.2.1
+mail                    IN      A       10.0.2.10
+ldapui                  IN      A       10.0.2.15
+nextcloud               IN      A       10.0.2.20
+gitea                   IN      A       10.0.2.21
+rocketchat              IN      A       10.0.2.30
+drone                   IN      A       10.0.2.14
+ctf.nginx               IN      A       10.0.3.4
+club.ctfd               IN      A       10.0.3.10
+ct.snt                  IN      A       10.0.3.50
+blog                    IN      A       10.0.2.50
+grafana                 IN      A       10.1.0.252
+ansible                 IN      A       10.1.0.253
+opn                     IN      A       10.0.0.254
+vm.snt                  IN      A       10.0.3.10
 ```
 
-INT
+## Les serveurs d’autorité
+
+Voici les trois fichiers pour la configuration pour les reverses DNS.
+
+Pour la zone **front** :
 
 ### /etc/bind/zones/db.krhacken.org.intrafront.rev
 ```
 REV
 $TTL    10800
-@       IN      SOA     dns.krhacken.org. dnsmaster.krhacken.org. (
-        2015021102      ; Serial
+@       IN      SOA     dns.krhacken.org. r.krhacken.org. (
+        2020050101      ; Serial
         5400            ; Refresh
         2700            ; Retry
         2419200         ; Expire
         300 )           ; Negative TTL
 @       IN      NS      dns.krhacken.org.
 253     IN      PTR     dns.krhacken.org.
-1       IN      PTR     alpha.fw.krhacken.org.
-2       IN      PTR     beta.fw.krhacken.org.
-3       IN      PTR     vip.fw.krhacken.org.
-4       IN      PTR     alpha.haproxy.krhacken.org.
-5       IN      PTR     beta.haproxy.krhacken.org.
-6       IN      PTR     vip.haproxy.krhacken.org.
-7       IN      PTR     proxyint.krhacken.org.
-10      IN      PTR     mail.krhacken.org.
-3       IN      PTR     alpha.nginx.krhacken.org.
-4       IN      PTR     beta.nginx.krhacken.org.
+1       IN      PTR     alpha.pve.krhacken.org.
+2       IN      PTR     beta.pve.krhacken.org.
+3       IN      PTR     alpha.fw.krhacken.org.
+4       IN      PTR     beta.fw.krhacken.org.
+5       IN      PTR     alpha.haproxy.krhacken.org.
+6       IN      PTR     beta.haproxy.krhacken.org.
+7       IN      PTR     vip.haproxy.krhacken.org.
+252     IN      PTR     proxy.krhacken.org.
+254     IN      PTR     vip.fw.krhacken.org.
 ```
 
+Pour la zone **proxy** :
+
+### /etc/bind/zones/db.krhacken.org.intraproxy.rev
+```
+REV
+$TTL    10800
+@       IN      SOA     dns.krhacken.org. r.krhacken.org. (
+        2020050101      ; Serial
+        5400            ; Refresh
+        2700            ; Retry
+        2419200         ; Expire
+        300 )           ; Negative TTL
+@       IN      NS      dns.krhacken.org.
+1       IN      PTR     alpha.nginx.krhacken.org.
+2       IN      PTR     beta.nginx.krhacken.org.
+5       IN      PTR     mail.krhacken.org.
+252     IN      PTR     alpha.haproxy.krhacken.org.
+253     IN      PTR     beta.haproxy.krhacken.org.
+254     IN      PTR     vip.fw.krhacken.org.
+```
+
+Pour la zone **back** :
 
 ### /etc/bind/zones/db.krhacken.org.intraback.rev
 ```
 REV
 $TTL    10800
-@       IN      SOA     dns.krhacken.org. dnsmaster.krhacken.org. (
-        2015021102      ; Serial
+@       IN      SOA     dns.krhacken.org. r.krhacken.org. (
+        2020050101      ; Serial
         5400            ; Refresh
         2700            ; Retry
         2419200         ; Expire
         300 )           ; Negative TTL
 @       IN      NS      dns.krhacken.org.
-253     IN      PTR     dns.krhacken.org.
-1       IN      PTR     alpha.haproxy.krhacken.org.
-2       IN      PTR     beta.haproxy.krhacken.org.
 1       IN      PTR     alpha.ldap.krhacken.org.
 2       IN      PTR     beta.ldap.krhacken.org.
 3       IN      PTR     vip.ldap.krhacken.org.
-4       IN      PTR     alpha.nginx.krhacken.org.
-5       IN      PTR     beta.nginx.krhacken.org.
-254     IN      PTR     proxyint.krhacken.org.
+4       IN      PTR     mail.krhacken.org.
+5       IN      PTR     back.mail.krhacken.org.
+6       IN      PTR     ldapui.krhacken.org.
+7       IN      PTR     krhacken.org.
+8       IN      PTR     wiki.krhacken.org.
+10      IN      PTR     cloud.krhacken.org.
+11      IN      PTR     git.krhacken.org.
+12      IN      PTR     keyserver.krhacken.org.
+13      IN      PTR     pass.krhacken.org.
+252     IN      PTR     alpha.fw.krhacken.org.
+253     IN      PTR     beta.fw.krhacken.org.
+254     IN      PTR     vip.fw.krhacken.org.
+```
+
+Pour la zone **admin** :
+
+### /etc/bind/zones/db.krhacken.org.intraadmin.rev
+```
+$TTL    10800
+@       IN      SOA     dns.krhacken.org. r.krhacken.org (
+        2020050101      ; Serial
+        5400            ; Refresh
+        2700            ; Retry
+        2419200         ; Expire
+        300 )           ; Negative TTL
+@       IN      NS      dns.krhacken.org.
+6       IN      PTR     master.haproxy.krhacken.org.
+7       IN      PTR     slave.haproxy.krhacken.org.
+252     IN      PTR     proxy.krhacken.org.
+3       IN      PTR     master.nginx.krhacken.org.
+4       IN      PTR     slave.nginx.krhacken.org.
+253     IN      PTR     dns.krhacken.org.
+1       IN      PTR     ldap.krhacken.org.
+10      IN      PTR     mail.krhacken.org.
+15      IN      PTR     ldapui.krhacken.org.
+20      IN      PTR     nextcloud.krhacken.org.
+21      IN      PTR     gitea.krhacken.org.
+30      IN      PTR     rocketchat.krhacken.org.
+14      IN      PTR     drone.krhacken.org.
+4       IN      PTR     ctf.nginx.krhacken.org.
+10      IN      PTR     club.ctfd.krhacken.org.
+50      IN      PTR     ct.snt.krhacken.org.
+50      IN      PTR     blog.krhacken.org.
+252     IN      PTR     grafana.krhacken.org.
+253     IN      PTR     ansible.krhacken.org.
+254     IN      PTR     opn.krhacken.org.
+10      IN      PTR     vm.snt.krhacken.org.
 ```
 
 Redémarrage de bind9

@@ -5,7 +5,7 @@ Faire les commandes dans `/home/hasync/ssl`
 ## Création du premier certificat client
 ### Création du certificat serveur
 
-```
+```shell
 openssl genrsa -des3 -out ca.key 4096
 openssl req -new -x509 -days 3650 -key ca.key -out ca.crt
 ```
@@ -24,7 +24,7 @@ Email Address []:contact@krhacken.org
 
 ### Création de la clé et du CSR du client
 
-```
+```shell
 openssl req -newkey rsa:2048 -nodes -keyout client.key -out client.csr
 ```
 
@@ -45,7 +45,7 @@ A challenge password []:
 An optional company name []:
 ```
 
-```
+```shell
 openssl x509 -req -days 3650 -in client.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out client.crt
 openssl req -newkey rsa:2048 -nodes -keyout haproxy.key -out haproxy.csr
 ```
@@ -69,18 +69,18 @@ A challenge password []:
 An optional company name []:
 ```
 
-```
+```shell
 openssl x509 -req -days 365 -in haproxy.csr -CA ca.crt -CAkey ca.key -set_serial 02 -out haproxy.crt
 ```
 
 ### Création du certificat pour le navigateur
-```
+```shell
 openssl pkcs12 -export -out haproxy_user.pfx -inkey haproxy.key -in haproxy.crt -certfile ca.crt
 ```
 
 
 ## Génération d'un second certificat
-```
+```shell
 openssl req -newkey rsa:2048 -nodes -keyout haproxy2.key -out haproxy2.csr
 ```
 ### Spécification du certificat Client
@@ -103,7 +103,7 @@ An optional company name []:
 
 ### Certificat pour le navigateur
 
-```
+```shell
 openssl x509 -req -days 365 -in haproxy2.csr -CA ca.crt -CAkey ca.key -set_serial 03 -out haproxy2.crt
 openssl pkcs12 -export -out haproxy_user2.pfx -inkey haproxy2.key -in haproxy2.crt -certfile ca.crt
 ```
@@ -112,7 +112,7 @@ Il faut maintenant que vous ajoutiez ce certificat à vos certificats Firefox
 
 ### Copie des certificats
 On copie le certificat pour HAProxy
-```
+```shell
 cp ca.crt /home/hasync/pve.crt
 scp ca.crt root@10.0.0.7:/home/hasync/pve.crt
 ```

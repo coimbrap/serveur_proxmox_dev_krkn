@@ -8,31 +8,30 @@ Cette interface permet aussi aux utilisateurs non admin de changer de mot de pas
 
 ## Le conteneur
 Numéro 115 (Beta)
-#### Deux interfaces
+#### Interface réseau
 - eth0 : vmbr1 / VLAN 30 / IP 10.0.2.15 / GW 10.0.2.254
-- eth1 : vmbr2 / VLAN 100 / IP 10.1.0.115 / GW 10.1.0.254
 
 ### Le proxy
 
 #### /root/.gitconfig
 ```
 [http]
-        proxy = http://10.0.2.252:3128
+        proxy = http://10.0.0.252:3128
 [https]
-        proxy = https://10.0.2.252:3128
+        proxy = https://10.0.0.252:3128
 ```
 
 #### /etc/apt/apt.conf.d/01proxy
 ```
 Acquire::http {
- Proxy "http://10.0.2.252:9999";
+ Proxy "http://10.0.0.252:9999";
 };
 ```
 
 Il vous faut mettre en place le certificat SSL pour LDAP. La démarche et la même que dans la partie LDAP.
 
 ## Installation
-```
+```shell
 git clone https://github.com/kakwa/ldapcherry
 cd ldapcherry
 apt-get install python-ldap python-pip
@@ -229,7 +228,7 @@ tools.staticdir.dir = '/usr/share/ldapcherry/static/'
 ```
 
 ### /etc/ldapcherry/roles.yml
-```
+```yml
 admin:
     display_name: AdminSys
     description: Administrateur total de l'annuaire LDAP
@@ -288,10 +287,10 @@ sh ~/deploy-webhost.sh ldapui
 
 ### Dans le conteneur HAProxy
 Obtention du certificat
-```
+```bash
 certbot certonly --webroot -w /home/hasync/letsencrypt-requests/ -d ldapui.krhacken.org
 ```
-```
+```shell
 sh ~/install-certs.sh
 ```
 
@@ -309,7 +308,7 @@ ExecStop=kill -9 `cat /etc/ldapcherry/proc.pid`
 [Install]
 WantedBy=multi-user.target
 ```
-```
+```shell
 systemctl enable ldapui.service
 systemctl start ldapui.service
 ```

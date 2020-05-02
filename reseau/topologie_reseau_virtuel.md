@@ -27,7 +27,7 @@ Tous les hyperviseurs auront une interface pour le protocole GRE qui permet l'é
 
 ## Services Frontend
 
-Concrètement, les conteneurs / VM frontend auront des ports d'entrée DNAT via le pare-feu, les rendant accessibles depuis internet. C'est le cas de HAProxy, du serveur DNS et du Proxy des services.
+Concrètement, les conteneurs / VM frontend auront des ports d'entrée DNAT via le pare-feu, les rendant accessibles depuis internet. C'est le cas de HAProxy, du serveur DNS et du Proxy.
 
 Tout ces conteneurs auront obligatoirement une interface sur le VLAN 10 et une VLAN backend du switch Interne.
 
@@ -43,7 +43,7 @@ Cette partie sera découpée en plusieurs zones :
 
 ## Partie Internet
 
-Tout les conteneurs et les VM Backend auront accès à internet via le proxy interne (en frontend). L'accès se fera depuis toutes les zones sur l'adresse terminant en .252.
+Tout les conteneurs et les VM Backend auront accès à internet via le proxy interne (en frontend). L'accès se fera depuis toutes les zones à l'adresse 10.0.0.252.
 
 ## Partie Administration
 

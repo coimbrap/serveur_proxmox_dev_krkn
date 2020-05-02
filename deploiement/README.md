@@ -1,5 +1,7 @@
 # Aide au déploiement
 
+Cette partie est fausse, pour le moment.
+
 Vous trouverez ici toute la documentation relative au déploiement via Ansible ainsi que des notes et des conseils issue des précédents déploiement.
 
 # Table des matières

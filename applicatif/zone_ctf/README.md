@@ -4,9 +4,9 @@ Vous trouverez ici toute la documentation relative au fonctionnement et à la co
 Cela comprend le reverse proxy CTF, l'environnement Web, l'environnement Système et CTFd.
 
 ## Réseau
-Les services de la zone CTF devront avoir les interfaces réseaux suivantes :
+Les services de la zone CTF devront avoir l'interface réseau suivante :
 - Bridge Interne VLAN 40 (CTF)
-- Bridge Admin VLAN 100 (ADMIN)
+
 
 # Table des matières
 1. [Reverse Proxy NGINX](nginx_ctf.md)

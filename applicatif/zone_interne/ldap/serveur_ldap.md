@@ -6,15 +6,14 @@ Pour la sécurisation de LDAP nous allons utiliser LDAP avec StartTLS.
 
 ## Le conteneur
 Numéro 108 (Alpha)
-#### Deux interfaces
+#### Interface réseau
 - eth0 : vmbr1 / VLAN 30 / IP 10.0.2.1 / GW 10.0.2.254
-- eth1 : vmbr2 / VLAN 100 / IP 10.1.0.108 / GW 10.1.0.254
 
 ### Le proxy
 #### /etc/apt/apt.conf.d/01proxy
 ```
 Acquire::http {
- Proxy "http://10.0.2.252:9999";
+ Proxy "http://10.0.0.252:9999";
 };
 ```
 

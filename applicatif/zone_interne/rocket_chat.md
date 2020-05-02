@@ -6,15 +6,15 @@ Sur un container dédié (CT113)
 
 ### /root/.wgetrc
 ```
-http_proxy = http://10.0.2.252:3128/
-https_proxy = http://10.0.2.252:3128/
+http_proxy = http://10.0.0.252:3128/
+https_proxy = http://10.0.0.252:3128/
 use_proxy = on
 ```
 
 ### /etc/apt/apt.conf.d/01proxy
 ```
 Acquire::http {
- Proxy "http://10.0.2.252:9999";
+ Proxy "http://10.0.0.252:9999";
 };
 ```
 
@@ -233,4 +233,3 @@ C'est tout pour l'instant.
 TDL
 - Solutions de Visio WebRC ou Jitsi
 - Link Mail
-- Enlever les messages de restrictions (New user registration is currently disabled...)

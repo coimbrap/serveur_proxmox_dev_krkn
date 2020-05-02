@@ -1,6 +1,6 @@
 # Pare-Feu OPNSense
 
-Au niveau du pare-feu nous allons utiliser OPNSense (fork de pfSense). Alpha et Sigma auront une VM avec OPNSense pour la Haute Disponibilité, l'IP publique (WAN) se déplacera entre les trois VM grâce à une IP virtuelle CARP et à pfSync. Ca sera la même chose pour la gateway sur chaque interface.
+Au niveau du pare-feu nous allons utiliser OPNSense (fork de pfSense). Alpha et Beta auront une VM avec OPNSense pour la Haute Disponibilité, l'IP publique (WAN) se déplacera entre les trois VM grâce à une IP virtuelle CARP et à pfSync. Ca sera la même chose pour la gateway sur chaque interface.
 
 Dans options activé le démarrage automatique.
 
@@ -45,12 +45,12 @@ On ajoutera le reste plus tard.
 Il faut maintenant configurer les adresses IP des interfaces :
 - WAN, mettre l'IP (dépend du choix fait) et la gateway donnée. Pas de DHCP ni d'ipv6.
 - LAN, dépend de la node
-  - Alpha : 10.0.0.4
-  - Sigma : 10.0.0.6
+  - Alpha : 10.0.0.3
+  - Beta : 10.0.0.4
 
 - pfSync, dépend de la node
   - Alpha : 10.1.2.1
-  - Gamma : 10.1.2.2
+  - Beta : 10.1.2.2
 
 
 ### Accès au panel d'administration
@@ -115,7 +115,7 @@ Système / Haute disponibilité / Paramètres
 - Identifiant du Système Distant `root` (pour l'instant)
 - Tout cocher et sauvegarder
 
-### Sigma
+### Beta
 
 Système / Haute disponibilité / Paramètres
 

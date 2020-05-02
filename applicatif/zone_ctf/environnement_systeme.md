@@ -35,7 +35,7 @@ adduser systeme docker
 su systeme
 ```
 #### /usr/local/bin/dockersh
-```
+```python
 #!/usr/bin/env python3
 # PYTHON_ARGCOMPLETE_OK
 import os
@@ -180,7 +180,7 @@ docker built -t debmod .
 
 Usage : ./createImg <systemeXX> <dockerfile>
 
-```
+```bash
 #!/bin/bash
 if [ "$#" -lt "2" ]
 	then
@@ -199,7 +199,7 @@ fi
 
 Usage ./deployEnv <systemeXX>
 
-```
+```bash
 #!/bin/bash
 if [ "$#" -eq  "0" ]
 	then
@@ -239,7 +239,7 @@ systeme7 -> history
 Extraire l'archive des challenge dans /home/systeme/SystemeChall/
 
 ### Script qui utilisera les deux autres pour tout déployer
-```
+```bash
 #!/bin/bash
 declare -a path=(easyshell pwn_my_home overflow shellcode1 shellcode2 shellcode3 history)
 for i in `seq 0 6`;

@@ -5,12 +5,8 @@ Cela comprend les pare-feu et les hyperviseurs. C'est cette zone qui aura un acc
 
 ## Réseau
 
-Les services DMZ devront avoir les interfaces réseau suivante
+Les services DMZ devront avoir l'interface réseau suivante
 - Bridge WAN VLAN 10 (WAN)
-- Bridge Admin VLAN 100 (ADMIN)
-
-Pour OPNSense
-- Bridge Interne VLAN 10 (DMZ)
 
 # Table des matières
 1. [OPNSense](opnsense)

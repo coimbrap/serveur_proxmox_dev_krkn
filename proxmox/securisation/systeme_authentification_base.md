@@ -41,7 +41,7 @@ Seulement les comptes adminsys auront un accès SSH.
 #### Ajout du compte *coimbrap*
 
 Via le shell :
-```
+```shell
 useradd coimbrap
 usermod -a -G adminsys coimbrap
 usermod -a -G sudo coimbrap

@@ -13,16 +13,11 @@ Au niveau des ressources allouées :
 - 1 Coeur
 - 1Gb de RAM
 - 1Gb de SWAP
-- 24Gb de Stockage
+- 16Gb de Stockage
 
-Au niveau des interfaces réseaux :
-Firewall toujours désactiver.
+Interface réseau :
 - eth0: vmbr1 / VLAN: 10 / IP: 10.0.0.252/24 / GW: 10.0.0.254
-- eth1: vmbr1 / VLAN: 20 / IP: 10.0.1.252/24
-- eth2: vmbr1 / VLAN: 30 / IP: 10.0.2.252/24
-- eth3: vmbr1 / VLAN: 40 / IP: 10.0.3.252/24
-- eth4: vmbr1 / VLAN: 50 / IP: 10.0.4.252/24
-- eth5: vmbr2 / VLAN: 100 / IP: 10.1.0.104/24 / GW: 10.1.0.254
+
 
 Dans les options activé le démarrage automatique.
 
@@ -41,7 +36,7 @@ Allow HTTP tunnel throutgt Apt-Cacher NG? -> No
 ### /etc/apt-cacher-ng/acng.conf
 ```
 Port: 9999
-BindAddress: 10.0.1.252 10.0.2.252 10.0.3.252 10.0.4.252 10.1.0.104
+BindAddress: 10.0.0.252
 PassThroughPattern: ^(.*):443$
 ```
 ```
@@ -68,11 +63,8 @@ apt-get install -y squid3 ca-certificates
 #acl localnet src 192.168.0.0/16                # RFC 1918 local private network (LAN)
 #acl localnet src fc00::/7              # RFC 4193 local private network range
 #acl localnet src fe80::/10             # RFC 4291 link-local (directly plugged) machines
-acl localnet src 10.0.1.0/24   # Zone Proxy
-acl localnet src 10.0.2.0/24   # Zone Int
-acl localnet src 10.0.3.0/24   # Zone CTF
-acl localnet src 10.0.4.0/24   # Zone Dirty
-acl localnet src 10.1.0.0/24   # Zone Admin
+
+acl localnet src 10.0.0.0/8   # L'ensemble des zones
 
 [...]
 
@@ -90,20 +82,15 @@ Squid est maintenant accessible depuis le port 3128 du proxy interne uniquement 
 
 Les outils principaux sont WGET et APT-GET on va donc les reliées au Proxy Interne.
 
-Le proxy interne sera accessible uniquement depuis les zones PROXY, INT, CTF et DIRTY voilà l'ip du proxy en fonction de la zone :
-- PROXY (VLAN 20) -> 10.0.1.252
-- INT (VLAN 30) -> 10.0.2.252
-- CTF (VLAN 40) -> 10.0.3.252
-- DIRTY (VLAN 50) -> 10.0.4.252
-- ADMIN (VLAN 100) -> 10.1.0.104
+Le proxy interne sera accessible depuis toutes les zones à l'adresse 10.0.0.252.
 
 ### WGET
 Les requêtes passerons désormais par le proxy interne sur le port 3128 pour les requêtes http et https. Seul le root aura accès au proxy.
 
 #### /root/.wgetrc
 ```
-http_proxy = http://<ip_proxy_zone>:3128/
-https_proxy = http://<ip_proxy_zone>:3128/
+http_proxy = http://10.0.0.252:3128/
+https_proxy = http://10.0.0.252:3128/
 use_proxy = on
 ```
 WGET doit maintenant fonctionner.
@@ -114,7 +101,7 @@ On va maintenant faire passer apt-get par le proxy apt qui est sur le port 9999 
 #### /etc/apt/apt.conf.d/01proxy
 ```
 Acquire::http {
- Proxy "http://<ip_proxy_zone>:9999";
+ Proxy "http://10.0.0.252:9999";
 };
 ```
 APT-GET doit maintenant fonctionner.
@@ -127,7 +114,15 @@ Les requêtes passerons désormais par le proxy interne sur le port 3128 pour le
 #### /root/.gitconfig
 ```
 [http]
-        proxy = http://<ip_proxy_zone>:3128
+        proxy = http://10.0.0.252:3128
 [https]
-        proxy = https://<ip_proxy_zone>:3128
+        proxy = https://10.0.0.252:3128
+```
+
+### Toutes requêtes HTTP
+Pour faire passer toute les requêtes HTTP par le proxy exécuter les commandes suivantes.
+
+```
+export http_proxy=http://10.0.0.252:3128
+export https_proxy=$http_proxy
 ```

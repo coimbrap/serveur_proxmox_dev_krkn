@@ -11,15 +11,15 @@ Ce service n'est pas redondé car non vital. Il portera le numéro 145 sur Beta.
 
 #### /root/.wgetrc
 ```
-http_proxy = http://10.0.3.252:3128/
-https_proxy = http://10.0.3.252:3128/
+http_proxy = http://10.0.0.252:3128/
+https_proxy = http://10.0.0.252:3128/
 use_proxy = on
 ```
 
 #### /etc/apt/apt.conf.d/01proxy
 ```
 Acquire::http {
- Proxy "http://10.0.3.252:9999";
+ Proxy "http://10.0.0.252:9999";
 };
 ```
 

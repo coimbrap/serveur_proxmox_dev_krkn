@@ -6,22 +6,19 @@ Cela consiste en la gestion des flux post firewall.
 Deux conteneurs Debian 10 identiques, un sur Alpha l'autre sur Bêta avec deux interfaces :
 
 Numéro 102 (Alpha)
-#### Trois interfaces
-- eth0 : vmbr1 / VLAN 10 / IP 10.0.0.6 / GW 10.0.0.254
-- eth1 : vmbr1 / VLAN 20 / IP 10.0.1.1 / GW 10.0.1.254
-- eth2 : vmbr2 / VLAN 100 / IP 10.1.0.102 / GW 10.1.0.254
+#### Interface réseau
+- eth0 : vmbr1 / VLAN 10 / IP 10.0.0.5 / GW 10.0.0.254
+
 
 Numéro 103 (Beta)
-#### Trois interfaces
-- eth0 : vmbr1 / VLAN 10 / IP 10.0.0.7 / GW 10.0.0.254
-- eth1 : vmbr1 / VLAN 20 / IP 10.0.1.2 / GW 10.0.1.254
-- eth2 : vmbr2 / VLAN 100 / IP 10.1.0.103 / GW 10.1.0.254
+#### Interface réseau
+- eth0 : vmbr1 / VLAN 10 / IP 10.0.0.6 / GW 10.0.0.254
 
 ### Le proxy
 #### /etc/apt/apt.conf.d/01proxy
 ```
 Acquire::http {
- Proxy "http://10.0.2.252:9999";
+ Proxy "http://10.0.0.252:9999";
 };
 ```
 
@@ -50,8 +47,8 @@ Voici les choix techniques faits afin de répondre à ces objectifs :
 Afin de pouvoir faire des scp de manière automatique entre les deux conteneurs, il faut mettre en place une connexion ssh par clé en root entre les deux conteneurs.
 
 Le procédé est le même, en voici les variantes :
-- Sur Alpha le conteneur HAProxy aura comme IP 10.0.0.6
-- Sur Beta le conteneur HAProxy aura comme IP 10.0.0.7
+- Sur Alpha le conteneur HAProxy aura comme IP 10.0.0.5
+- Sur Beta le conteneur HAProxy aura comme IP 10.0.0.6
 
 ### /etc/ssh/sshd_config
 Remplacer la ligne concernée par
@@ -68,9 +65,9 @@ Utilisateur crée par le playbook Ansible
 adduser hasync
 ssh-keygen -o -a 100 -t ed25519 -f /root/.ssh/id_ed25519
 
-Alpha : ssh-copy-id -i /root/.ssh/id_ed25519 root@10.0.0.7
+Alpha : ssh-copy-id -i /root/.ssh/id_ed25519 root@10.0.0.6
 
-Beta : ssh-copy-id -i /root/.ssh/id_ed25519 root@10.0.0.6
+Beta : ssh-copy-id -i /root/.ssh/id_ed25519 root@10.0.0.5
 ```
 
 ### /etc/ssh/sshd_config
@@ -88,18 +85,18 @@ Il est maintenant possible de se connecter par clé entre les conteneurs
 ## Installation et configuration de HAProxy sur chaque node
 
 Le procédé est le même, en voici les variantes :
-- Sur Alpha le conteneur HAProxy aura comme IP 10.0.0.6
-- Sur Beta le conteneur HAProxy aura comme IP 10.0.0.7
+- Sur Alpha le conteneur HAProxy aura comme IP 10.0.0.5
+- Sur Beta le conteneur HAProxy aura comme IP 10.0.0.6
 
 ### Installation
 Faite par le playbook Ansible
-```
+```shell
 apt-get update
 apt-get install -y haproxy hatop certbot nginx psmisc
 systemctl enable haproxy
 systemctl enable nginx
 ```
-```
+```shell
 rm /etc/nginx/sites-enabled/default
 rm /etc/nginx/sites-available/default
 rm /etc/letsencrypt/live/README
@@ -255,21 +252,21 @@ server {
 ln -s /etc/nginx/sites-available/letsencrypt.conf /etc/nginx/sites-enabled/
 ```
 ### Démarrage des services
-```
+```shell
 systemctl restart nginx.service
 systemctl restart haproxy.service
 ```
 
 ## Mise en place de la haute disponibilité du load balanceur
 Voilà la configuration que nous allons mettre en place :
-- Sur Alpha le conteneur HAProxy aura comme IP 10.0.0.6
-- Sur Beta le conteneur HAProxy aura comme IP 10.0.0.7
-- L'IP virtuelle 10.0.0.8 sera attribuée en fonction de la disponibilité des load balanceur
+- Sur Alpha le conteneur HAProxy aura comme IP 10.0.0.5
+- Sur Beta le conteneur HAProxy aura comme IP 10.0.0.6
+- L'IP virtuelle 10.0.0.7 sera attribuée en fonction de la disponibilité des load balanceur
 - La node Alpha sera le master et la node Beta sera le Slave
 
 ### Installation (commune au deux nodes)
 Faites par le playbook Ansible.
-```
+```shell
 apt-get install -y keepalived
 systemctl enable keepalived.service
 echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
@@ -293,7 +290,7 @@ vrrp_instance VI_1 {
    virtual_router_id 51
    priority 101 # 101 on master, 100 on backup
    virtual_ipaddress {
-       10.0.0.8 # the virtual IP
+       10.0.0.7 # the virtual IP
    }
    track_script {
        chk_haproxy
@@ -320,7 +317,7 @@ vrrp_instance VI_1 {
    virtual_router_id 51
    priority 100 # 101 on master, 100 on backup
    virtual_ipaddress {
-       10.0.0.8 # the virtual IP
+       10.0.0.7 # the virtual IP
    }
    track_script {
        chk_haproxy
@@ -332,7 +329,7 @@ systemctl restart keepalived
 ```
 
 #### Vérification
-Le retour de cette commande doit montrer l'adresse IP 10.0.0.8 sur Alpha
+Le retour de cette commande doit montrer l'adresse IP 10.0.0.7 sur Alpha
 ```
 ip a | grep -e inet.*eth0
 ```
@@ -346,17 +343,17 @@ certbot certonly --webroot -w /home/hasync/letsencrypt-requests/ -d sub.krhacken
 ```
 
 Voici un script pour mettre en place les certificats Let's Encrypt au bon endroit qui s'occupe de propager les certificats sur l'autre conteneur (depuis Alpha vers Beta). Disponible dans `/root/install-certs.sh` si créer avec Ansible.
-```
+```bash
 #!/bin/bash
-if [ "$(ip a | grep -c "10.0.0.8")" -ge 1 ]; then
+if [ "$(ip a | grep -c "10.0.0.7")" -ge 1 ]; then
   ct_ip=$(ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1 | head -n 1 | tail -c2)
   if [ $ct_ip = 6 ]
   	then
-  		other_ip=10.0.0.7
+  		other_ip=10.0.0.6
   fi
   if [ $ct_ip = 7 ]
   	then
-  		other_ip=10.0.0.6
+  		other_ip=10.0.0.5
   fi
   rm -f /etc/letsencrypt/live/README
   rm -rf /etc/ssl/letsencrypt/*
@@ -375,17 +372,17 @@ Pour une question de simplicité d'administration, les certificats Let's Encrypt
 
 ### /home/hasync/renew.sh
 Voilà un script d'automatisation à mettre sur les deux conteneurs. Déjà présent si installer avec Ansible.
-```
+```bash
 #!/bin/bash
-if [ "$(ip a | grep -c "10.0.0.8")" -ge 1 ]; then
+if [ "$(ip a | grep -c "10.0.0.7")" -ge 1 ]; then
   ct_ip=$(ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1 | head -n 1 | tail -c2)
   if [ $ct_ip = 6 ]
     then
-      other_ip=10.0.0.7
+      other_ip=10.0.0.6
   fi
   if [ $ct_ip = 7 ]
     then
-      other_ip=10.0.0.6
+      other_ip=10.0.0.5
   fi
 	certbot renew
 	rm -rf /etc/ssl/letsencrypt/*

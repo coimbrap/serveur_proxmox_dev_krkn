@@ -27,14 +27,6 @@ nginx
 # Zone Interne
 
 [ldap]
-10.1.0.107 #LDAP Master
-
-[zoneinterne:children]
-ldap
-
-# Zone Interne
-
-[ldap]
 10.1.0.108 #LDAPMaster
 
 [mail]
