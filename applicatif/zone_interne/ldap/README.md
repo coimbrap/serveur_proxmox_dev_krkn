@@ -4,4 +4,4 @@ Vous trouverez ici toute la documentation relative à la mise en place du serveu
 
 # Table des matières
 1. [Serveur LDAP](serveur_ldap.md)
-2. [Inteface de gestion](interface_web_ldap.md)
+2. [Interface de gestion](interface_web_ldap.md)

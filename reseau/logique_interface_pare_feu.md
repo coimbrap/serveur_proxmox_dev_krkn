@@ -19,7 +19,7 @@ Les IP sont organisé avec la logique suivante :
 
 La liste est disponible [ici](mise_en_place.md).
 
-# Règles de pare-feu
+# Règles de pare-feu
 
 Afin de permettre à un conteneur d'une zone de communiquer avec un conteneur d'une autre zone il y aura du routage entre VLAN qui sera géré au niveau de OPNSense, tout cela sera détaillé dans la partie OPNSense. Il y aura aussi un pare-feu sur chaque conteneur qui autorisera que ce qui est nécessaire, le détails est disponible [ici](../proxmox/securisation/template_ferm.md).
 

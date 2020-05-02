@@ -5,11 +5,11 @@ Ce service est redondé car vital, il n'a pas d'IP virtuelle.
 
 Numéro 105 (Alpha)
 #### Interface réseau
-- eth0 : vmbr1 / VLAN 20 / IP 10.0.1.3 / GW 10.0.1.254
+- eth0 : vmbr1 / VLAN 20 / IP 10.0.1.1 / GW 10.0.1.254
 
 Numéro 106 (Beta)
 #### Interface réseau
-- eth0 : vmbr1 / VLAN 20 / IP 10.0.1.4 / GW 10.0.1.254
+- eth0 : vmbr1 / VLAN 20 / IP 10.0.1.2 / GW 10.0.1.254
 
 ### Le proxy
 #### /etc/apt/apt.conf.d/01proxy
@@ -26,8 +26,8 @@ Il doit rediriger les requêtes arrivant de HAProxy vers le bon conteneur en fon
 Afin de pouvoir faire des scp de manière automatique entre les deux conteneurs, il faut mettre en place une connexion ssh par clé en root entre les deux conteneurs.
 
 Le procédé est le même, en voici les variantes,
-- Sur Alpha le conteneur Nginx aura comme IP 10.0.1.3
-- Sur Beta le conteneur HAProxy aura comme IP 10.0.1.4
+- Sur Alpha le conteneur Nginx aura comme IP 10.0.1.1
+- Sur Beta le conteneur HAProxy aura comme IP 10.0.1.2
 
 ### /etc/ssh/sshd_config
 Remplacer la ligne concernée par
@@ -42,8 +42,8 @@ systemctl restart sshd
 ```
 ssh-keygen -o -a 100 -t ed25519 -f /root/.ssh/id_ed25519
 
-Alpha : ssh-copy-id -i /root/.ssh/id_ed25519 root@10.0.1.4
-Beta : ssh-copy-id -i /root/.ssh/id_ed25519 root@10.0.1.3
+Alpha : ssh-copy-id -i /root/.ssh/id_ed25519 root@10.0.1.2
+Beta : ssh-copy-id -i /root/.ssh/id_ed25519 root@10.0.1.1
 ```
 
 ### /etc/ssh/sshd_config
@@ -61,7 +61,7 @@ Il est maintenant possible de se connecter par clé entre les conteneurs
 ## Installation de Nginx sur les deux conteneurs
 Faite par le playbook Ansible
 
-```
+```shell
 apt-get update
 apt-get install -y nginx
 systemctl enable nginx.service
@@ -90,7 +90,7 @@ server {
 
 Voilà un script permetant l'installation d'un serveur web présent dans /etc/nginx/sites-available. Il prend en entrée le nom du fichier du serveur à activer. Disponible dans `/root/deploy-webhost.sh` si déployer avec Ansible.
 
-```
+```bash
 #!/bin/bash
 if [ "$#" -eq  "0" ]
 	then
@@ -99,11 +99,11 @@ else
 		ct_ip=$(ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1 | tail -c2)
 		if [ $ct_ip = 3 ]
 			then
-				other_ip=10.0.1.4
+				other_ip=10.0.1.2
 		fi
 		if [ $ct_ip = 4 ]
 			then
-				other_ip=10.0.1.3
+				other_ip=10.0.1.1
 		fi
     if [ -f "/etc/nginx/sites-available/$1" ]
         then

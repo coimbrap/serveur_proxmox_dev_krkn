@@ -28,7 +28,7 @@ charge de former leur successeurs.
 	5. [Sécurisation](proxmox/securisation)
 		1. [Sécurisation des accès aux hyperviseurs](proxmox/securisation/systeme_authentification_base.md)
 		2. [Sécurisation des conteneurs / VM avec Ferm](proxmox/securisation/template_ferm.md)
-	6. [Haute Disponibilité](proxmox/haute_disponibilite.md)
+	6. [Haute Dreisponibilité](proxmox/haute_disponibilite.md)
 	7. [Système de sauvegarde](proxmox/sauvegarde)
 3. [Réseau](reseau)
 	1. [Introduction à OpenvSwitch](reseau/introduction_ovs.md)

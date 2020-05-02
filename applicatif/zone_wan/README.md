@@ -10,5 +10,5 @@ Les services DMZ devront avoir l'interface réseau suivante
 
 # Table des matières
 1. [OPNSense](opnsense)
-  1. [Configuration de base](opnsense/configuration_initiale.md)
+   1. [Configuration de base](opnsense/configuration_initiale.md)
 2. [Options possible pour l'accès extérieur](option_possible.md)
