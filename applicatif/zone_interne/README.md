@@ -9,8 +9,8 @@ Les services de la zone INT devront avoir l'interface réseau suivante :
 
 # Table des matières
 1. [LDAP](ldap)
-    1. [Serveur LDAP](ldap/serveur_ldap.md)
-    2. [Interface de gestion](ldap/interface_web_ldap.md)
+  1. [Serveur LDAP](ldap/serveur_ldap.md)
+  2. [Interface de gestion](ldap/interface_web_ldap.md)
 2. [Serveur Mail](mail.md)
 3. [NextCloud](nextcloud.md)
 4. [Gitea](gitea.md)
