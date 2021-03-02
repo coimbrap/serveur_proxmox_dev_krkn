@@ -2,14 +2,11 @@
 
 Documentation par Pierre Coimbra.
 
-Ce dépôt à surtout servis de déclencheur dans l'apprentissage de l'administration système. Il contient donc des erreurs qui seront corrigé et qui le sont dans mes différents roles ansible. La partie Ansible de ce projet n'est pas correcte je l'adapterai avec des roles ansible dans le futur.
+Ce dépôt à surtout servis de déclencheur dans l'apprentissage de l'administration système. Il contient donc des erreurs qui seront corrigé et qui le sont dans mes différents roles ansible disponible sur mon git. La partie Ansible de ce projet n'est pas correcte je l'adapterai avec des roles ansible dans le futur.
 
 ## Motivation du projet
-D'abord, l'idée est d'héberger tous les outils utilisés par le club (Web, NextCloud,Git...) afin d'avoir un contrôle total sur les services que nous utilisons. Ensuite, nous voudrions mettre en place une structure capable d'accueillir des environnements de CTF correctement cloisonnés par rapport aux services permanents du club.
 
-## Porteurs du projet
-- P. Coimbra
-- D. Pressensé
+D'abord, l'idée est d'héberger tous les outils utilisés par le club (Web, NextCloud,Git...) afin d'avoir un contrôle total sur les services que nous utilisons. Ensuite, nous voudrions mettre en place une structure capable d'accueillir des environnements de CTF correctement cloisonnés par rapport aux services permanents du club.
 
 ## La philosophie
 Le fait de reprendre le contrôle physique sur les infrastructures techniques utilisées au sein du club s'inscrit dans une démarche volontaire. Cela nous permettra d'élargir le champ de nos connaissances sur des problématiques concrètes.

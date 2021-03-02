@@ -7,8 +7,8 @@ Au niveau du réseau, la nodes aura accès uniquement au switch administration, 
 ## BorgBackup
 
 Les avantages de BorgBackup sont :
-- Les sauvergardes incrémentales (historique des anciennes versions des fichiers),
-- Les sauvergardes différentielles (sauvegarde uniquement les modifications),
+- Les sauvegardes incrémentales (historique des anciennes versions des fichiers),
+- Les sauvegardes différentielles (sauvegarde uniquement les modifications),
 - Compression lz4 qui est très rapide et efficace,
 - Ne sauvegarde qu'une seule fois les fichiers doublons,
 - Vérification de l'intégrité des données,

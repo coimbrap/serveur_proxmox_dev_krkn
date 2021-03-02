@@ -18,6 +18,7 @@ L'infrastructure réseau du club s'articulerait de la manière suivante (sur cha
 - Le reverse proxy (NGINX) de la partie CTF redirigera les requêtes vers les différents environnements CTF (CTFd, Challenges Web...).
 
 #### Services permanents
+
 Les conteneurs/VMs permettant l'accès à ces services ne sont pas détaillés ici.
 
 L'infrastructure du club s'articulait de la manière suivante :
@@ -26,15 +27,16 @@ L'infrastructure du club s'articulait de la manière suivante :
 - Un serveur mail pour remplacer le service fourni par OVH.
 
 Avec en plus,
-- Un annuaire LDAP (slapd), qui permettra d'avoir un compte unique pour chaque utilisateur et de définir différents groupes d'utilisateurs.
+- Un annuaire LDAP (openldap), qui permettra d'avoir un compte unique pour chaque utilisateur et de définir différents groupes d'utilisateurs.
 - Un cloud (NextCloud) pour mettre en commun des fichiers au sein du club et l'ordre du jour des réunions.
-- Un serveur Git (Gitea) sur lequel toutes les sources des challenges du club seront stockées ainsi que la documentation du club.
-- Un service de messagerie instantanée du type Mattermost.
+- Une forge Git sur laquelle toutes les sources des challenges du club, la documentation du club et différents dépôts seront stocké.
+- Un service de messagerie instantanée.
 - Et d'autres services...
 
 Ce qui permettrait d'auto-héberger tous les services du club.
 
 #### Environnements CTF
+
 L'objectif est de remplacer la banque de challenge du club stockée actuellement sur un poste en B141. Celui-ci n'est pas documenté, ce qui réduit les modifications que nous pouvons y apporter.
 
 A partir des sources des challenges actuels, une nouvelle infrastructure CTF prendra forme. Elle s'organisera de la manière suivante :
