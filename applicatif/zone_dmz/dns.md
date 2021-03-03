@@ -1,4 +1,4 @@
-# DNS Interne
+# DNS
 
 Il y a deux types principaux de configurations possible pour les serveurs DNS :
 - Les serveurs récursif-cache qui servent pour résoudre les adresses.
@@ -9,6 +9,18 @@ On conseille généralement de ne pas faire les deux sur un même serveur. En ef
 ## Le conteneur
 Numéro 107 (Beta)
 
+ATTENTION: Cette partie est obsolète et contient des erreurs. La configuration des serveurs DNS se fera avec ce rôle: https://github.com/coimbrap/ansible-role-bind
+
+Il y aura :
+
+- Un hidden master faisant autorité avec deux vues (une locale et une externe)
+- Un slave en frontend qui fera office de master pour la vue externe
+- Un slave en backend pour la vue interne
+- Transfert de zone avec TSIG
+- DNSSEC
+
+-----
+
 #### Interface réseau
 - eth0 : vmbr1 / VLAN 20 / IP 10.0.1.253 / GW 10.0.1.254
 
@@ -16,7 +28,7 @@ Numéro 107 (Beta)
 #### /etc/apt/apt.conf.d/01proxy
 ```
 Acquire::http {
- Proxy "http://10.0.0.252:9999";
+ Proxy "http://10.0.10.252:9999";
 };
 ```
 
@@ -198,7 +210,7 @@ beta.fw          IN      A       10.0.0.4
 alpha.haproxy    IN      A       10.0.0.5
 beta.haproxy     IN      A       10.0.0.6
 vip.haproxy      IN      A       10.0.0.7
-proxy            IN      A       10.0.0.252
+proxy            IN      A       10.0.10.252
 dns              IN      A       10.0.1.253
 vip.fw           IN      A       10.0.1.254
 ```
@@ -264,7 +276,7 @@ $TTL    10800
          IN      NS      dns.krhacken.org.        ;Nom du serveur
 master.haproxy          IN      A       10.0.0.6
 slave.haproxy           IN      A       10.0.0.7
-proxy                   IN      A       10.0.0.252
+proxy                   IN      A       10.0.10.252
 master.nginx            IN      A       10.0.1.3
 slave.nginx             IN      A       10.0.1.4
 dns                     IN      A       10.0.0.253

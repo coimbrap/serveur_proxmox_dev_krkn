@@ -1,17 +1,16 @@
 # Mise en place du cluster entre nos nodes
+
 Il faut avoir mis en place le réseau avant de mettre les nodes en cluster.
 
 Un lien externalisé entre les deux nodes est déjà en place grâce à un Int Port sur le VLAN 30 du switch administration.
-
-Nous n'allons utilisé que trois de ces nodes en production, la quatrième nodes ne feras donc pas parti du cluster.
 
 Les nodes seront accessibles grâce au DNS interne via :
 - alpha.krhacken.org -> 10.0.5.1
 - beta.krhacken.org -> 10.0.5.2
 
-Le cluster de production s'appellera Sigma et regroupera Alpha, Beta et Gamma.
+Le cluster de production s'appellera Sigma et regroupera Alpha et Beta.
 
-La configuration des Hostnames n'est normalement pas nécessaire car faite par le DNS interne. Cependant, il est préférable de la faire pour éviter les problèmes en cas de chute du DNS.
+La configuration des Hostnames n'est normalement pas nécessaire car faite par le DNS interne. Cependant, il est préférable de la faire pour éviter les problèmes en cas de chute du DNS (car /etc/hosts consulté avant le DNS)
 
 ### /etc/hosts
 
@@ -44,4 +43,4 @@ Puis on ajoute Beta au cluster Sigma directement depuis Beta,
 ```
 pvecm add alpha-corosync --link0 beta-corosync
 ```
-Notre cluster Gamma est maintenant créé et Corosync utilise la VLAN 30 du switch administration pour communiquer.
+Notre cluster Sigma est maintenant créé et Corosync utilise la VLAN 30 du switch administration pour communiquer.

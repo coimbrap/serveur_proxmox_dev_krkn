@@ -8,22 +8,24 @@ Nous avons déjà mis en place les règles de NAT dans la configuration initiale
 
 Doit être lu de la manière suivante :
 
-- Les colonnes peuvent communiquer avec les lignes. 
+- Les colonnes peuvent communiquer avec les lignes.
 - Exemple : ADMIN peut communiquer avec DMZ mais l'inverse est impossible.
 
-|             | WAN  | DMZ  | PROXY | INTERNE | CTF  | DIRTY | ADMIN |
-| ----------- | :--: | :--: | :---: | :-----: | :--: | :---: | :---: |
-| **WAN**     |  X   |  X   |       |         |      |       |       |
-| **DMZ**     |      |  X   |   X   |    X    |  X   |       |   X   |
-| **PROXY**   |      |  X   |   X   |         |      |       |   X   |
-| **INTERNE** |      |      |   X   |    X    |      |       |   X   |
-| **CTF**     |      |  X   |       |         |  X   |       |   X   |
-| **DIRTY**   |      |      |       |         |      |   X   |   X   |
-| **ADMIN**   |      |      |       |         |      |       |   X   |
+|             | WAN  | DMZ  | INTERNE | CTF  | DIRTY |
+| ----------- | :--: | :--: | :-----: | :--: | :---: |
+| **WAN**     |  X   |  X   |         |      |       |
+| **DMZ**     |      |  X   |    X    |  X   |       |
+| **PROXY**   |      |  X   |         |      |       |
+| **INTERNE** |      |      |    X    |      |       |
+| **CTF**     |      |  X   |         |  X   |       |
+| **DIRTY**   |      |      |         |      |   X   |
+| **ADMIN**   |      |      |         |      |       |
 
 Ces communications restreintes à quelques IP et quelques port que nous allons détaillé par la suite.
 
 ## Règles OPNSense
+
+Voici un résumé des règles principales, les règles plus détaillées seront présente dans les hosts_vars ansible.
 
 Nomenclature générale d'une règle type 1 :
 
@@ -57,7 +59,7 @@ HAProxy désigne les deux conteneurs HAProxy.
 - Accès à NGINX Bêta depuis HAProxy (type 1) - Port : 80
 - Accès à NGINX CTF depuis HAProxy (type 1) - Port : 80
 - Accès à l'extérieur depuis le proxy (type 2) - TCP
-- Accès à l'extérieur depuis le DNS (type 2) - TCP/UDP 
+- Accès à l'extérieur depuis le DNS (type 2) - TCP/UDP
 
 ### Règles PROXY
 
@@ -84,4 +86,3 @@ Description : Celle donnée dans le descriptif
 - Accès depuis toutes les zones au Proxy Interne (Squid) - Port : 3128
 - Accès depuis toutes les zones au Proxy Interne (Apt-Cacher) - Port : 9999
 - Accès depuis toutes les zones au DNS - Port : 53 (TCP/UDP)
-

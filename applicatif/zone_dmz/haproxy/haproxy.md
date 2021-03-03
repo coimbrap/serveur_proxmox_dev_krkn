@@ -18,7 +18,7 @@ Numéro 103 (Beta)
 #### /etc/apt/apt.conf.d/01proxy
 ```
 Acquire::http {
- Proxy "http://10.0.0.252:9999";
+ Proxy "http://10.0.10.252:9999";
 };
 ```
 
@@ -33,7 +33,7 @@ Trois objectifs pour la gestion du flux post-firewall :
 
 
 Voici les choix techniques faits afin de répondre à ces objectifs :
-- Pour le load balancing entre les deux reverse proxy Nginx, on utilisera HAProxy.Le lien sécurisé sera entre l'utilisateur de HAProxy qui soumettra ensuite des requêtes HTTP à un des reverse proxy Nginx.
+- Pour le load balancing entre les deux reverse proxy Nginx, on utilisera HAProxy. Le lien sécurisé sera entre l'utilisateur de HAProxy qui soumettra ensuite des requêtes HTTP à un des reverse proxy Nginx.
 - Pour la redondance du proxy entre les deux nodes, on utilisera keepalived et la technologie VRRP pour garantir la disponibilité du proxy via une ip virtuelle.
 - Pour la vérification du certificat client - uniquement si le client veut se connecter au panel Proxmox- on fera une première frontend à la couche 4 (TCP) pour les connexions https qui rediregera les connexions vers le panel sur une frontend dédié et le reste vers une frontend par défaut.
 - Pour les certificats SSL, nous allons utiliser Let's Encrypt avec un serveur Nginx local dédié à l'obtention des certificats et des scripts pour le dépoiement sur les deux conteneurs HAProxy.

@@ -1,18 +1,21 @@
 # Service de Mail
+
 Nous allons ici mettre en place tout un service de mail qui va utiliser LDAP, Postfix, Dovecot et Rspamd. Avant de mettre en place le serveur Mail il faut déjà avoir mis en place le serveur LDAP.
 
 Il faut avoir établie une connexion TLS avec le serveur LDAP, la marche à suivre est disponible dans la partie LDAP (à la toute fin).
 
+Il est fort possible que cette partie évolue avec l'introduction d'une Mail Gateway.
+
 ## Le conteneur
 Numéro 111 (Alpha)
 #### Interface réseau
-- eth0 : vmbr1 / VLAN 30 / IP 10.0.2.11 / GW 10.0.2.254
+- eth0 : vmbr1 / VLAN 20 / IP 10.0.20.11 / GW 10.0.20.254
 
 ### Le proxy
 #### /etc/apt/apt.conf.d/01proxy
 ```
 Acquire::http {
- Proxy "http://10.0.0.252:9999";
+ Proxy "http://10.0.10.252:9999";
 };
 ```
 

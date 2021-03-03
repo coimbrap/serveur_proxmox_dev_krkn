@@ -1,7 +1,8 @@
 # Système d'authentification de base
 
-A voir quand le faire car possible de faire sur toutes les nodes du cluster
+Cela se ferra avec le rôle ansible suivant: https://github.com/coimbrap/ansible-role-proxmox-init
 
+A voir quand le faire car possible de faire sur toutes les nodes du cluster
 
 Avant de continuer avec l'installation des hyperviseurs nous allons les sécuriser. La procédure est la même sur chaque.
 

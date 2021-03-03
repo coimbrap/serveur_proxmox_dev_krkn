@@ -6,15 +6,15 @@ Sur un container dédié (CT113)
 
 ### /root/.wgetrc
 ```
-http_proxy = http://10.0.0.252:3128/
-https_proxy = http://10.0.0.252:3128/
+http_proxy = http://10.0.10.252:3128/
+https_proxy = http://10.0.10.252:3128/
 use_proxy = on
 ```
 
 ### /etc/apt/apt.conf.d/01proxy
 ```
 Acquire::http {
- Proxy "http://10.0.0.252:9999";
+ Proxy "http://10.0.10.252:9999";
 };
 ```
 
@@ -33,7 +33,7 @@ echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" | tee 
 
 ### Node JS
 ```
-export http_proxy=http://10.0.2.252:3128/
+export http_proxy=http://10.0.10.252:3128/
 export https_proxy=$http_proxy
 curl -sL https://deb.nodesource.com/setup_12.x |bash -
 ```
@@ -64,10 +64,10 @@ Création d'un utilisateur dédié, installation du programme et création d'un 
 ```
 useradd -r -m -U -d /srv/rocketchat rocketchat
 su - rocketchat
-export http_proxy=http://10.0.2.252:3128/
+export http_proxy=http://10.0.10.252:3128/
 export https_proxy=$http_proxy
-npm config set proxy http://10.0.2.252:3128
-npm config set https-proxy http://10.0.2.252:3128
+npm config set proxy http://10.0.10.252:3128
+npm config set https-proxy http://10.0.10.252:3128
 curl -L https://releases.rocket.chat/latest/download -o rocket.chat.tgz
 tar xvf rocket.chat.tgz
 rm rocket.chat.tgz

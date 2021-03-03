@@ -11,13 +11,11 @@ Le réseau WAN permettra de faire le lien entre l'extérieur, les pare-feux et l
 
 ## Réseau Interne
 
-Le réseau interne sera séparé en 5 zones privées :
+Le réseau interne sera séparé en 4 zones :
 
 - DMZ qui sera située juste après le firewall et qui contiendra les loadbalanceurs (HAProxy), le proxy interne et le serveur DNS interne.
 
-- PROXY qui sera placée juste après la DMZ et qui contiendra les reverses proxy pour les services autres que les environnements CTF ainsi qu'une Mail Gateway pour faire un relai entre l'extérieur et le serveur mail. Ce relai permettra de filtrer les mails.
-
-- INT qui contiendra les conteneurs des services permanents. La liaison entre INT et PROXY se fera à travers les reverse proxy NGINX et la Mail Gateway.
+- INT qui contiendra les conteneurs des services permanents.
 
 - CTF qui sera la zone dédiée au reverse proxy CTF et aux conteneurs / VMs des environnements CTF. Le lien avec l'extérieur se fera directement au niveau de la DMZ via HAProxy.
 

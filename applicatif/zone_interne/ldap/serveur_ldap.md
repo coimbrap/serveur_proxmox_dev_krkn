@@ -4,6 +4,8 @@ Nous allons ici mettre en place le serveur LDAP qui sera répliqué sur les deux
 A noté que pour des questions pratique nous n'allons pas utilisé Fusion Directory, il faudra donc créer un schéma pour chaque service et modifier les utilisateur avec ldapadd et ldapmodify.
 Pour la sécurisation de LDAP nous allons utiliser LDAP avec StartTLS.
 
+Cette partie est complète sauf que nous utiliserons le schéma RFC 2307bis et que la configuration de l'annuaire se fera via ce rôle: https://github.com/coimbrap/ansible-role-openldap qui est très proche de cette documentation
+
 ## Le conteneur
 Numéro 108 (Alpha)
 #### Interface réseau
@@ -13,7 +15,7 @@ Numéro 108 (Alpha)
 #### /etc/apt/apt.conf.d/01proxy
 ```
 Acquire::http {
- Proxy "http://10.0.0.252:9999";
+ Proxy "http://10.0.10.252:9999";
 };
 ```
 

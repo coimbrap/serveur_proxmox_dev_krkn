@@ -5,21 +5,21 @@ Mise en place du conteneur pour NextCloud et intégration à l'annuaire LDAP.
 ## Le conteneur
 Numéro 120 (Beta)
 #### Interface réseau
-- eth0 : vmbr1 / VLAN 30 / IP 10.0.2.20 / GW 10.0.2.254
+- eth0 : vmbr1 / VLAN 20 / IP 10.0.20.20 / GW 10.0.20.254
 
 ### Le proxy
 
 #### /root/.wgetrc
 ```
-http_proxy = http://10.0.0.252:3128/
-https_proxy = http://10.0.0.252:3128/
+http_proxy = http://10.0.10.252:3128/
+https_proxy = http://10.0.10.252:3128/
 use_proxy = on
 ```
 
 #### /etc/apt/apt.conf.d/01proxy
 ```
 Acquire::http {
- Proxy "http://10.0.0.252:9999";
+ Proxy "http://10.0.10.252:9999";
 };
 ```
 
@@ -125,7 +125,7 @@ server {
         listen 80;
         server_name cloud.krhacken.org;
         location / {
-                proxy_pass http://10.0.2.20/;
+                proxy_pass http://10.0.20.20/;
                 proxy_set_header Host $http_host;
                 proxy_set_header X-Real-IP $remote_addr;
                 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

@@ -16,15 +16,15 @@ Numéro 115 (Beta)
 #### /root/.gitconfig
 ```
 [http]
-        proxy = http://10.0.0.252:3128
+        proxy = http://10.0.10.252:3128
 [https]
-        proxy = https://10.0.0.252:3128
+        proxy = https://10.0.10.252:3128
 ```
 
 #### /etc/apt/apt.conf.d/01proxy
 ```
 Acquire::http {
- Proxy "http://10.0.0.252:9999";
+ Proxy "http://10.0.10.252:9999";
 };
 ```
 

@@ -36,9 +36,8 @@ Tout ces conteneurs auront obligatoirement une interface sur le VLAN 10 et une V
 Les conteneurs ou VMs concernés ne seront pas accessibles depuis internet. Cependant, certains seront accessibles par l'intermédiaire de HAProxy (entre autres).
 
 Cette partie sera découpée en plusieurs zones :
-- PROXY sur le VLAN 20 qui contiendra les reverses proxy public et le relais mail,
-- INT sur le VLAN 30 qui contiendra tous les services de la partie krhacken,
-- CTF sur le VLAN 40 qui contiendra le reverse proxy CTF et les environnements CTF,
+- INT sur le VLAN 20 qui contiendra tous les services de la partie krhacken,
+- CTF sur le VLAN 30 qui contiendra le reverse proxy CTF et les environnements CTF,
 - DIRTY sur le VLAN 50 qui contiendra les environnements de test.
 
 ## Partie Internet

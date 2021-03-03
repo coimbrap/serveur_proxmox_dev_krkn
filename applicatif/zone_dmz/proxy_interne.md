@@ -1,8 +1,9 @@
 # Proxy Interne
 
-Nous allons mettre en place un proxy interne pour permettre au services des zones n'ayant pas un accès direct à internet (PROXY, INT, CTF et DIRTY) d'accéder au gestionnaire de packet et à internet (via WGET). Le proxy interne sera dans la zone DMZ, il fera donc le lien entre l'extérieur et les services.
+Nous allons mettre en place un proxy interne pour permettre au services des zones n'ayant pas un accès direct à internet (INT, CTF et DIRTY) d'accéder au gestionnaire de packet et à internet (via WGET). Le proxy interne sera dans la zone DMZ, il fera donc le lien entre l'extérieur et les services.
 
 ## Création du conteneur
+
 Comme dit dans la partie déploiement, c'est le seul conteneur qu'il faut mettre en place manuellement. Avant de le mettre en place il faut avoir mis en place le réseau et générer la clé SSH du conteneur Ansible.
 
 Pour mon installation ce conteneur porte le numéro 104 sur Alpha.
@@ -16,7 +17,7 @@ Au niveau des ressources allouées :
 - 16Gb de Stockage
 
 Interface réseau :
-- eth0: vmbr1 / VLAN: 10 / IP: 10.0.0.252/24 / GW: 10.0.0.254
+- eth0: vmbr1 / VLAN: 10 / IP: 10.0.10.252/24 / GW: 10.0.10.254
 
 
 Dans les options activé le démarrage automatique.
@@ -36,13 +37,13 @@ Allow HTTP tunnel throutgt Apt-Cacher NG? -> No
 ### /etc/apt-cacher-ng/acng.conf
 ```
 Port: 9999
-BindAddress: 10.0.0.252
+BindAddress: 10.0.10.252
 PassThroughPattern: ^(.*):443$
 ```
 ```
 systemctl restart apt-cacher-ng.service
 ```
-Apt-Cacher est désormais sur le port 9999 du proxy interne. Il n'est accessible que depuis les zones PROXY, INT, CTF et DIRTY. Les requêtes depuis d'autres zones seront rejetées.
+Apt-Cacher est désormais sur le port 9999 du proxy interne. Il n'est accessible que depuis les zones INT, CTF et DIRTY. Les requêtes depuis d'autres zones seront rejetées.
 
 ## Squid
 
@@ -75,7 +76,7 @@ http_access allow localhost
 systemctl restart squid.service
 ```
 
-Squid est maintenant accessible depuis le port 3128 du proxy interne uniquement depuis les zones PROXY, INT, CTF et DIRTY. Les requêtes depuis d'autres zones seront rejetées.
+Squid est maintenant accessible depuis le port 3128 du proxy interne uniquement depuis les zones INT, CTF et DIRTY. Les requêtes depuis d'autres zones seront rejetées.
 
 
 ## Accès au Proxy Interne depuis un conteneur ou une VM
@@ -89,8 +90,8 @@ Les requêtes passerons désormais par le proxy interne sur le port 3128 pour le
 
 #### /root/.wgetrc
 ```
-http_proxy = http://10.0.0.252:3128/
-https_proxy = http://10.0.0.252:3128/
+http_proxy = http://10.0.10.252:3128/
+https_proxy = http://10.0.10.252:3128/
 use_proxy = on
 ```
 WGET doit maintenant fonctionner.
@@ -101,7 +102,7 @@ On va maintenant faire passer apt-get par le proxy apt qui est sur le port 9999 
 #### /etc/apt/apt.conf.d/01proxy
 ```
 Acquire::http {
- Proxy "http://10.0.0.252:9999";
+ Proxy "http://10.0.10.252:9999";
 };
 ```
 APT-GET doit maintenant fonctionner.

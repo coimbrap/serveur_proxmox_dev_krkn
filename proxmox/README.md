@@ -10,4 +10,3 @@ Vous trouverez ici toute la documentation relative au déploiement de Proxmox.
    1. [Sécurisation des accès aux hyperviseurs](securisation/systeme_authentification_base.md)
    2. [Sécurisation des conteneurs / VM avec Ferm](securisation/template_ferm.md)
 6. [Haute Disponibilité](haute_disponibilite.md)
-7. [Système de sauvegarde](sauvegarde)

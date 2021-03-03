@@ -87,11 +87,9 @@ Voici la liste des interfaçes à assigner à la VM ainsi que le nom à leur don
 - vmbr0.10 -> WAN (déjà assignée)
 - vmbr0.20 -> pfSync (déjà assignée)
 - vmbr1.10 -> LAN (déjà assignée)
-- vmbr1.20 -> PROXY
-- vmbr1.30 -> INT
-- vmbr1.40 -> CTF
+- vmbr1.20 -> INT
+- vmbr1.30 -> CTF
 - vmbr1.50 -> DIRTY
-- vmbr2.100 -> ADMIN
 
 Il vous faut ensuite leur donner une IP publique en respectant les IP données dans la [partie réseau](reseau/mise_en_place.md). La configuration ce passe dans Interface / Le nom.
 
@@ -142,12 +140,10 @@ Pour chaque interface portant une IP virtuelle
 
 Les interfaces :
 - WAN : IP Publique
-- LAN : 10.0.0.254
-- PROXY : 10.0.1.254
-- INT : 10.0.2.254
-- CTF : 10.0.3.254
-- DIRTY : 10.0.4.254
-- ADMIN : 10.1.0.254
+- LAN : 10.0.10.254
+- INT : 10.0.20.254
+- CTF : 10.0.30.254
+- DIRTY : 10.0.50.254
 
 ### Règle firewall (CARP)
 
@@ -161,15 +157,15 @@ Les interfaces :
 Pour pouvoir accéder à l'interface web via HAProxy il vous faut mettre en place du DNAT vers l'IP virtuelle de HAProxy.
 
 
-
 #### Pare-feu / NAT / Redirection de port
-Règle pour l'accès au panel via le port 8080
+
+Règle pour l'accès au panel via le port 8080 (temporaire)
 ```
 Interface : WAN
 Protocole : TCP
 Destination :  WAN adresse
 Plage de ports de destination : 8080 / 8080
-Rediriger Vers : 10.0.0.254
+Rediriger Vers : 10.0.10.254
 Rediriger port cible : 443
 Description : DNAT port 8080 vers 443 pour OPNSense
 ```
@@ -182,7 +178,7 @@ Interface : WAN
 Protocole : TCP
 Destination :  WAN adresse
 Plage de ports de destination : HTTP / HTTP
-Rediriger Vers : 10.0.0.8
+Rediriger Vers : 10.0.10.7
 Rediriger port cible : HTTP / HTTP
 Description : DNAT port 80 pour HAProxy
 ```
@@ -191,7 +187,7 @@ Interface : WAN
 Protocole : TCP
 Destination :  WAN adresse
 Plage de ports de destination : HTTPS / HTTPS
-Rediriger Vers : 10.0.0.9
+Rediriger Vers : 10.0.10.7
 Rediriger port cible : HTTPS / HTTPS
 Description : DNAT port 443 pour HAProxy
 ```
@@ -211,47 +207,47 @@ La configuration de départ d'OPNSense est terminé,
 ## Règle de DNAT complète
 Une fois les interfaces assignée et ajouter sur le panel d'OPNSense on peu mettre en place les règles NAT définitive
 
-Pour les ports 25, 465, 587, 143, 993 et 4190 DNAT vers la mail gateway (10.0.1.10).
+Pour les ports 25, 465, 587, 143, 993 et 4190 DNAT vers la mail gateway (10.0.10.10).
 ```
 Interface : WAN
 Protocole : TCP
 Destination :  WAN adresse
 Plage de ports de destination : XXXX / XXXX
-Rediriger Vers : 10.0.1.10
+Rediriger Vers : 10.0.10.10
 Rediriger port cible : XXXX / XXXX
 Description : DNAT port XXXX pour la Mail Gateway
 ```
 
-Pour le port 2222 DNAT vers la VM de l'environnement CTF système (10.0.3.12)
+Pour le port 2222 DNAT vers la VM de l'environnement CTF système (10.0.20.12)
 ```
 Interface : WAN
 Protocole : TCP
 Destination :  WAN adresse
 Plage de ports de destination : 2222 / 2222
-Rediriger Vers : 10.0.3.12
+Rediriger Vers : 10.0.20.12
 Rediriger port cible : 22 / 22
 Description : DNAT port 2222 pour l'environnement Système (CTF)
 ```
 
-Pour le port 2244 DNAT vers le conteneur Gitea pour les push via SSH, (10.0.2.21)
+Pour le port 2244 DNAT vers le conteneur Gitea pour les push via SSH, (10.0.10.21)
 ```
 Interface : WAN
 Protocole : TCP
 Destination :  WAN adresse
 Plage de ports de destination : 2244 / 2244
-Rediriger Vers : 10.0.2.21
+Rediriger Vers : 10.0.10.21
 Rediriger port cible : 22 / 22
 Description : DNAT port 2244 pour Gitea
 ```
 
 
-Pour la plage de ports 8081 à 8091 DNAT vers l'environnement CTF Web (10.0.3.13).
+Pour la plage de ports 8081 à 8091 DNAT vers l'environnement CTF Web (10.0.20.13).
 ```
 Interface : WAN
 Protocole : TCP
 Destination :  WAN adresse
 Plage de ports de destination : 8081 / 8091
-Rediriger Vers : 10.0.3.13
+Rediriger Vers : 10.0.20.13
 Rediriger port cible : 8081 / 8091
 Description : DNAT des ports 8081 / 8091 pour l'environnement Web (CTF)
 ```

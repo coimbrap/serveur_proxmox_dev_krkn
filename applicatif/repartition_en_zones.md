@@ -12,17 +12,6 @@ Les services Frontend sont directement accessibles depuis internet derrière OPN
 
 Cette zone regroupe les pare-feux et les hyperviseurs.
 
-Les hyperviseurs WAN devront avoir, en plus des interfaces par défaut, l'interface réseau suivante :
-- Bridge Interne VLAN 10 (DMZ)
-
-Les Pare-feux devront avoir les interfaces réseau suivantes :
-- Bridge Interne VLAN 10 (DMZ)
-- Bridge Interne VLAN 20 (PROXY)
-- Bridge Interne VLAN 30 (INT)
-- Bridge Interne VLAN 40 (CTF)
-- Bridge Interne VLAN 50 (DIRTY)
-- Bridge Admin VLAN 100 (ADMIN)
-
 ### Zone DMZ
 
 Cette zone regroupe les services qui nécessitent un accès direct à internet.
@@ -37,26 +26,16 @@ Les services DMZ devront avoir l'interface réseau suivante :
 
 ## Services Backend
 
-### Zone PROXY
-Cette zone est une sorte de DMZ de DMZ, c'est à dire qu'elle se place entre la DMZ et la zone INT. Elle accueille les services faisant le lien entre la Frontend et la backend.
-
-C'est le cas de
-- NGINX qui servira de reverse proxy http
-- Proxmox Mail Gateway, le relais entre l'extérieur et le serveur mail en backend qui s'occupe aussi de filtrer les mails (antispam et antivirus).
-
-Les services de la zone PROXY devront avoir l'interface réseau suivante :
-- Bridge Interne VLAN 20 (PROXY)
-
 ### Zone INT
 Cette zone regroupe les services sensibles permanents, donc tout sauf ce qui concerne les tests et les CTF. Elle contient uniquement des services backend.
 
 C'est le cas de
 - L'annuaire LDAP (slapd) qui permettra d'avoir un compte unique pour accéder à tous nos services, avec des groupes limitant l'accès à certains services.
-- Du serveur mail qui sera en lien avec le relais mail présent dans le zone PROXY.
+- Du serveur mail qui sera en lien avec le relais mail présent dans le zone DMZ.
 - Tous les autres services plus classiques (serveurs web, cloud, git...).
 
 Les services de la zone INT devront avoir l'interface réseau suivante :
-- Bridge Interne VLAN 30 (INT)
+- Bridge Interne VLAN 20 (INT)
 
 ### Zone CTF
 Cette zone regroupe les différents services en rapport avec la partie CTF.
@@ -67,7 +46,7 @@ C'est le cas de
 - CTFd qui servira d'interface utilisateur pour les CTF.
 
 Les services de la zone CTF devront avoir l'interface réseau suivante :
-- Bridge Interne VLAN 40 (CTF)
+- Bridge Interne VLAN 30 (CTF)
 
 ### Zone DIRTY
 

@@ -5,7 +5,7 @@ Petits récapitulatif sur comment on était choisi les interfaces sur chaque con
 **Un container = Une interface**
 
 Rappel sur l'ordre des zones :
-- WAN/DMZ/PROXY/INTERNE pour la partie Kr[HACK]en
+- WAN/DMZ/INTERNE pour la partie Kr[HACK]en
 - WAN/DMZ/CTF pour la partie CTF
 
 

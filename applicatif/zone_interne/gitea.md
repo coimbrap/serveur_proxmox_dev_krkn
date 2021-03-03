@@ -3,21 +3,21 @@
 ## Le conteneur
 Numéro 121 (Beta)
 #### Interface réseau
-- eth0 : vmbr1 / VLAN 30 / IP 10.0.2.21 / GW 10.0.2.254
+- eth0 : vmbr1 / VLAN 20 / IP 10.0.20.21 / GW 10.0.20.254
 
 ### Le proxy
 
 #### /root/.wgetrc
 ```
-http_proxy = http://10.0.0.252:3128/
-https_proxy = http://10.0.0.252:3128/
+http_proxy = http://10.0.10.252:3128/
+https_proxy = http://10.0.10.252:3128/
 use_proxy = on
 ```
 
 #### /etc/apt/apt.conf.d/01proxy
 ```
 Acquire::http {
- Proxy "http://10.0.0.252:9999";
+ Proxy "http://10.0.10.252:9999";
 };
 ```
 
@@ -111,8 +111,6 @@ pg_ctlcluster 11 main start
 wget -O gitea https://dl.gitea.io/gitea/1.11.3/gitea-1.11.3-linux-amd64
 ```
 
-Dans Ferm ajoutez le port 3000 à la liste des ports ouverts.
-
 ## Configuration de Nginx
 ### Dans le conteneur Nginx
 #### /etc/nginx/sites-available/gitea
@@ -121,7 +119,7 @@ server {
         listen 80;
         server_name git.krhacken.org;
         location / {
-                proxy_pass http://10.0.2.21:3000/;
+                proxy_pass http://10.0.20.21:3000/;
                 proxy_set_header Host $http_host;
                 proxy_set_header X-Real-IP $remote_addr;
                 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
